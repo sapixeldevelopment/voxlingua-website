@@ -1,0 +1,14 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Dependencies / build (if a bundler is added later)
+node_modules/
+dist/
+*.log
+
+# Env / secrets (never commit)
+.env
+.env.*

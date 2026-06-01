@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upgrade to Pro — VoxLingua</title>
+  <meta name="description" content="Upgrade to VoxLingua Pro. Unlimited words, on-device mode, translation, and more." />
+  <link rel="icon" type="image/png" href="logo-mark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .checkout { max-width: 420px; margin: 0 auto; padding: 8rem 1.5rem 4rem; text-align: center; }
+    .checkout h1 { font-size: 1.75rem; margin-bottom: .5rem; }
+    .checkout p { color: var(--ink-2); margin-bottom: 1.5rem; line-height: 1.6; }
+    .checkout .field { text-align: left; margin-bottom: 1rem; }
+    .checkout label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: .35rem; }
+    .checkout input { width: 100%; padding: .75rem 1rem; border-radius: 10px; border: 1px solid var(--line); background: var(--ink-3); color: var(--ink); }
+    .checkout .msg { margin-top: 1rem; font-size: .9rem; color: var(--ink-2); min-height: 1.4em; }
+    .checkout .msg.is-error { color: #f87171; }
+  </style>
+</head>
+<body>
+  <header class="nav is-scrolled">
+    <div class="nav__inner">
+      <a href="index.html" class="brand">
+        <img class="brand__logo" src="logo-mark.png" width="34" height="34" alt="" />
+        <span class="brand__name">VoxLingua</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="checkout">
+    <h1>Upgrade to Pro</h1>
+    <p id="sub">Unlimited words, on-device mode, translation — billed immediately at checkout.</p>
+
+    <div id="auth-form">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="email" placeholder="you@company.com" />
+      </div>
+      <button type="button" class="btn btn--solid btn--block" id="magic-link">Send sign-in link</button>
+      <p class="msg" id="auth-msg"></p>
+    </div>
+
+    <div id="checkout-form" hidden>
+      <p>Signed in as <strong id="user-email"></strong></p>
+      <button type="button" class="btn btn--solid btn--block" id="start-checkout">Continue to Stripe</button>
+      <button type="button" class="btn btn--ghost btn--block" id="sign-out" style="margin-top:.75rem">Sign out</button>
+      <p class="msg" id="checkout-msg"></p>
+    </div>
+  </main>
+
+  <script type="module">
+    const SUPABASE_URL = "https://mmgzuubrtyodhjtmjlvb.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_LYP_tofuZNutUaE-KfjT7Q_Uf5XcaIO";
+    const params = new URLSearchParams(location.search);
+    const interval = params.get("interval") === "monthly" ? "monthly" : "annual";
+
+    document.getElementById("sub").textContent =
+      interval === "monthly"
+        ? "Pro at $9/mo · billed monthly"
+        : "Pro at $7/mo · billed yearly ($84/yr)";
+
+    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const authForm = document.getElementById("auth-form");
+    const checkoutForm = document.getElementById("checkout-form");
+    const authMsg = document.getElementById("auth-msg");
+    const checkoutMsg = document.getElementById("checkout-msg");
+
+    function showAuth() {
+      authForm.hidden = false;
+      checkoutForm.hidden = true;
+    }
+
+    function showCheckout(email) {
+      authForm.hidden = true;
+      checkoutForm.hidden = false;
+      document.getElementById("user-email").textContent = email;
+    }
+
+    async function refreshSession() {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user?.email) {
+        showCheckout(data.session.user.email);
+      } else {
+        showAuth();
+      }
+    }
+
+    supabase.auth.onAuthStateChange(() => refreshSession());
+    await refreshSession();
+
+    document.getElementById("magic-link").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      if (!email) {
+        authMsg.textContent = "Enter your email.";
+        authMsg.classList.add("is-error");
+        return;
+      }
+      authMsg.classList.remove("is-error");
+      authMsg.textContent = "Sending link…";
+      const redirectTo = `${location.origin}${location.pathname}?interval=${interval}`;
+      const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
+      authMsg.textContent = error ? error.message : "Check your email for the sign-in link.";
+      if (error) authMsg.classList.add("is-error");
+    });
+
+    document.getElementById("sign-out").addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      showAuth();
+    });
+
+    document.getElementById("start-checkout").addEventListener("click", async () => {
+      checkoutMsg.textContent = "Opening Stripe…";
+      checkoutMsg.classList.remove("is-error");
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) {
+        checkoutMsg.textContent = "Please sign in first.";
+        checkoutMsg.classList.add("is-error");
+        showAuth();
+        return;
+      }
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/create-checkout`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            apikey: SUPABASE_ANON_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ interval }),
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || body.message || res.statusText);
+        location.href = body.url;
+      } catch (e) {
+        checkoutMsg.textContent = e.message || "Checkout failed";
+        checkoutMsg.classList.add("is-error");
+      }
+    });
+  </script>
+</body>
+</html>
