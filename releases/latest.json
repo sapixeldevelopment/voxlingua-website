@@ -1,7 +1,7 @@
 {
-  "version": "1.1.5",
+  "version": "1.1.6",
   "published_at": "2026-06-03",
-  "notes": "Fixes update install error by fully closing the app and its sidecar.",
+  "notes": "Polished the language picker with cleaner country badges.",
   "download_url": "https://voxlingua.ai/download.html",
   "releases_url": "https://github.com/sapixeldevelopment/voxlingua-releases/releases/latest"
 }
