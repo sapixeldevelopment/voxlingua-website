@@ -1,7 +1,7 @@
 {
-  "version": "1.1.7",
+  "version": "1.1.8",
   "published_at": "2026-06-03",
-  "notes": "New premium themes (Obsidian, Graphite, Aurora, Sand) and orb styles (Aurora, Solid).",
+  "notes": "The update button now fills with live download progress.",
   "download_url": "https://voxlingua.ai/download.html",
   "releases_url": "https://github.com/sapixeldevelopment/voxlingua-releases/releases/latest"
 }
