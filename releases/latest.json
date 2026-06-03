@@ -1,7 +1,7 @@
 {
-  "version": "1.1.8",
+  "version": "1.1.9",
   "published_at": "2026-06-03",
-  "notes": "The update button now fills with live download progress.",
+  "notes": "Guided first-run onboarding + voice snippets and a signature builder (type, draw, or upload).",
   "download_url": "https://voxlingua.ai/download.html",
   "releases_url": "https://github.com/sapixeldevelopment/voxlingua-releases/releases/latest"
 }
