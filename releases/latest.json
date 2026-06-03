@@ -1,7 +1,7 @@
 {
-  "version": "1.1.6",
+  "version": "1.1.7",
   "published_at": "2026-06-03",
-  "notes": "Polished the language picker with cleaner country badges.",
+  "notes": "New premium themes (Obsidian, Graphite, Aurora, Sand) and orb styles (Aurora, Solid).",
   "download_url": "https://voxlingua.ai/download.html",
   "releases_url": "https://github.com/sapixeldevelopment/voxlingua-releases/releases/latest"
 }
