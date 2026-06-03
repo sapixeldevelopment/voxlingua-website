@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security — VoxLingua</title>
+  <meta name="description" content="How VoxLingua protects your data: on-device processing, encrypted transit, opt-in cloud, per-session tokens, and one-click data deletion." />
+  <link rel="canonical" href="https://voxlingua.ai/security.html" />
+  <meta name="theme-color" content="#07070C" />
+  <meta name="robots" content="index, follow" />
+  <link rel="icon" type="image/png" href="logo-mark.png" />
+  <link rel="apple-touch-icon" href="logo-mark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="nav is-scrolled" id="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="brand" aria-label="VoxLingua home">
+        <img class="brand__logo" src="logo-mark.png" width="34" height="34" alt="VoxLingua logo" />
+        <span class="brand__name">VoxLingua</span>
+      </a>
+      <div class="nav__cta">
+        <a href="index.html#pricing" class="btn btn--ghost">Pricing</a>
+        <a href="download.html" class="btn btn--solid">Download free</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="legal">
+    <p class="eyebrow">Trust</p>
+    <h1 class="legal__title">Security</h1>
+    <p class="legal__meta">How we protect your voice and your data</p>
+
+    <p>VoxLingua is engineered so the most private option is also the default. Here's how it works.</p>
+
+    <h2>On-device by default</h2>
+    <p>Free mode runs a local speech-to-text model on your own machine. Audio is transcribed offline and <strong>never transmitted</strong> — no servers, no uploads, no exceptions.</p>
+
+    <h2>Opt-in cloud, encrypted in transit</h2>
+    <p>Cloud mode is something you turn on deliberately. When enabled, audio is sent over TLS-encrypted connections only to perform your transcription or translation, then discarded. It is never used to train models.</p>
+
+    <h2>Hardened local sidecar</h2>
+    <p>The app's local processing service binds to <code>127.0.0.1</code> only — it is never exposed to your network. Production builds run with a per-session security token and strip privileged service-role keys, so nothing on your device can act with elevated server permissions.</p>
+
+    <h2>Your data, your control</h2>
+    <ul>
+      <li>History and your custom dictionary stay local under <code>~/.voxlingua/</code>.</li>
+      <li>One-click deletion clears your local data from Settings.</li>
+      <li>Plan and entitlement checks happen server-side — no editable local "license" files to leak or tamper with.</li>
+    </ul>
+
+    <h2>Responsible disclosure</h2>
+    <p>Found a vulnerability? We want to hear from you. Email <a href="mailto:security@voxlingua.ai">security@voxlingua.ai</a> with details and we'll respond promptly. Please give us reasonable time to remediate before public disclosure.</p>
+
+    <p class="legal__back"><a href="index.html">← Back to home</a></p>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__bar" style="border:0;margin-top:0;">
+      <p>© 2026 VoxLingua. All rights reserved.</p>
+      <p><a href="index.html">voxlingua.ai</a></p>
+    </div>
+  </footer>
+</body>
+</html>

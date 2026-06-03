@@ -1,7 +1,9 @@
 # VoxLingua — Marketing Site
 
-A premium, single-page marketing site for **VoxLingua**, an AI voice-dictation product that turns
-speech into polished text across 100+ languages — fast, multilingual, and honestly priced.
+A premium marketing site for **VoxLingua**, a speech-to-text dictation app (Mac/Windows/Linux) that
+turns your voice into polished text in any app, across **100 languages** — on-device (Faster-Whisper)
+or cloud (GPT-4o). Content mirrors the actual product: 5 plans (Free/Pro/Ultra/Team/Enterprise),
+translation & voice commands on Ultra, email mode & custom dictionary on Pro. No fabricated stats.
 
 ## Run it
 

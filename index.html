@@ -5,64 +5,116 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Primary SEO -->
-  <title>VoxLingua — AI Voice Dictation in 100+ Languages | 3× Faster Than Typing</title>
-  <meta name="description" content="VoxLingua turns your voice into polished, perfectly-formatted text in any app — across 100+ languages. Dictate 3× faster than you type, auto-edited and translated in real time. Free to start. Pro from $7/mo." />
-  <meta name="keywords" content="AI voice dictation, voice to text, speech to text, multilingual dictation, voice typing, AI transcription, dictation app, voice writing assistant, real-time translation" />
+  <title>VoxLingua — Speech to Text & AI Voice Dictation App | 100 Languages, Works Offline</title>
+  <meta name="description" content="VoxLingua is a speech-to-text dictation app for Mac, Windows & Linux. Turn your voice into polished text in any app, in 100 languages — on-device or in the cloud. 3× faster than typing. Free to start, no credit card." />
+  <meta name="keywords" content="speech to text, voice to text, STT, dictation app, AI dictation, voice typing, voice recognition software, offline speech to text, on-device transcription, Whisper dictation, multilingual dictation, voice dictation for Mac, dictation for Windows, dictation for Linux, real-time transcription, voice writing assistant" />
   <meta name="author" content="VoxLingua" />
-  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+  <meta name="application-name" content="VoxLingua" />
   <link rel="canonical" href="https://voxlingua.ai/" />
   <meta name="theme-color" content="#07070C" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="VoxLingua" />
-  <meta property="og:title" content="VoxLingua — Speak Your Mind, In Every Language" />
-  <meta property="og:description" content="The AI dictation tool that writes for you in 100+ languages. 3× faster than typing, auto-edited, and translated in real time. Free to start." />
+  <meta property="og:title" content="VoxLingua — Speech to Text & Voice Dictation in 100 Languages" />
+  <meta property="og:description" content="The speech-to-text app that turns your voice into polished writing in any app — on-device or cloud, across 100 languages. 3× faster than typing. Free to start." />
   <meta property="og:url" content="https://voxlingua.ai/" />
   <meta property="og:image" content="https://voxlingua.ai/og-image.png" />
+  <meta property="og:image:alt" content="VoxLingua — speech-to-text voice dictation app" />
   <meta property="og:locale" content="en_US" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="VoxLingua — AI Voice Dictation in 100+ Languages" />
-  <meta name="twitter:description" content="Dictate 3× faster than you type. Auto-edited, translated, and polished in real time across every app you use." />
+  <meta name="twitter:title" content="VoxLingua — Speech to Text in 100 Languages" />
+  <meta name="twitter:description" content="Dictate 3× faster than you type. On-device or cloud speech-to-text, auto-formatted and translated, in every app you use." />
   <meta name="twitter:image" content="https://voxlingua.ai/og-image.png" />
+  <meta name="format-detection" content="telephone=no" />
 
   <!-- Favicon (real logo mark) -->
   <link rel="icon" type="image/png" href="logo-mark.png" />
   <link rel="apple-touch-icon" href="logo-mark.png" />
 
-  <!-- Fonts -->
+  <!-- Fonts (preconnect + async-friendly load for performance) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="image" href="logo-mark.png" />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="styles.css" />
 
-  <!-- Structured Data: Product + Pricing -->
+  <!-- Structured Data: SoftwareApplication + Offers -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "VoxLingua",
+    "alternateName": "VoxLingua Speech to Text",
     "applicationCategory": "ProductivityApplication",
+    "applicationSubCategory": "Speech Recognition / Dictation",
     "operatingSystem": "macOS, Windows, Linux",
-    "description": "AI voice dictation that turns speech into polished text across 100+ languages, in any app.",
-    "offers": [
-      {"@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD"},
-      {"@type": "Offer", "name": "Pro", "price": "7", "priceCurrency": "USD", "description": "Per month, billed annually"}
-    ]
+    "description": "VoxLingua is a speech-to-text dictation app that turns your voice into polished, formatted text in any application, across 100 languages — running on-device for privacy or in the cloud for top accuracy.",
+    "url": "https://voxlingua.ai/",
+    "downloadUrl": "https://voxlingua.ai/download.html",
+    "softwareVersion": "1.1.0",
+    "featureList": [
+      "On-device offline speech-to-text (Faster-Whisper)",
+      "Cloud transcription (GPT-4o)",
+      "Dictation in 100 languages with automatic language detection",
+      "Real-time translation between languages",
+      "Works system-wide in any app via global hotkey",
+      "Smart formatting and filler-word removal",
+      "Email mode",
+      "Custom dictionary",
+      "Voice commands",
+      "Live streaming transcription"
+    ],
+    "offers": {
+      "@type": "AggregateOffer",
+      "priceCurrency": "USD",
+      "lowPrice": "0",
+      "highPrice": "15",
+      "offerCount": "5",
+      "offers": [
+        {"@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD"},
+        {"@type": "Offer", "name": "Pro", "price": "7", "priceCurrency": "USD", "description": "Per user / month, billed annually"},
+        {"@type": "Offer", "name": "Ultra", "price": "15", "priceCurrency": "USD", "description": "Per user / month, billed annually"},
+        {"@type": "Offer", "name": "Team", "price": "8", "priceCurrency": "USD", "description": "Per seat / month, billed annually"}
+      ]
+    }
+  }
+  </script>
+  <!-- Organization + WebSite -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "VoxLingua",
+    "url": "https://voxlingua.ai/",
+    "logo": "https://voxlingua.ai/logo-mark.png",
+    "sameAs": ["https://github.com/sapixeldevelopment/voxlingua-releases"]
   }
   </script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "VoxLingua",
+    "url": "https://voxlingua.ai/"
+  }
+  </script>
+  <!-- FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
-      {"@type": "Question", "name": "What makes VoxLingua different?", "acceptedAnswer": {"@type": "Answer", "text": "VoxLingua dictates and translates across 100+ languages in real time, includes a generous free plan with 3,000 words per week, and Pro starts at just $7/mo billed annually — premium features at an honest price."}},
-      {"@type": "Question", "name": "Does VoxLingua work in every app?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. VoxLingua works system-wide in any text field — email, Slack, docs, code editors, browsers and more, on macOS, Windows, and Linux."}},
-      {"@type": "Question", "name": "Is my voice data private?", "acceptedAnswer": {"@type": "Answer", "text": "Audio is processed securely and never sold. Free runs on-device locally; Pro adds hosted cloud mode. You can delete your data anytime from Settings."}},
-      {"@type": "Question", "name": "Is there a free plan?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — VoxLingua Free gives you 3,000 words per week, full multilingual support and works everywhere, with no credit card required."}}
+      {"@type": "Question", "name": "What is VoxLingua?", "acceptedAnswer": {"@type": "Answer", "text": "VoxLingua is a speech-to-text dictation app for Mac, Windows and Linux. Press a global hotkey, speak, and your words appear as clean, formatted text in any app — across 100 languages. It runs on-device for privacy or in the cloud for the highest accuracy."}},
+      {"@type": "Question", "name": "Does VoxLingua work offline?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The free, on-device mode uses Faster-Whisper to transcribe entirely on your computer — no internet required and nothing leaves your machine. Pro adds an optional hosted cloud mode powered by GPT-4o for even higher accuracy."}},
+      {"@type": "Question", "name": "Which languages does VoxLingua support?", "acceptedAnswer": {"@type": "Answer", "text": "VoxLingua transcribes 100 languages with automatic language detection, from English, Spanish, Mandarin and Hindi to Arabic, Swahili and more. The Ultra plan adds real-time translation between any of them."}},
+      {"@type": "Question", "name": "Does VoxLingua work in every app?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. VoxLingua runs system-wide — if there's a text cursor, you can dictate into it: email, Slack, Notion, Google Docs, code editors, browsers and more, on macOS, Windows and Linux."}},
+      {"@type": "Question", "name": "Is my voice data private?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The free on-device mode processes audio entirely on your computer and never uploads it. Cloud mode is opt-in. Audio is never sold, and you can delete your history and data anytime from Settings."}},
+      {"@type": "Question", "name": "How much does VoxLingua cost?", "acceptedAnswer": {"@type": "Answer", "text": "VoxLingua is free for 3,000 words per week with no credit card. Pro is $7/mo (billed yearly) for unlimited cloud dictation. Ultra is $15/mo and adds real-time translation and voice commands. Team is $8/seat/mo."}}
     ]
   }
   </script>
@@ -73,19 +125,19 @@
   <!-- ============ NAV ============ -->
   <header class="nav" id="nav">
     <div class="nav__inner">
-      <a href="#" class="brand" aria-label="VoxLingua home">
+      <a href="#main" class="brand" aria-label="VoxLingua home">
         <img class="brand__logo" src="logo-mark.png" width="34" height="34" alt="VoxLingua logo" />
         <span class="brand__name">VoxLingua</span>
       </a>
       <nav class="nav__links" aria-label="Primary">
         <a href="#features">Features</a>
+        <a href="#use-cases">Use cases</a>
         <a href="#languages">Languages</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
       </nav>
       <div class="nav__cta">
-        <a href="download.html" class="btn btn--ghost">Sign in</a>
-        <a href="download.html" class="btn btn--solid">Get VoxLingua free</a>
+        <a href="download.html" class="btn btn--solid" data-download>Download free</a>
       </div>
       <button class="nav__burger" aria-label="Toggle menu" aria-expanded="false">
         <span></span><span></span>
@@ -100,21 +152,21 @@
       <div class="hero__glow" aria-hidden="true"></div>
       <img class="hero__watermark" src="logo-mark.png" alt="" aria-hidden="true" />
       <div class="hero__inner">
-        <p class="eyebrow reveal">Voice-first writing · 100+ languages</p>
+        <p class="eyebrow reveal">Speech-to-text dictation · 100 languages · on-device or cloud</p>
         <h1 class="hero__title reveal">
           Speak your mind.<br />
           <span class="hero__title-em">In every language.</span>
         </h1>
         <p class="hero__sub reveal">
-          VoxLingua turns your voice into polished, perfectly-formatted text — in any app, across
-          <strong>100+ languages</strong>. Three times faster than typing, auto-edited and translated
-          the instant you speak.
+          VoxLingua is the <strong>speech-to-text app</strong> that turns your voice into polished,
+          formatted text — in any app, across <strong>100 languages</strong>. Dictate 3× faster than
+          you type. Runs <strong>fully on-device</strong> for privacy, or in the cloud for top accuracy.
         </p>
         <div class="hero__actions reveal">
-          <a href="download.html" class="btn btn--solid btn--lg">Start free — no card</a>
+          <a href="download.html" class="btn btn--solid btn--lg" data-download><span data-dl-label>Download free</span></a>
           <a href="#how" class="btn btn--line btn--lg">See how it works</a>
         </div>
-        <p class="hero__micro reveal">Free 3,000 words / week · macOS · Windows · Linux</p>
+        <p class="hero__micro reveal">Free 3,000 words / week · No credit card · macOS · Windows · Linux</p>
 
         <!-- Live waveform demo -->
         <div class="demo reveal" role="img" aria-label="Live dictation demo showing speech being transcribed">
@@ -148,32 +200,32 @@
       </div>
     </section>
 
-    <!-- ============ LOGOS / TRUST ============ -->
-    <section class="trust" aria-label="Trusted by">
-      <p class="trust__label">Loved by people who write for a living at</p>
+    <!-- ============ WORKS-IN STRIP ============ -->
+    <section class="trust" aria-label="Works in your favourite apps">
+      <p class="trust__label">Dictate straight into the apps you already use</p>
       <div class="trust__row">
-        <span>Northwind</span><span>Lumen Labs</span><span>Atlas Studio</span>
-        <span>Hearth</span><span>Quanta</span><span>Maple &amp; Co</span>
+        <span>Gmail</span><span>Slack</span><span>Notion</span>
+        <span>Google&nbsp;Docs</span><span>VS&nbsp;Code</span><span>WhatsApp</span><span>ChatGPT</span>
       </div>
     </section>
 
     <!-- ============ STATS ============ -->
-    <section class="stats">
+    <section class="stats" aria-label="VoxLingua at a glance">
       <div class="stat reveal">
-        <div class="stat__num" data-count="3">3×</div>
-        <div class="stat__label">faster than typing,<br />on average</div>
+        <div class="stat__num">3<span>×</span></div>
+        <div class="stat__label">faster than typing —<br />speak ~150 wpm</div>
       </div>
       <div class="stat reveal">
-        <div class="stat__num" data-count="100">100+</div>
-        <div class="stat__label">languages, with<br />real-time translation</div>
+        <div class="stat__num">100</div>
+        <div class="stat__label">languages, with<br />auto-detection</div>
       </div>
       <div class="stat reveal">
-        <div class="stat__num">99.4<span>%</span></div>
-        <div class="stat__label">transcription<br />accuracy</div>
+        <div class="stat__num">100<span>%</span></div>
+        <div class="stat__label">on-device option —<br />nothing uploaded</div>
       </div>
       <div class="stat reveal">
-        <div class="stat__num">4.9<span>★</span></div>
-        <div class="stat__label">from 2,800+<br />reviews</div>
+        <div class="stat__num">3</div>
+        <div class="stat__label">platforms:<br />Mac · Windows · Linux</div>
       </div>
     </section>
 
@@ -186,18 +238,18 @@
       <ol class="steps">
         <li class="step reveal">
           <span class="step__no">01</span>
-          <h3>Hold the key, speak</h3>
-          <p>Tap your hotkey anywhere — an email, a doc, your code editor — and just talk the way you think.</p>
+          <h3>Press the hotkey, speak</h3>
+          <p>Hit your global shortcut anywhere — an email, a doc, your code editor — and just talk the way you think.</p>
         </li>
         <li class="step reveal">
           <span class="step__no">02</span>
-          <h3>We clean it up</h3>
-          <p>VoxLingua removes the "ums," fixes grammar, adds punctuation and matches your tone — instantly.</p>
+          <h3>It transcribes &amp; cleans up</h3>
+          <p>On-device or in the cloud, VoxLingua removes the “ums,” fixes grammar and adds punctuation — instantly.</p>
         </li>
         <li class="step reveal">
           <span class="step__no">03</span>
-          <h3>It lands, polished</h3>
-          <p>Finished text appears right where your cursor is, in any of 100+ languages. Translate as you speak.</p>
+          <h3>Polished text lands</h3>
+          <p>The finished text appears right at your cursor — in any of 100 languages, translated as you speak on Ultra.</p>
         </li>
       </ol>
     </section>
@@ -206,7 +258,7 @@
     <section class="features" id="features">
       <div class="section-head">
         <p class="eyebrow">Why VoxLingua</p>
-        <h2 class="section-title">Built for people who<br /><em>think faster than they type.</em></h2>
+        <h2 class="section-title">Everything you need to<br /><em>write at the speed of speech.</em></h2>
       </div>
 
       <div class="feature-grid">
@@ -214,16 +266,16 @@
           <div class="card__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v18M7 8v8M17 8v8M3 11v2M21 11v2"/></svg>
           </div>
-          <h3>Speak any language, write any language</h3>
-          <p>Dictate in Spanish, get flawless English. Or stay native across 100+ languages. VoxLingua detects what you speak and translates on the fly — no menus, no mode-switching.</p>
+          <h3>On-device speech-to-text — or cloud</h3>
+          <p>Free mode runs <strong>entirely on your computer</strong> with Faster-Whisper — offline, private, nothing uploaded. Switch to cloud mode (GPT-4o) anytime for the highest accuracy on accents, names and jargon. Your choice, every time.</p>
         </article>
 
         <article class="card reveal">
           <div class="card__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12h16M4 6h10M4 18h7"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
           </div>
-          <h3>Auto-edited as you go</h3>
-          <p>Filler words gone, grammar fixed, punctuation added — every time, automatically.</p>
+          <h3>100 languages, auto-detected</h3>
+          <p>Just talk — VoxLingua detects the language across a multi-window probe, so accents don't trip it up.</p>
         </article>
 
         <article class="card reveal">
@@ -231,31 +283,55 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg>
           </div>
           <h3>Works in every app</h3>
-          <p>System-wide. Slack, Gmail, Notion, VS Code, your browser — anywhere there's a cursor.</p>
+          <p>One global hotkey, system-wide. Slack, Gmail, Notion, VS Code, your browser — anywhere there's a cursor.</p>
         </article>
 
         <article class="card reveal">
           <div class="card__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 4 6v6c0 5 3.4 8.3 8 10 4.6-1.7 8-5 8-10V6l-8-4z"/><path d="m9 12 2 2 4-4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12h16M4 6h10M4 18h7"/></svg>
           </div>
-          <h3>Private by design</h3>
-          <p>On-device processing on Free, hosted cloud on Pro, and one-click data deletion. We never sell your voice.</p>
+          <h3>Smart formatting, automatic</h3>
+          <p>Filler words removed, grammar tidied, punctuation and capitalization added — the moment you stop speaking.</p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16v12H7l-3 3V4z"/><path d="M8 9h8M8 12h5"/></svg>
+          </div>
+          <h3>Email mode</h3>
+          <p>Ramble out a message and get back a clean, structured email — greeting, paragraphs, sign-off. <span class="tag-pro">Pro</span></p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+          </div>
+          <h3>Real-time translation</h3>
+          <p>Speak one language, write another. Translate between any of the 100 supported languages as you dictate. <span class="tag-ultra">Ultra</span></p>
         </article>
 
         <article class="card reveal">
           <div class="card__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
           </div>
-          <h3>Learns your voice</h3>
-          <p>Custom vocabulary, names and tone. The more you use it, the more it sounds like you.</p>
+          <h3>Voice commands</h3>
+          <p>Say "open Notepad" and it launches. Map spoken phrases to apps and actions, hands-free. <span class="tag-ultra">Ultra</span></p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          </div>
+          <h3>Custom dictionary &amp; live mode</h3>
+          <p>Teach it your names, brands and jargon for sharper recall, and stream long-form dictation live. <span class="tag-pro">Pro</span></p>
         </article>
 
         <article class="card card--accent reveal">
           <div class="card__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 4 6v6c0 5 3.4 8.3 8 10 4.6-1.7 8-5 8-10V6l-8-4z"/><path d="m9 12 2 2 4-4"/></svg>
           </div>
-          <h3>Save 30+ minutes a day</h3>
-          <p>Power users reclaim hours every week. That's the whole point — your words, without the friction.</p>
+          <h3>Private by design</h3>
+          <p>On-device mode never leaves your machine. Cloud is opt-in, audio is never sold, and you can wipe your history in one click.</p>
         </article>
       </div>
     </section>
@@ -280,24 +356,24 @@
       </div>
     </section>
 
-    <!-- ============ TESTIMONIALS ============ -->
-    <section class="quotes">
+    <!-- ============ USE CASES ============ -->
+    <section class="quotes" id="use-cases">
       <div class="section-head">
-        <p class="eyebrow">Don't take our word for it</p>
-        <h2 class="section-title">People who switched,<br /><em>never went back.</em></h2>
+        <p class="eyebrow">Made for the way you work</p>
+        <h2 class="section-title">One hotkey.<br /><em>Every kind of writing.</em></h2>
       </div>
       <div class="quotes__grid">
         <figure class="quote reveal">
-          <blockquote>"I write client emails in three languages a day. VoxLingua replaced two tools and saved me an hour every morning."</blockquote>
-          <figcaption><strong>Mara Olsen</strong><span>Localization Lead, Atlas Studio</span></figcaption>
+          <blockquote>“Reply to email and Slack in seconds — ramble it out and let Email mode shape it into something you'd actually send.”</blockquote>
+          <figcaption><strong>For busy professionals</strong><span>Inbox, messages &amp; docs</span></figcaption>
         </figure>
         <figure class="quote reveal">
-          <blockquote>"I tried a few dictation apps first. VoxLingua is faster, cheaper, and the multilingual mode is genuinely magic. Easy switch."</blockquote>
-          <figcaption><strong>Devansh Rao</strong><span>Founder, Quanta</span></figcaption>
+          <blockquote>“Write code comments, commit messages and prompts by voice in VS Code, Cursor or ChatGPT — without leaving your flow.”</blockquote>
+          <figcaption><strong>For developers</strong><span>Code, prompts &amp; commits</span></figcaption>
         </figure>
         <figure class="quote reveal">
-          <blockquote>"As someone with RSI, dictation isn't a luxury — it's how I work. This is the first one that actually keeps up with me."</blockquote>
-          <figcaption><strong>Tom Becker</strong><span>Staff Engineer, Lumen Labs</span></figcaption>
+          <blockquote>“Dictate in your language and write in another. Translation turns a thought in Spanish into a polished English message.”</blockquote>
+          <figcaption><strong>For multilingual teams</strong><span>Speak one language, write another</span></figcaption>
         </figure>
       </div>
     </section>
@@ -306,51 +382,70 @@
     <section class="pricing" id="pricing">
       <div class="section-head">
         <p class="eyebrow">Pricing</p>
-        <h2 class="section-title">More languages. Better tools.<br /><em>Half the price.</em></h2>
+        <h2 class="section-title">Start free.<br /><em>Upgrade when you fly.</em></h2>
         <div class="toggle" role="group" aria-label="Billing period">
           <button class="toggle__btn is-active" data-period="annual" aria-pressed="true">Annual <span class="toggle__save">Save 35%</span></button>
           <button class="toggle__btn" data-period="monthly" aria-pressed="false">Monthly</button>
         </div>
       </div>
 
-      <div class="plans">
+      <div class="plans plans--5">
         <article class="plan reveal">
           <h3 class="plan__name">Free</h3>
-          <p class="plan__tag">For trying it out</p>
+          <p class="plan__tag">Dictate on your device</p>
           <div class="plan__price"><span class="plan__cur">$</span><span class="plan__amt">0</span><span class="plan__per">/forever</span></div>
-          <a href="download.html" class="btn btn--line btn--block">Get started</a>
+          <a href="download.html" class="btn btn--line btn--block" data-download>Download free</a>
           <ul class="plan__list">
             <li>3,000 words / week</li>
-            <li>On-device local mode</li>
-            <li>All 100+ languages</li>
+            <li><strong>On-device</strong> offline mode</li>
+            <li>All 100 languages</li>
             <li>Works in every app</li>
-            <li>Auto-edit &amp; punctuation</li>
+            <li>Smart formatting</li>
             <li>Community support</li>
           </ul>
-          <p class="plan__note">A genuinely useful free tier — no card needed.</p>
+          <p class="plan__note">No credit card. Yours forever.</p>
         </article>
 
         <article class="plan plan--featured reveal">
           <div class="plan__ribbon">Most popular</div>
           <h3 class="plan__name">Pro</h3>
-          <p class="plan__tag">For everyday writers</p>
+          <p class="plan__tag">Unlimited cloud dictation</p>
           <div class="plan__price">
             <span class="plan__cur">$</span>
             <span class="plan__amt" data-annual="7" data-monthly="9">7</span>
             <span class="plan__per" data-annual="/mo · billed yearly" data-monthly="/mo">/mo · billed yearly</span>
           </div>
-          <p class="plan__compare">Less than half the price of comparable tools.</p>
+          <p class="plan__compare">Everything in Free, plus</p>
           <a href="checkout.html" class="btn btn--solid btn--block" data-checkout>Get Pro</a>
           <ul class="plan__list">
-            <li>On-device private mode</li>
             <li><strong>Unlimited</strong> words</li>
-            <li>Hosted cloud transcription</li>
-            <li>Translation to any language</li>
-            <li>Custom vocabulary &amp; tone</li>
-            <li>Priority transcription engine</li>
-            <li>Email &amp; chat support</li>
+            <li>Hosted cloud mode (GPT-4o)</li>
+            <li>Email mode</li>
+            <li>Custom dictionary</li>
+            <li>App tone profiles</li>
+            <li>Live streaming</li>
+            <li>Priority engine</li>
           </ul>
-          <p class="plan__note">Cancel anytime. Upgrade from Free in one click.</p>
+          <p class="plan__note">Cancel anytime. Upgrade in one click.</p>
+        </article>
+
+        <article class="plan plan--ultra reveal">
+          <div class="plan__ribbon plan__ribbon--ultra">Best value</div>
+          <h3 class="plan__name">Ultra</h3>
+          <p class="plan__tag">Translate &amp; command by voice</p>
+          <div class="plan__price">
+            <span class="plan__cur">$</span>
+            <span class="plan__amt" data-annual="15" data-monthly="19">15</span>
+            <span class="plan__per" data-annual="/mo · billed yearly" data-monthly="/mo">/mo · billed yearly</span>
+          </div>
+          <p class="plan__compare">Everything in Pro, plus</p>
+          <a href="checkout.html" class="btn btn--solid btn--block" data-checkout-ultra>Get Ultra</a>
+          <ul class="plan__list">
+            <li><strong>Real-time translation</strong></li>
+            <li>Voice commands</li>
+            <li>All 100 languages, any pair</li>
+          </ul>
+          <p class="plan__note">For multilingual power users.</p>
         </article>
 
         <article class="plan reveal">
@@ -359,38 +454,36 @@
           <div class="plan__price">
             <span class="plan__cur">$</span>
             <span class="plan__amt" data-annual="8" data-monthly="11">8</span>
-            <span class="plan__per" data-annual="/seat/mo · yearly" data-monthly="/seat/mo">/seat/mo · yearly</span>
+            <span class="plan__per" data-annual="/seat · yearly" data-monthly="/seat/mo">/seat · yearly</span>
           </div>
-          <p class="plan__compare">Built for teams, priced below the alternatives.</p>
-          <a href="download.html" class="btn btn--line btn--block">Get Team</a>
+          <p class="plan__compare">Everything in Ultra, plus</p>
+          <a href="checkout.html" class="btn btn--line btn--block" data-checkout-team>Get Team</a>
           <ul class="plan__list">
-            <li>Everything in Ultra</li>
-            <li>Shared vocabulary &amp; glossaries</li>
-            <li>Centralized billing &amp; admin</li>
-            <li>Usage analytics</li>
+            <li>Shared vocabulary</li>
+            <li>Admin &amp; analytics</li>
+            <li>Centralized billing</li>
             <li>SSO (SAML)</li>
             <li>Priority support</li>
           </ul>
-          <p class="plan__note">Volume pricing at 25+ seats. Create a workspace in the app, then upgrade.</p>
+          <p class="plan__note">Create a workspace in the app, then upgrade.</p>
         </article>
 
         <article class="plan plan--enterprise plan--soon reveal">
           <div class="plan__ribbon plan__ribbon--soon">Coming soon</div>
           <h3 class="plan__name">Enterprise</h3>
-          <p class="plan__tag">For scale &amp; security</p>
+          <p class="plan__tag">Scale &amp; compliance</p>
           <div class="plan__price"><span class="plan__amt plan__amt--text">Custom</span></div>
           <span class="btn btn--line btn--block btn--disabled" aria-disabled="true">Coming soon</span>
           <ul class="plan__list">
             <li>Everything in Team</li>
-            <li>Advanced compliance options</li>
-            <li>On-prem / VPC deployment</li>
-            <li>Dedicated success manager</li>
-            <li>Custom data retention &amp; SLAs</li>
+            <li>On-prem / VPC</li>
+            <li>Custom SLAs</li>
+            <li>Dedicated support</li>
           </ul>
-          <p class="plan__note">Enterprise features are on our roadmap.</p>
+          <p class="plan__note">On our roadmap.</p>
         </article>
       </div>
-      <p class="pricing__foot">All plans include unlimited devices and the full multilingual engine. Prices in USD.</p>
+      <p class="pricing__foot">All plans run on Mac, Windows &amp; Linux with the full 100-language engine. Prices in USD.</p>
     </section>
 
     <!-- ============ FAQ ============ -->
@@ -427,14 +520,21 @@
       </div>
     </section>
 
+    <!-- ============ ABOUT ============ -->
+    <section class="about" id="about">
+      <p class="eyebrow">About VoxLingua</p>
+      <p class="about__lead">We believe writing should keep up with thinking — in <em>any</em> language, on every platform.</p>
+      <p class="about__sub">VoxLingua is a speech-to-text dictation app for Mac, Windows and Linux. It pairs an on-device engine for privacy with an optional cloud engine for top accuracy, supports 100 languages with automatic detection, and works system-wide in any app. Built for people who think out loud — and want their words to land, polished, the instant they speak.</p>
+    </section>
+
     <!-- ============ FINAL CTA ============ -->
     <section class="final">
       <div class="final__glow" aria-hidden="true"></div>
       <img class="final__logo" src="logo-mark.png" width="76" height="76" alt="" aria-hidden="true" />
       <h2 class="final__title">Your next sentence is<br /><em>a breath away.</em></h2>
-      <p class="final__sub">Join thousands writing 3× faster, in every language. Free to start — your card stays in your wallet.</p>
-      <a href="download.html" class="btn btn--solid btn--lg">Get VoxLingua free</a>
-      <p class="hero__micro">3,000 words/week free · No credit card · 30-second setup</p>
+      <p class="final__sub">Write 3× faster, in 100 languages, in every app. Free to start — your card stays in your wallet.</p>
+      <a href="download.html" class="btn btn--solid btn--lg" data-download>Download for free</a>
+      <p class="hero__micro">3,000 words/week free · No credit card · macOS · Windows · Linux</p>
     </section>
 
   </main>
@@ -443,18 +543,11 @@
   <footer class="footer">
     <div class="footer__inner">
       <div class="footer__brand">
-        <a href="#" class="brand">
-          <svg class="brand__mark" width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
-            <rect width="32" height="32" rx="8" fill="currentColor"/>
-            <g fill="var(--accent)">
-              <rect x="7" y="13" width="3" height="6" rx="1.5"/>
-              <rect x="13" y="9" width="3" height="14" rx="1.5"/>
-              <rect x="19" y="5" width="3" height="22" rx="1.5"/>
-            </g>
-          </svg>
+        <a href="index.html" class="brand">
+          <img class="brand__logo" src="logo-mark.png" width="28" height="28" alt="VoxLingua logo" />
           <span class="brand__name">VoxLingua</span>
         </a>
-        <p>Speak your mind, in every language.</p>
+        <p>The speech-to-text dictation app for Mac, Windows &amp; Linux — your voice, in 100 languages.</p>
       </div>
       <nav class="footer__col" aria-label="Product">
         <h4>Product</h4>
@@ -462,19 +555,19 @@
         <a href="#languages">Languages</a>
         <a href="#pricing">Pricing</a>
         <a href="#how">How it works</a>
+        <a href="download.html">Download</a>
       </nav>
       <nav class="footer__col" aria-label="Company">
         <h4>Company</h4>
-        <a href="#">About</a>
-        <a href="#">Blog</a>
-        <a href="#">Careers</a>
+        <a href="#about">About</a>
+        <a href="#faq">FAQ</a>
         <a href="mailto:support@voxlingua.ai">Contact</a>
       </nav>
       <nav class="footer__col" aria-label="Legal">
         <h4>Legal</h4>
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="#">Security</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="security.html">Security</a>
       </nav>
     </div>
     <div class="footer__bar">
