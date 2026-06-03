@@ -141,56 +141,24 @@
     typed.textContent = 'Let’s ship the new release on Friday.';
   }
 
-  /* ---- Direct installer download from any [data-download] button ----
-     Detects the visitor's OS and points the button straight at the latest
-     native installer on the public releases repo, so a click downloads the
-     setup file immediately (no extra page hop). Falls back to download.html
-     if no matching installer is published yet. ---- */
-  var DL_REPO = 'sapixeldevelopment/voxlingua-releases';
-  var DL_API = 'https://api.github.com/repos/' + DL_REPO + '/releases/latest';
+  /* ---- Direct download for Windows visitors ----
+     Windows ships now: rewrite [data-download] buttons to grab the setup
+     installer directly. macOS/Linux visitors keep the link to download.html,
+     which shows the "coming soon" message. ---- */
+  var WIN_URL = 'https://github.com/sapixeldevelopment/voxlingua-releases/releases/latest/download/VoxLingua_1.1.0_x64-setup.exe';
+  var WIN_FILE = 'VoxLingua_1.1.0_x64-setup.exe';
   var dlButtons = document.querySelectorAll('[data-download]');
 
   if (dlButtons.length) {
-    var DL_PATTERNS = {
-      windows: [/x64.*setup\.exe$/i, /setup\.exe$/i, /\.msi$/i],
-      macos:   [/aarch64.*\.dmg$/i, /universal.*\.dmg$/i, /x64.*\.dmg$/i, /\.dmg$/i],
-      linux:   [/\.appimage$/i, /amd64\.deb$/i, /\.deb$/i, /\.rpm$/i]
-    };
-    var DL_BLOCK = /(\.(py|pyc|ps1|sh|bat|cmd|zip|tar|gz|json|txt|md|yml|yaml|sig|sha256|asc|map)$|source|src)/i;
-
-    var dlOS = (function () {
-      var ua = (navigator.userAgent || '').toLowerCase();
-      var p = (navigator.platform || '').toLowerCase();
-      if (/win/.test(ua) || /win/.test(p)) return 'windows';
-      if (/mac/.test(ua) || /mac/.test(p) || /iphone|ipad|ipod/.test(ua)) return 'macos';
-      if (/linux|x11|android/.test(ua) || /linux/.test(p)) return 'linux';
-      return 'unknown';
-    })();
-
-    function dlPick(assets, os) {
-      var pats = DL_PATTERNS[os] || [];
-      for (var i = 0; i < pats.length; i++) {
-        for (var j = 0; j < assets.length; j++) {
-          if (pats[i].test(assets[j].name) && !DL_BLOCK.test(assets[j].name)) return assets[j];
-        }
-      }
-      return null;
-    }
-
-    if (dlOS !== 'unknown') {
-      fetch(DL_API, { cache: 'no-store', headers: { Accept: 'application/vnd.github+json' } })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (rel) {
-          if (!rel || !rel.assets) return;
-          var asset = dlPick(rel.assets, dlOS);
-          if (!asset) return;
-          dlButtons.forEach(function (btn) {
-            btn.setAttribute('href', asset.browser_download_url);
-            btn.setAttribute('download', asset.name);
-            btn.removeAttribute('target');
-          });
-        })
-        .catch(function () { /* keep download.html fallback */ });
+    var ua = (navigator.userAgent || '').toLowerCase();
+    var p = (navigator.platform || '').toLowerCase();
+    var isWindows = /win/.test(ua) || /win/.test(p);
+    if (isWindows) {
+      dlButtons.forEach(function (btn) {
+        btn.setAttribute('href', WIN_URL);
+        btn.setAttribute('download', WIN_FILE);
+        btn.removeAttribute('target');
+      });
     }
   }
 })();
