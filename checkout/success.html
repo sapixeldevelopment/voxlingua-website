@@ -3,21 +3,62 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to Pro — VoxLingua</title>
-  <link rel="icon" type="image/png" href="logo-mark.png" />
-  <link rel="stylesheet" href="styles.css" />
+  <title>You're upgraded — VoxLingua</title>
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#07070C" />
+  <link rel="icon" type="image/png" href="../logo-mark.png" />
+  <link rel="apple-touch-icon" href="../logo-mark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
   <style>
-    .page { max-width: 480px; margin: 0 auto; padding: 8rem 1.5rem 4rem; text-align: center; }
-    .page h1 { font-size: 1.75rem; margin-bottom: .75rem; }
-    .page p { color: var(--ink-2); line-height: 1.65; margin-bottom: 1.5rem; }
+    .co { position: relative; min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: 4rem var(--gutter); overflow: hidden; }
+    .co__glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      width: min(120vw,900px); aspect-ratio: 1/1; z-index: 0; pointer-events: none;
+      background: radial-gradient(closest-side, var(--glow-blue), transparent 70%),
+                  radial-gradient(closest-side at 62% 42%, var(--glow-violet), transparent 70%);
+      filter: blur(40px); opacity: .4; }
+    .co > * { position: relative; z-index: 1; }
+    .co__check { width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center;
+      margin: 0 auto 1.6rem; background: var(--grad);
+      box-shadow: 0 12px 34px -8px var(--glow-violet); animation: floatLogo 5s ease-in-out infinite; }
+    .co__title { font-family: var(--serif); font-weight: 400; letter-spacing: -.02em;
+      font-size: clamp(2.2rem,6vw,3.4rem); line-height: 1; margin: 0 0 .6rem; }
+    .co__title em { font-style: italic; background: var(--grad); -webkit-background-clip: text;
+      background-clip: text; -webkit-text-fill-color: transparent; }
+    .co__sub { color: var(--muted); font-size: 1.05rem; line-height: 1.6; max-width: 44ch; margin: 0 auto 2rem; }
+    .co__sub strong { color: var(--paper); font-weight: 600; }
+    .co__steps { list-style: none; margin: 0 auto 2rem; padding: 0; max-width: 360px;
+      display: flex; flex-direction: column; gap: .8rem; text-align: left; }
+    .co__steps li { display: flex; align-items: center; gap: .8rem; color: var(--muted); font-size: .98rem; }
+    .co__steps li span { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+      display: grid; place-items: center; background: var(--grad); color: #fff; font-weight: 700; font-size: .85rem; }
+    .co__note { color: var(--muted-2); font-size: .85rem; margin-top: 1.4rem; }
   </style>
 </head>
 <body>
-  <main class="page">
-    <h1>You're on Pro!</h1>
-    <p>Your subscription is active. Open the VoxLingua desktop app and sign in with the same account to unlock unlimited words, on-device mode, and translation.</p>
-    <a href="download.html" class="btn btn--solid">Open download page</a>
-    <a href="index.html" class="btn btn--ghost" style="margin-left:.5rem">Back to home</a>
+  <main class="co">
+    <div class="co__glow" aria-hidden="true"></div>
+    <div class="co__check" aria-hidden="true">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+        <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+    <h1 class="co__title">You're <em>upgraded.</em></h1>
+    <p class="co__sub">
+      Payment confirmed via PayPal. Your VoxLingua plan activates on your account
+      automatically — usually within a few seconds.
+    </p>
+    <ol class="co__steps">
+      <li><span>1</span> Head back to the VoxLingua app.</li>
+      <li><span>2</span> It refreshes your plan automatically (or reopen Settings → Plan).</li>
+      <li><span>3</span> Enjoy unlimited dictation and your new features.</li>
+    </ol>
+    <a href="../download.html" class="btn btn--solid btn--lg">Open VoxLingua</a>
+    <p class="co__note">You can safely close this tab. Manage or cancel anytime from your PayPal account.</p>
   </main>
 </body>
 </html>

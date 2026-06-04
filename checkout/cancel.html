@@ -4,20 +4,48 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Checkout canceled — VoxLingua</title>
-  <link rel="icon" type="image/png" href="logo-mark.png" />
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#07070C" />
+  <link rel="icon" type="image/png" href="../logo-mark.png" />
+  <link rel="apple-touch-icon" href="../logo-mark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
   <style>
-    .page { max-width: 480px; margin: 0 auto; padding: 8rem 1.5rem 4rem; text-align: center; }
-    .page h1 { font-size: 1.75rem; margin-bottom: .75rem; }
-    .page p { color: var(--ink-2); line-height: 1.65; margin-bottom: 1.5rem; }
+    .co { position: relative; min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: 4rem var(--gutter); overflow: hidden; }
+    .co__glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      width: min(120vw,900px); aspect-ratio: 1/1; z-index: 0; pointer-events: none;
+      background: radial-gradient(closest-side, var(--glow-blue), transparent 72%);
+      filter: blur(40px); opacity: .28; }
+    .co > * { position: relative; z-index: 1; }
+    .co__logo { width: 64px; height: auto; margin: 0 auto 1.4rem;
+      filter: drop-shadow(0 0 22px rgba(168,85,247,.45)); }
+    .co__title { font-family: var(--serif); font-weight: 400; letter-spacing: -.02em;
+      font-size: clamp(2rem,5.5vw,3rem); line-height: 1; margin: 0 0 .6rem; }
+    .co__sub { color: var(--muted); font-size: 1.05rem; line-height: 1.6; max-width: 46ch; margin: 0 auto 2rem; }
+    .co__sub strong { color: var(--paper); font-weight: 600; }
+    .co__actions { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; }
+    .co__note { color: var(--muted-2); font-size: .85rem; margin-top: 1.4rem; }
   </style>
 </head>
 <body>
-  <main class="page">
-    <h1>Checkout canceled</h1>
-    <p>No charge was made. You can continue on the Free plan with 3,000 words per week, or try Pro again anytime.</p>
-    <a href="checkout.html" class="btn btn--solid">Try Pro again</a>
-    <a href="index.html#pricing" class="btn btn--ghost" style="margin-left:.5rem">View pricing</a>
+  <main class="co">
+    <div class="co__glow" aria-hidden="true"></div>
+    <img class="co__logo" src="../logo-mark.png" width="64" height="64" alt="" aria-hidden="true" />
+    <h1 class="co__title">No worries — nothing was charged.</h1>
+    <p class="co__sub">
+      You closed the PayPal checkout, so <strong>no payment was made</strong>. You're still on the
+      Free plan with 3,000 words a week. Whenever you're ready, you can upgrade again from
+      <strong>Settings → Plan</strong> in the app.
+    </p>
+    <div class="co__actions">
+      <a href="../download.html" class="btn btn--solid btn--lg">Back to VoxLingua</a>
+      <a href="../index.html#pricing" class="btn btn--line btn--lg">Compare plans</a>
+    </div>
+    <p class="co__note">You can safely close this tab.</p>
   </main>
 </body>
 </html>
