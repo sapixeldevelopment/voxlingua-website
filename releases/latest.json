@@ -1,7 +1,7 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "published_at": "2026-06-03",
-  "notes": "VoxLingua 2.0 - a major milestone: Groq cloud engine (Whisper Large v3 Turbo), premium themes & orb styles, guided onboarding, voice snippets, and a signature builder.",
+  "notes": "Onboarding now runs a local mic test (no tokens used) and the floating orb stays hidden until setup is done.",
   "download_url": "https://voxlingua.ai/download.html",
   "releases_url": "https://github.com/sapixeldevelopment/voxlingua-releases/releases/latest"
 }
