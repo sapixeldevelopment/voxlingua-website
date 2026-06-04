@@ -21,7 +21,7 @@
       background: radial-gradient(closest-side, var(--glow-blue), transparent 70%),
                   radial-gradient(closest-side at 62% 42%, var(--glow-violet), transparent 70%);
       filter: blur(40px); opacity: .4; }
-    .co > * { position: relative; z-index: 1; }
+    .co > *:not(.co__glow) { position: relative; z-index: 1; }
     .co__check { width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center;
       margin: 0 auto 1.6rem; background: var(--grad);
       box-shadow: 0 12px 34px -8px var(--glow-violet); animation: floatLogo 5s ease-in-out infinite; }

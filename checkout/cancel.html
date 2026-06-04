@@ -20,7 +20,7 @@
       width: min(120vw,900px); aspect-ratio: 1/1; z-index: 0; pointer-events: none;
       background: radial-gradient(closest-side, var(--glow-blue), transparent 72%);
       filter: blur(40px); opacity: .28; }
-    .co > * { position: relative; z-index: 1; }
+    .co > *:not(.co__glow) { position: relative; z-index: 1; }
     .co__logo { width: 64px; height: auto; margin: 0 auto 1.4rem;
       filter: drop-shadow(0 0 22px rgba(168,85,247,.45)); }
     .co__title { font-family: var(--serif); font-weight: 400; letter-spacing: -.02em;
