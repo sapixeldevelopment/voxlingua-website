@@ -1,7 +1,7 @@
 {
-  "version": "2.1.0",
+  "version": "2.1.1",
   "published_at": "2026-06-03",
-  "notes": "Onboarding now runs a local mic test (no tokens used) and the floating orb stays hidden until setup is done.",
+  "notes": "Fixes cloud dictation failing with 'failed to fetch'.",
   "download_url": "https://voxlingua.ai/download.html",
   "releases_url": "https://github.com/sapixeldevelopment/voxlingua-releases/releases/latest"
 }
