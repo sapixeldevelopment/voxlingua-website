@@ -1,7 +1,7 @@
 {
-  "version": "2.1.1",
+  "version": "2.1.2",
   "published_at": "2026-06-03",
-  "notes": "Fixes cloud dictation failing with 'failed to fetch'.",
+  "notes": "Existing users are no longer shown the first-run setup wizard after updating.",
   "download_url": "https://voxlingua.ai/download.html",
   "releases_url": "https://github.com/sapixeldevelopment/voxlingua-releases/releases/latest"
 }
