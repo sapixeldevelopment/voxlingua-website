@@ -1,7 +1,7 @@
 {
-  "version": "2.1.3",
+  "version": "2.1.4",
   "published_at": "2026-06-03",
-  "notes": "Sand is now the default theme for new installs.",
+  "notes": "History no longer shows a translation arrow when no translation happened (e.g. local mode).",
   "download_url": "https://voxlingua.ai/download.html",
   "releases_url": "https://github.com/sapixeldevelopment/voxlingua-releases/releases/latest"
 }
