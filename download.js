@@ -5,13 +5,44 @@
 (function () {
   'use strict';
 
-  // Direct link to the current Windows setup installer. Always serves the
-  // latest published build. (Kept in code only; not surfaced to users.)
+  var RELEASES_REPO = 'sapixeldevelopment/voxlingua-releases';
+  var LATEST_API = 'https://api.github.com/repos/' + RELEASES_REPO + '/releases/latest';
+  var RELEASES_PAGE = 'https://github.com/' + RELEASES_REPO + '/releases/latest';
+
+  // Fallback Windows installer URL. GitHub's /releases/latest/download/<name>
+  // redirect only resolves if an asset with this EXACT name exists in the
+  // latest release. Because our filenames embed the version, this can go stale
+  // between releases — so it is ONLY a fallback. The primary path resolves the
+  // real asset name live from the GitHub API (resolveLatest), which never goes
+  // stale regardless of version. Keep this pointing at a known-good release.
   var WINDOWS_URL =
-    'https://github.com/sapixeldevelopment/voxlingua-releases/releases/latest/download/VoxLingua_1.1.0_x64-setup.exe';
-  var WINDOWS_FILE = 'VoxLingua_1.1.0_x64-setup.exe';
+    'https://github.com/' + RELEASES_REPO + '/releases/download/v2.1.4/VoxLingua_2.1.4_x64-setup.exe';
+  var WINDOWS_FILE = 'VoxLingua-setup.exe';
 
   var LABELS = { windows: 'Windows', macos: 'macOS', linux: 'Linux' };
+
+  // Match the Windows setup installer asset regardless of version number.
+  // e.g. VoxLingua_2.1.4_x64-setup.exe, VoxLingua_3.0.0_x64-setup.exe …
+  function isWindowsAsset(name) {
+    return /\.exe$/i.test(name) && /setup/i.test(name) && !/\.sig$/i.test(name);
+  }
+
+  // Ask GitHub for the latest release and return the live Windows .exe URL +
+  // its real version, so downloads always track the newest published build.
+  // Falls back to the static WINDOWS_URL if the API is unreachable/rate-limited.
+  function resolveLatest() {
+    return fetch(LATEST_API, { headers: { Accept: 'application/vnd.github+json' } })
+      .then(function (r) { if (!r.ok) throw new Error('gh ' + r.status); return r.json(); })
+      .then(function (data) {
+        var assets = (data && data.assets) || [];
+        var hit = assets.filter(function (a) { return isWindowsAsset(a.name); })[0];
+        if (!hit) throw new Error('no windows asset');
+        return { url: hit.browser_download_url, file: hit.name, version: data.tag_name || '' };
+      })
+      .catch(function () {
+        return { url: WINDOWS_URL, file: WINDOWS_FILE, version: '' };
+      });
+  }
 
   function detectOS() {
     var ua = (navigator.userAgent || '').toLowerCase();
@@ -71,15 +102,29 @@
 
   if (els.version) els.version.textContent = '';
 
-  var os = detectOS();
-  if (os === 'windows') {
-    makeWindowsDownload();
-  } else if (os === 'macos' || os === 'linux') {
-    makeComingSoon(LABELS[os]);
-  } else {
-    // Unknown OS — offer the Windows build as the available option.
-    makeWindowsDownload();
-    els.primaryLabel.textContent = 'Download for Windows';
+  function render() {
+    var os = detectOS();
+    if (os === 'windows') {
+      makeWindowsDownload();
+    } else if (os === 'macos' || os === 'linux') {
+      makeComingSoon(LABELS[os]);
+    } else {
+      // Unknown OS — offer the Windows build as the available option.
+      makeWindowsDownload();
+      els.primaryLabel.textContent = 'Download for Windows';
+    }
+    renderOthers(os === 'macos' || os === 'linux' ? os : 'windows');
   }
-  renderOthers(os === 'macos' || os === 'linux' ? os : 'windows');
+
+  // Paint immediately with the fallback URL so the button is never dead, then
+  // upgrade it to the live latest-release URL once the GitHub API responds.
+  render();
+  resolveLatest().then(function (latest) {
+    WINDOWS_URL = latest.url;
+    WINDOWS_FILE = latest.file;
+    if (els.version && latest.version) {
+      els.version.textContent = 'Latest: ' + latest.version;
+    }
+    render();
+  });
 })();
