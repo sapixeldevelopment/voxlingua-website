@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoxLingua — Admin</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#f4efe7" />
+  <link rel="icon" type="image/png" href="../logo-mark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    .adm { max-width: 1100px; margin: 0 auto; padding: clamp(5rem,10vh,7rem) var(--gutter) 4rem; }
+    .adm__head { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .adm__title { font-family: var(--serif); font-weight: 400; font-size: clamp(2rem,5vw,3rem); letter-spacing: -.02em; }
+    .adm__who { margin-left: auto; font-size: .9rem; color: var(--muted); }
+    .adm__signout { font-size: .85rem; color: var(--accent); cursor: pointer; background: none; border: 0; text-decoration: underline; }
+
+    /* Login card */
+    .login { max-width: 380px; margin: 18vh auto 0; background: var(--ink-2); border: 1px solid var(--line-2);
+      border-radius: var(--radius); padding: 2rem; box-shadow: var(--sh-lg); text-align: center; }
+    .login img { width: 56px; margin: 0 auto 1rem; }
+    .login h1 { font-family: var(--serif); font-weight: 400; font-size: 1.6rem; margin-bottom: 1.5rem; }
+    .field { width: 100%; padding: .8rem 1rem; margin-bottom: .8rem; font: inherit; font-size: .95rem;
+      background: var(--ink-3); color: var(--paper); border: 1px solid var(--line-2); border-radius: 10px; outline: none; }
+    .field:focus { border-color: var(--accent); }
+    .err { color: #c0392b; font-size: .85rem; margin: .4rem 0 0; min-height: 1.2em; }
+
+    /* Filters + table */
+    .adm__filters { display: flex; gap: .5rem; margin-bottom: 1.4rem; flex-wrap: wrap; }
+    .chip { font: inherit; font-size: .85rem; font-weight: 600; padding: .45rem .9rem; border-radius: 100px; cursor: pointer;
+      background: var(--ink-2); color: var(--muted); border: 1px solid var(--line); }
+    .chip.is-active { background: var(--accent); color: #fff; border-color: transparent; }
+
+    .tk { background: var(--ink-2); border: 1px solid var(--line); border-radius: var(--radius-sm);
+      padding: 1.1rem 1.3rem; margin-bottom: .8rem; box-shadow: var(--sh-sm); }
+    .tk__top { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; }
+    .tk__kind { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+      padding: .15rem .55rem; border-radius: 100px; }
+    .tk__kind.bug { background: rgba(192,57,43,.12); color: #b03a2e; border: 1px solid rgba(192,57,43,.25); }
+    .tk__kind.feature { background: rgba(217,119,6,.14); color: var(--amber); border: 1px solid rgba(217,119,6,.3); }
+    .tk__kind.support { background: var(--ink-3); color: var(--muted); border: 1px solid var(--line-2); }
+    .tk__subject { font-weight: 600; font-size: 1.02rem; }
+    .tk__meta { margin-left: auto; font-size: .8rem; color: var(--muted-2); }
+    .tk__msg { margin: .7rem 0 0; color: var(--muted); font-size: .95rem; line-height: 1.55; white-space: pre-wrap; }
+    .tk__foot { display: flex; align-items: center; gap: .6rem; margin-top: .9rem; flex-wrap: wrap; }
+    .tk__sel { font: inherit; font-size: .82rem; padding: .35rem .6rem; border-radius: 8px;
+      background: var(--ink-3); color: var(--paper); border: 1px solid var(--line-2); }
+    .tk__email { font-size: .8rem; color: var(--muted-2); }
+    .tk__notes { width: 100%; margin-top: .6rem; font: inherit; font-size: .85rem; padding: .5rem .7rem;
+      background: var(--ink-3); color: var(--paper); border: 1px solid var(--line); border-radius: 8px; resize: vertical; }
+    .empty { text-align: center; color: var(--muted-2); padding: 4rem 0; }
+    .saved { color: var(--accent); font-size: .8rem; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main class="adm" id="app" hidden>
+    <div class="adm__head">
+      <h1 class="adm__title">Support inbox</h1>
+      <span class="adm__who" id="who"></span>
+      <button class="adm__signout" id="signout">Sign out</button>
+    </div>
+    <div class="adm__filters" id="filters">
+      <button class="chip is-active" data-status="">All</button>
+      <button class="chip" data-status="open">Open</button>
+      <button class="chip" data-status="in_progress">In progress</button>
+      <button class="chip" data-status="resolved">Resolved</button>
+      <button class="chip" data-status="closed">Closed</button>
+    </div>
+    <div id="list"></div>
+  </main>
+
+  <section class="login" id="login" hidden>
+    <img src="../logo-mark.png" alt="" />
+    <h1>Admin sign in</h1>
+    <input class="field" id="email" type="email" placeholder="Email" autocomplete="username" />
+    <input class="field" id="password" type="password" placeholder="Password" autocomplete="current-password" />
+    <button class="btn btn--solid btn--block" id="loginBtn">Sign in</button>
+    <p class="err" id="loginErr"></p>
+  </section>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const SUPABASE_URL = "https://mmgzuubrtyodhjtmjlvb.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_LYP_tofuZNutUaE-KfjT7Q_Uf5XcaIO";
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const $ = (id) => document.getElementById(id);
+    const appEl = $("app"), loginEl = $("login");
+    let currentStatus = "";
+
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, (c) =>
+        ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+    }
+
+    async function boot() {
+      const { data } = await sb.auth.getSession();
+      if (data.session) showApp(); else showLogin();
+    }
+    function showLogin() { appEl.hidden = true; loginEl.hidden = false; }
+    async function showApp() {
+      loginEl.hidden = true; appEl.hidden = false;
+      const { data } = await sb.auth.getUser();
+      $("who").textContent = data.user?.email || "";
+      load();
+    }
+
+    $("loginBtn").addEventListener("click", async () => {
+      $("loginErr").textContent = "";
+      const email = $("email").value.trim();
+      const password = $("password").value;
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) { $("loginErr").textContent = "Sign-in failed. Check your credentials."; return; }
+      showApp();
+    });
+    $("password").addEventListener("keydown", (e) => { if (e.key === "Enter") $("loginBtn").click(); });
+
+    $("signout").addEventListener("click", async () => { await sb.auth.signOut(); showLogin(); });
+
+    $("filters").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-status]"); if (!b) return;
+      currentStatus = b.dataset.status;
+      [...$("filters").children].forEach((c) => c.classList.toggle("is-active", c === b));
+      load();
+    });
+
+    async function load() {
+      const listEl = $("list");
+      listEl.innerHTML = '<div class="empty">Loading…</div>';
+      const { data, error } = await sb.rpc("admin_list_tickets", {
+        p_status: currentStatus || null, p_limit: 300,
+      });
+      if (error) {
+        listEl.innerHTML = '<div class="empty">' +
+          (/forbidden/i.test(error.message)
+            ? "This account isn't an admin."
+            : "Couldn't load tickets.") + "</div>";
+        return;
+      }
+      if (!data || data.length === 0) { listEl.innerHTML = '<div class="empty">No tickets here.</div>'; return; }
+      listEl.innerHTML = data.map(renderTicket).join("");
+      bindRows();
+    }
+
+    function renderTicket(t) {
+      const when = new Date(t.created_at).toLocaleString();
+      const opts = ["open","in_progress","resolved","closed"]
+        .map((s) => `<option value="${s}"${s===t.status?" selected":""}>${s.replace("_"," ")}</option>`).join("");
+      return `<article class="tk" data-id="${t.id}">
+        <div class="tk__top">
+          <span class="tk__kind ${esc(t.kind)}">${esc(t.kind)}</span>
+          <span class="tk__subject">${esc(t.subject)}</span>
+          <span class="tk__meta">${esc(when)}</span>
+        </div>
+        <p class="tk__msg">${esc(t.message)}</p>
+        <div class="tk__foot">
+          <span class="tk__email">${esc(t.email || "—")}</span>
+          ${t.app_version ? `<span class="tk__email">· v${esc(t.app_version)} · ${esc(t.platform||"")}</span>` : ""}
+          <select class="tk__sel" data-role="status">${opts}</select>
+          <button class="chip" data-role="save">Save</button>
+          <span class="saved" data-role="saved" hidden>✓ Saved</span>
+        </div>
+        <textarea class="tk__notes" data-role="notes" placeholder="Internal notes (admins only)">${esc(t.admin_notes||"")}</textarea>
+      </article>`;
+    }
+
+    function bindRows() {
+      document.querySelectorAll(".tk").forEach((el) => {
+        el.querySelector('[data-role="save"]').addEventListener("click", async () => {
+          const id = el.dataset.id;
+          const status = el.querySelector('[data-role="status"]').value;
+          const notes = el.querySelector('[data-role="notes"]').value;
+          const { error } = await sb.rpc("admin_update_ticket", {
+            p_id: id, p_status: status, p_admin_notes: notes,
+          });
+          const saved = el.querySelector('[data-role="saved"]');
+          if (!error) { saved.hidden = false; setTimeout(() => { saved.hidden = true; }, 1800); }
+        });
+      });
+    }
+
+    boot();
+  </script>
+</body>
+</html>
