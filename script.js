@@ -141,49 +141,10 @@
     typed.textContent = 'Let’s ship the new release on Friday.';
   }
 
-  /* ---- Direct download for Windows visitors ----
-     Windows ships now: rewrite [data-download] buttons to grab the setup
-     installer directly. macOS/Linux visitors keep the link to download.html,
-     which shows the "coming soon" message.
-
-     The installer URL is resolved LIVE from the GitHub API so it always tracks
-     the latest published release — the asset filename embeds the version, so a
-     hardcoded link goes stale. A static fallback keeps the button working if
-     the API is unreachable. ---- */
-  var RELEASES_REPO = 'sapixeldevelopment/voxlingua-releases';
-  var WIN_URL = 'https://github.com/' + RELEASES_REPO + '/releases/download/v2.1.4/VoxLingua_2.1.4_x64-setup.exe';
-  var WIN_FILE = 'VoxLingua-setup.exe';
-
-  var dlButtons = document.querySelectorAll('[data-download]');
-  if (dlButtons.length) {
-    var ua = (navigator.userAgent || '').toLowerCase();
-    var p = (navigator.platform || '').toLowerCase();
-    var isWindows = /win/.test(ua) || /win/.test(p);
-    if (isWindows) {
-      var applyHref = function () {
-        dlButtons.forEach(function (btn) {
-          btn.setAttribute('href', WIN_URL);
-          btn.setAttribute('download', WIN_FILE);
-          btn.removeAttribute('target');
-        });
-      };
-      // Wire up the fallback immediately, then upgrade to the live latest URL.
-      applyHref();
-      fetch('https://api.github.com/repos/' + RELEASES_REPO + '/releases/latest', {
-        headers: { Accept: 'application/vnd.github+json' }
-      })
-        .then(function (r) { if (!r.ok) throw new Error('gh ' + r.status); return r.json(); })
-        .then(function (data) {
-          var hit = ((data && data.assets) || []).filter(function (a) {
-            return /\.exe$/i.test(a.name) && /setup/i.test(a.name) && !/\.sig$/i.test(a.name);
-          })[0];
-          if (hit) {
-            WIN_URL = hit.browser_download_url;
-            WIN_FILE = hit.name;
-            applyHref();
-          }
-        })
-        .catch(function () { /* keep fallback */ });
-    }
-  }
+  /* ---- Download buttons ----
+     Every [data-download] button links to download.html (set in the markup).
+     We intentionally do NOT rewrite them to a direct installer URL: visitors
+     always land on the download page first, which detects their OS and serves
+     the correct, latest installer (see download.js). This gives a consistent
+     funnel and a clear macOS/Linux "coming soon" message. ---- */
 })();
