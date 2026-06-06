@@ -56,7 +56,8 @@
     "description": "Dexlyy Voice is a speech-to-text dictation app that turns your voice into polished, formatted text in any application, across 100 languages — running on-device for privacy or in the cloud for top accuracy.",
     "url": "https://dexlyy.com/",
     "downloadUrl": "https://dexlyy.com/download.html",
-    "softwareVersion": "1.1.0",
+    "publisher": { "@id": "https://dexlyy.com/#organization" },
+    "softwareVersion": "2.7.0",
     "featureList": [
       "On-device offline speech-to-text",
       "High-accuracy cloud transcription",
@@ -84,22 +85,34 @@
     }
   }
   </script>
-  <!-- Organization + WebSite -->
+  <!-- Organization: Dexlyy is the parent brand; Dexlyy Voice / Studio / Code
+       are products under it. Helps Google build the brand knowledge panel. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "Dexlyy Voice",
+    "@id": "https://dexlyy.com/#organization",
+    "name": "Dexlyy",
     "url": "https://dexlyy.com/",
-    "logo": "https://dexlyy.com/logo-mark.png"
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://dexlyy.com/logo-mark.png"
+    },
+    "description": "Dexlyy builds premium AI productivity tools, including Dexlyy Voice (speech-to-text dictation), with Dexlyy Studio and Dexlyy Code coming soon.",
+    "sameAs": [
+      "https://github.com/sapixeldevelopment"
+    ]
   }
   </script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Dexlyy Voice",
-    "url": "https://dexlyy.com/"
+    "@id": "https://dexlyy.com/#website",
+    "name": "Dexlyy",
+    "alternateName": "Dexlyy Voice",
+    "url": "https://dexlyy.com/",
+    "publisher": { "@id": "https://dexlyy.com/#organization" }
   }
   </script>
   <!-- FAQ -->
