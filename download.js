@@ -19,7 +19,7 @@
   // Older releases were VoxLingua_* — the matcher below accepts either so the
   // live resolver always finds the newest build regardless of the rename.
   var WINDOWS_URL =
-    'https://github.com/' + RELEASES_REPO + '/releases/download/v2.6.0/DexlyyVoice_2.6.0_x64-setup.exe';
+    'https://github.com/' + RELEASES_REPO + '/releases/download/v2.6.1/DexlyyVoice_2.6.1_x64-setup.exe';
   var WINDOWS_FILE = 'DexlyyVoice-setup.exe';
 
   var LABELS = { windows: 'Windows', macos: 'macOS', linux: 'Linux' };
