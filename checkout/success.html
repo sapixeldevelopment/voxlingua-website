@@ -57,8 +57,17 @@
       <li><span>2</span> It refreshes your plan automatically (or reopen Settings → Plan).</li>
       <li><span>3</span> Enjoy unlimited dictation and your new features.</li>
     </ol>
-    <a href="../download.html" class="btn btn--solid btn--lg">Open Dexlyy Voice</a>
-    <p class="co__note">You can safely close this tab. Manage or cancel anytime from your PayPal account.</p>
+    <a href="voxlingua://open" class="btn btn--solid btn--lg" id="openApp">Open Dexlyy Voice</a>
+    <p class="co__note">Already have the app open? Just switch back to it — your plan refreshes automatically. You can safely close this tab; manage or cancel anytime from your PayPal account.</p>
+  </main>
+  <script>
+    // The button uses the app's deep-link scheme to bring Dexlyy Voice to the
+    // front. If the app isn't installed/registered, nothing happens (no error
+    // page) — the user already has it (they just paid from inside it).
+    document.getElementById('openApp')?.addEventListener('click', function (e) {
+      e.preventDefault();
+      window.location.href = 'voxlingua://open';
+    });
   </main>
 </body>
 </html>
