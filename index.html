@@ -149,7 +149,25 @@
     <!-- ============ HERO ============ -->
     <section class="hero">
       <div class="hero__glow" aria-hidden="true"></div>
-      <img class="hero__watermark" src="logo-mark.png" alt="" aria-hidden="true" />
+      <!-- Warm "voice in the air" motif: concentric sound rings radiating from a
+           mic dot. Pure SVG, on-theme (Sand) and on-brand (dictation). -->
+      <svg class="hero__waves" viewBox="0 0 1200 1200" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="wgrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#e8923a" />
+            <stop offset="60%" stop-color="#c4610f" />
+            <stop offset="100%" stop-color="#b4540a" />
+          </radialGradient>
+        </defs>
+        <g fill="none" stroke="url(#wgrad)" stroke-width="2">
+          <circle class="ring" cx="600" cy="600" r="120" />
+          <circle class="ring" cx="600" cy="600" r="220" />
+          <circle class="ring" cx="600" cy="600" r="330" />
+          <circle class="ring" cx="600" cy="600" r="450" />
+          <circle class="ring" cx="600" cy="600" r="580" />
+        </g>
+        <circle cx="600" cy="600" r="14" fill="url(#wgrad)" class="hero__waves-core" />
+      </svg>
       <div class="hero__inner">
         <p class="eyebrow reveal">Speech-to-text dictation · 100 languages · on-device or cloud</p>
         <h1 class="hero__title reveal">

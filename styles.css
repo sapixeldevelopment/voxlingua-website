@@ -160,24 +160,38 @@ img, svg { display: block; max-width: 100%; }
               radial-gradient(ellipse at 64% 36%, rgba(228,146,58,.26), transparent 58%);
   filter: blur(36px); opacity: .7; z-index: 0; pointer-events: none;
 }
-/* large atmospheric logo watermark behind the hero copy */
-.hero__watermark {
-  position: absolute; top: clamp(2rem, 8vh, 6rem); left: 50%;
-  width: clamp(380px, 58vw, 760px); height: auto; z-index: 0; pointer-events: none;
-  opacity: .14;
-  filter: drop-shadow(0 10px 50px rgba(180,84,10,.45));
-  transform: translate(-50%, var(--py, 0px)) scale(1.06);
-  animation: wmIn 1.4s var(--ease) both, wmDrift 14s ease-in-out 1.4s infinite;
-  -webkit-mask-image: radial-gradient(ellipse at center, #000 55%, transparent 78%);
-  mask-image: radial-gradient(ellipse at center, #000 55%, transparent 78%);
+/* warm "voice in the air" sound-rings behind the hero — on-theme + on-brand */
+.hero__waves {
+  position: absolute; top: 50%; left: 50%;
+  width: clamp(620px, 92vw, 1180px); height: clamp(620px, 92vw, 1180px);
+  z-index: 0; pointer-events: none; opacity: .5;
+  transform: translate(-50%, calc(-50% + var(--py, 0px)));
+  -webkit-mask-image: radial-gradient(circle at center, #000 30%, transparent 70%);
+  mask-image: radial-gradient(circle at center, #000 30%, transparent 70%);
+  animation: wavesIn 1.6s var(--ease) both;
 }
-@keyframes wmIn {
-  from { opacity: 0; transform: translate(-50%, var(--py, 0px)) scale(.86); filter: blur(8px); }
-  to   { opacity: .14; transform: translate(-50%, var(--py, 0px)) scale(1.06); }
+.hero__waves .ring {
+  transform-origin: 600px 600px;
+  opacity: .5;
+  animation: ringPulse 6s ease-in-out infinite;
 }
-@keyframes wmDrift {
-  0%,100% { transform: translate(-50%, calc(var(--py, 0px) - 6px)) scale(1.06) rotate(-1.2deg); }
-  50%     { transform: translate(-50%, calc(var(--py, 0px) + 10px)) scale(1.08) rotate(1.2deg); }
+.hero__waves .ring:nth-child(1) { animation-delay: 0s; }
+.hero__waves .ring:nth-child(2) { animation-delay: .5s; }
+.hero__waves .ring:nth-child(3) { animation-delay: 1s; }
+.hero__waves .ring:nth-child(4) { animation-delay: 1.5s; }
+.hero__waves .ring:nth-child(5) { animation-delay: 2s; }
+.hero__waves-core { animation: corePulse 2.4s ease-in-out infinite; transform-origin: 600px 600px; }
+@keyframes wavesIn {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + var(--py, 0px))) scale(.8); }
+  to   { opacity: .5; transform: translate(-50%, calc(-50% + var(--py, 0px))) scale(1); }
+}
+@keyframes ringPulse {
+  0%, 100% { transform: scale(1);    opacity: .28; }
+  50%      { transform: scale(1.06); opacity: .6; }
+}
+@keyframes corePulse {
+  0%, 100% { opacity: .5;  transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.35); }
 }
 
 .hero__inner { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; text-align: center; }

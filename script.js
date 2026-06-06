@@ -9,7 +9,7 @@
   /* ---- Nav: scrolled state + mobile toggle + hero watermark parallax ---- */
   var nav = document.getElementById('nav');
   var burger = document.querySelector('.nav__burger');
-  var watermark = document.querySelector('.hero__watermark');
+  var watermark = document.querySelector('.hero__waves');
   var ticking = false;
 
   function applyScroll() {
