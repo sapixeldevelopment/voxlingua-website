@@ -15,18 +15,17 @@
   // between releases — so it is ONLY a fallback. The primary path resolves the
   // real asset name live from the GitHub API (resolveLatest), which never goes
   // stale regardless of version. Keep this pointing at a known-good release.
-  // NOTE: the installer asset filename is still "VoxLingua_*" — the product
-  // file naming (Tauri productName / bundle id) was intentionally NOT changed in
-  // this cosmetic rebrand so existing installs keep updating. Only the
-  // user-facing brand name changed to "Dexlyy Voice".
+  // As of v2.6.0 the installer is named DexlyyVoice_* (Tauri productName).
+  // Older releases were VoxLingua_* — the matcher below accepts either so the
+  // live resolver always finds the newest build regardless of the rename.
   var WINDOWS_URL =
-    'https://github.com/' + RELEASES_REPO + '/releases/download/v2.5.0/VoxLingua_2.5.0_x64-setup.exe';
+    'https://github.com/' + RELEASES_REPO + '/releases/download/v2.6.0/DexlyyVoice_2.6.0_x64-setup.exe';
   var WINDOWS_FILE = 'DexlyyVoice-setup.exe';
 
   var LABELS = { windows: 'Windows', macos: 'macOS', linux: 'Linux' };
 
-  // Match the Windows setup installer asset regardless of version number.
-  // e.g. VoxLingua_2.5.0_x64-setup.exe, VoxLingua_3.0.0_x64-setup.exe …
+  // Match the Windows setup installer asset regardless of version OR brand name.
+  // e.g. DexlyyVoice_2.6.0_x64-setup.exe, VoxLingua_2.5.0_x64-setup.exe …
   function isWindowsAsset(name) {
     return /\.exe$/i.test(name) && /setup/i.test(name) && !/\.sig$/i.test(name);
   }
