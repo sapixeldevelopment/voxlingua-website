@@ -1,5 +1,5 @@
 /* =========================================================
-   VoxLingua — interactions
+   Dexlyy Voice — interactions
    ========================================================= */
 (function () {
   'use strict';

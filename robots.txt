@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /admin/
 Disallow: /checkout/
 
-Sitemap: https://voxlingua.ai/sitemap.xml
+Sitemap: https://dexlyy.com/sitemap.xml

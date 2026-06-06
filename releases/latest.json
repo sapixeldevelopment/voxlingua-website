@@ -1,5 +1,5 @@
 {
-  "version": "2.4.0",
+  "version": "2.5.0",
   "published_at": "2026-06-03",
   "notes": "History no longer shows a translation arrow when no translation happened (e.g. local mode).",
   "download_url": "https://voxlingua.ai/download.html",

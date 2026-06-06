@@ -1,5 +1,5 @@
 /* =========================================================
-   VoxLingua — download page
+   Dexlyy Voice — download page
    Windows ships now; macOS & Linux are coming soon.
    ========================================================= */
 (function () {
@@ -15,14 +15,18 @@
   // between releases — so it is ONLY a fallback. The primary path resolves the
   // real asset name live from the GitHub API (resolveLatest), which never goes
   // stale regardless of version. Keep this pointing at a known-good release.
+  // NOTE: the installer asset filename is still "VoxLingua_*" — the product
+  // file naming (Tauri productName / bundle id) was intentionally NOT changed in
+  // this cosmetic rebrand so existing installs keep updating. Only the
+  // user-facing brand name changed to "Dexlyy Voice".
   var WINDOWS_URL =
-    'https://github.com/' + RELEASES_REPO + '/releases/download/v2.1.4/VoxLingua_2.1.4_x64-setup.exe';
-  var WINDOWS_FILE = 'VoxLingua-setup.exe';
+    'https://github.com/' + RELEASES_REPO + '/releases/download/v2.5.0/VoxLingua_2.5.0_x64-setup.exe';
+  var WINDOWS_FILE = 'DexlyyVoice-setup.exe';
 
   var LABELS = { windows: 'Windows', macos: 'macOS', linux: 'Linux' };
 
   // Match the Windows setup installer asset regardless of version number.
-  // e.g. VoxLingua_2.1.4_x64-setup.exe, VoxLingua_3.0.0_x64-setup.exe …
+  // e.g. VoxLingua_2.5.0_x64-setup.exe, VoxLingua_3.0.0_x64-setup.exe …
   function isWindowsAsset(name) {
     return /\.exe$/i.test(name) && /setup/i.test(name) && !/\.sig$/i.test(name);
   }
