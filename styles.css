@@ -39,6 +39,7 @@
   --radius: 20px;
   --radius-sm: 13px;
   --ease: cubic-bezier(.2,.7,.2,1);
+  --ph-h: 42px;   /* Product Hunt strip height (pins the nav below it) */
 
   /* warm layered shadows (brown-tinted, like the app) */
   --sh-sm: 0 1px 2px rgba(60,45,25,.06), 0 1px 1px rgba(60,45,25,.04);
@@ -49,7 +50,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--ph-h) + 72px); }
 
 body {
   font-family: var(--sans);
@@ -155,7 +156,23 @@ img, svg { display: block; max-width: 100%; }
 @media (max-width: 900px) { .product-grid { grid-template-columns: 1fr; } }
 
 /* ============ NAV ============ */
-.nav { position: fixed; inset: 0 0 auto 0; z-index: 100; transition: background .3s var(--ease), box-shadow .3s var(--ease), backdrop-filter .3s; }
+/* ============ PRODUCT HUNT STRIP ============ */
+.phbar {
+  position: fixed; inset: 0 0 auto 0; z-index: 110;
+  height: var(--ph-h); display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(90deg, #DA552F 0%, #e8623b 50%, #DA552F 100%);
+  color: #fff; text-decoration: none; font-size: .9rem; padding: 0 1rem;
+  box-shadow: 0 1px 0 rgba(0,0,0,.08);
+}
+.phbar__inner { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; justify-content: center; }
+.phbar__logo { flex-shrink: 0; }
+.phbar strong { font-weight: 700; }
+.phbar__sep { opacity: .6; }
+.phbar__cta { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; transition: opacity .2s; }
+.phbar:hover .phbar__cta { opacity: .85; }
+@media (max-width: 560px) { :root { --ph-h: 38px; } .phbar { font-size: .8rem; } .phbar__sep { display: none; } }
+
+.nav { position: fixed; inset: var(--ph-h) 0 auto 0; z-index: 100; transition: background .3s var(--ease), box-shadow .3s var(--ease), backdrop-filter .3s; }
 .nav.is-scrolled { background: rgba(255,253,249,.78); backdrop-filter: blur(16px) saturate(140%); box-shadow: 0 1px 0 var(--line), 0 6px 20px -16px rgba(60,45,25,.4); }
 .nav__inner { max-width: 1300px; margin: 0 auto; padding: .85rem var(--gutter); display: flex; align-items: center; gap: 2rem; }
 
