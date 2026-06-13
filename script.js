@@ -72,8 +72,8 @@
   /* ---- Scroll reveal ---- */
   var reveals = document.querySelectorAll('.reveal');
 
-  // Above-the-fold (hero) elements reveal immediately with a stagger on load.
-  var hero = document.querySelector('.hero');
+  // Above-the-fold (hero / brand hero) elements reveal immediately with a stagger on load.
+  var hero = document.querySelector('.hero, .bhero');
   if (hero && !prefersReduced) {
     var heroReveals = hero.querySelectorAll('.reveal');
     heroReveals.forEach(function (el, i) {
