@@ -17,7 +17,7 @@
   // known-good Shot release tag once you publish one (e.g. shot-v1.0.0). The
   // live resolver below tracks the newest Shot build regardless of version.
   var WINDOWS_URL =
-    'https://github.com/' + RELEASES_REPO + '/releases/download/shot-v1.1.3/DexlyyShot.Setup.1.1.3.exe';
+    'https://github.com/' + RELEASES_REPO + '/releases/download/shot-v1.2.0/DexlyyShot.Setup.1.2.0.exe';
   var WINDOWS_FILE = 'DexlyyShot-Setup.exe';
 
   function formatVersion(tag) {
