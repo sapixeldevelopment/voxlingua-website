@@ -3,45 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Download DexlyyShot — AI-Native Screenshot Tool for Windows ($39 lifetime)</title>
-  <meta name="description" content="DexlyyShot is a beautiful, AI-native screenshot tool. Capture, annotate, pin and share — then ask your screenshot or describe what to snip and let AI do it. Free to try, $39 one-time for Pro. Windows now; macOS & Linux soon." />
+  <title>Dexlyy Shot — AI-Native Screenshot Tool for Windows</title>
+  <meta name="description" content="Dexlyy Shot captures, annotates, and understands your screen. Region snips, multi-snip, scrolling capture, AI Ask, and Smart Capture — free to try on Windows. Pro from $39 lifetime." />
   <link rel="canonical" href="https://dexlyy.com/shot.html" />
   <meta name="theme-color" content="#07070C" />
   <link rel="icon" type="image/png" href="logo-mark.png" />
   <link rel="apple-touch-icon" href="logo-mark.png" />
 
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="DexlyyShot — AI-Native Screenshots for Windows" />
-  <meta property="og:description" content="Capture, annotate, and ask your screenshots. Free to try · $39 lifetime Pro." />
+  <meta property="og:title" content="Dexlyy Shot — AI-Native Screenshots for Windows" />
+  <meta property="og:description" content="Capture, annotate, ask, and combine screenshots. Free to try · Pro from $39 lifetime." />
   <meta property="og:url" content="https://dexlyy.com/shot.html" />
   <meta property="og:image" content="https://dexlyy.com/og-image.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260613c" />
+  <link rel="stylesheet" href="styles.css?v=20260613e" />
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "DexlyyShot",
+    "name": "Dexlyy Shot",
     "applicationCategory": "UtilitiesApplication",
     "applicationSubCategory": "Screenshot / Screen Capture",
     "operatingSystem": "Windows",
-    "description": "AI-native screenshot tool: capture, annotate, pin, share, and ask your screenshots. Free to try; $39 one-time lifetime Pro.",
+    "description": "AI-native screenshot tool: capture, annotate, multi-snip, pin, share, and ask your screenshots.",
     "url": "https://dexlyy.com/shot.html",
-    "downloadUrl": "https://dexlyy.com/shot.html",
+    "downloadUrl": "https://dexlyy.com/shot.html#download",
     "publisher": { "@id": "https://dexlyy.com/#organization" },
     "offers": {
       "@type": "Offer", "price": "39", "priceCurrency": "USD",
-      "description": "Lifetime license — up to 3 computers, all AI features"
+      "description": "Lifetime Pro license — up to 3 computers, all AI features"
     }
   }
   </script>
 </head>
 <body>
-  <header class="nav is-scrolled" id="nav">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav" id="nav">
     <div class="nav__inner">
       <a href="index.html" class="brand" aria-label="DexlyyAI home">
         <img class="brand__logo" src="logo-mark.png" width="34" height="34" alt="DexlyyAI logo" />
@@ -50,84 +52,291 @@
       <nav class="nav__links" aria-label="Primary">
         <a href="index.html">DexlyyAI</a>
         <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
         <a href="voice.html">Dexlyy Voice</a>
       </nav>
       <div class="nav__cta">
-        <a href="#get" class="btn btn--solid">Download free</a>
+        <a href="#download" class="btn btn--solid">Download free</a>
       </div>
+      <button class="nav__burger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
     </div>
   </header>
 
-  <main class="dl" id="get">
-    <div class="dl__glow" aria-hidden="true"></div>
-    <img class="dl__logo" src="logo-mark.png" width="84" height="84" alt="" aria-hidden="true" />
+  <main id="main">
 
-    <p class="eyebrow">Download for Windows · macOS &amp; Linux coming soon</p>
-    <h1 class="dl__title">Get DexlyyShot</h1>
-    <span id="dl-version" class="dl__version"></span>
-    <p class="dl__lead">
-      Install the app and start capturing. <strong>Free to try</strong> — unlock
-      <strong>Pro for a one-time $39</strong> right inside the app (lifetime license,
-      up to 3 computers, all AI features). Windows now; macOS &amp; Linux on the way.
-    </p>
+    <section class="hero hero--shot">
+      <div class="hero__glow" aria-hidden="true"></div>
+      <svg class="hero__waves hero__waves--shot" viewBox="0 0 1200 1200" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="sgrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#e8923a" />
+            <stop offset="60%" stop-color="#c4610f" />
+            <stop offset="100%" stop-color="#b4540a" />
+          </radialGradient>
+        </defs>
+        <rect x="340" y="340" width="520" height="360" rx="24" fill="none" stroke="url(#sgrad)" stroke-width="3" stroke-dasharray="12 10" opacity=".55"/>
+        <rect x="390" y="390" width="420" height="260" rx="16" fill="none" stroke="url(#sgrad)" stroke-width="2" opacity=".35"/>
+        <circle cx="600" cy="520" r="18" fill="url(#sgrad)" class="hero__waves-core" />
+      </svg>
+      <div class="hero__inner">
+        <p class="eyebrow reveal">AI-native screenshots · Windows now</p>
+        <h1 class="hero__title reveal">
+          Capture once.<br />
+          <span class="hero__title-em">Understand instantly.</span>
+        </h1>
+        <p class="hero__sub reveal">
+          Dexlyy Shot is the screenshot app that <strong>gets what it captured</strong>.
+          Snip a region, stack multiple captures, annotate with calm precision — then
+          <strong>ask your screenshot</strong> or describe what to grab and let AI do the rest.
+        </p>
+        <div class="hero__actions reveal">
+          <a href="#download" class="btn btn--solid btn--lg">Download free</a>
+          <a href="#how" class="btn btn--line btn--lg">See how it works</a>
+        </div>
+        <p class="hero__micro reveal">5 free screenshots / day · No credit card · macOS &amp; Linux soon</p>
 
-    <a id="dl-primary" class="btn btn--solid btn--lg dl__primary" href="#" rel="noopener">
-      <span id="dl-primary-label">Download for Windows</span>
-      <span id="dl-primary-sub" class="dl__primary-sub">Windows 10 &amp; 11 · 64-bit</span>
-    </a>
-    <p id="dl-status" class="dl__status">Free to try · Unlock Pro for $39 (one-time)</p>
+        <figure class="shot-hero__preview reveal" aria-hidden="true">
+          <img src="dexlyy-shot-product.svg" alt="" width="1024" height="640" loading="eager" />
+        </figure>
+      </div>
+    </section>
 
-    <div class="dl__alts-wrap">
-      <p class="dl__alts-label">Other platforms</p>
-      <div id="dl-others" class="dl__alts"></div>
-    </div>
+    <section class="stats" aria-label="Dexlyy Shot at a glance">
+      <div class="stat reveal">
+        <div class="stat__num">5<span>+</span></div>
+        <div class="stat__label">capture modes —<br />region, window, scroll</div>
+      </div>
+      <div class="stat reveal">
+        <div class="stat__num">AI</div>
+        <div class="stat__label">Ask &amp; Smart Capture<br />built in</div>
+      </div>
+      <div class="stat reveal">
+        <div class="stat__num">1<span>×</span></div>
+        <div class="stat__label">lifetime license —<br />no subscription trap</div>
+      </div>
+      <div class="stat reveal">
+        <div class="stat__num"><span>$</span>0</div>
+        <div class="stat__label">to start —<br />free tier included</div>
+      </div>
+    </section>
 
-    <ol class="dl__steps">
-      <li><span>1</span> Download &amp; run the installer.</li>
-      <li><span>2</span> Open DexlyyShot and press <kbd>Ctrl&nbsp;+&nbsp;Shift&nbsp;+&nbsp;1</kbd> to capture.</li>
-      <li><span>3</span> Love it? Unlock Pro for <strong>$39</strong> in Settings — lifetime.</li>
-    </ol>
+    <section class="how" id="how">
+      <div class="section-head">
+        <p class="eyebrow">How it works</p>
+        <h2 class="section-title">Three steps from screen<br /><em>to shareable clarity.</em></h2>
+      </div>
+      <ol class="steps">
+        <li class="step reveal">
+          <span class="step__no">01</span>
+          <h3>Capture anything</h3>
+          <p>Press a hotkey for region, window, or fullscreen. Multi-snip lets you stack several regions into one clean image.</p>
+        </li>
+        <li class="step reveal">
+          <span class="step__no">02</span>
+          <h3>Annotate or ask</h3>
+          <p>Arrow, blur, pin, or copy — or open Ask and let AI explain the error, draft the bug report, or extract text.</p>
+        </li>
+        <li class="step reveal">
+          <span class="step__no">03</span>
+          <h3>Share in seconds</h3>
+          <p>Drag to paste, save to history, or pin the capture on screen while you keep working.</p>
+        </li>
+      </ol>
+    </section>
 
-    <p class="dl__note">
-      DexlyyShot isn't code-signed yet, so Windows SmartScreen may say
-      “Windows protected your PC.” Click <strong>More info → Run anyway</strong> — it's safe.
-      Your license key arrives by email and activates on up to 3 computers.
-    </p>
+    <section class="features" id="features">
+      <div class="section-head">
+        <p class="eyebrow">Why Dexlyy Shot</p>
+        <h2 class="section-title">Screenshots that work<br /><em>the way you think.</em></h2>
+      </div>
+      <div class="feature-grid">
+        <article class="card card--wide reveal">
+          <h3>Capture anything, beautifully</h3>
+          <p>Region, window, fullscreen, scrolling capture, and multi-snip — multi-monitor aware, Retina-sharp, with a warm glass editor that stays out of your way.</p>
+        </article>
+        <article class="card reveal">
+          <h3>Ask your screenshot <span class="tag-pro">Pro</span></h3>
+          <p>“What does this error mean?” “Write a Jira ticket from this UI.” AI reads the image and answers in context.</p>
+        </article>
+        <article class="card reveal">
+          <h3>Describe it, AI snips it <span class="tag-pro">Pro</span></h3>
+          <p>“Grab the chat on the right and blur the rest.” Smart Capture finds the regions and captures them for you.</p>
+        </article>
+        <article class="card reveal">
+          <h3>Multi-snip combine</h3>
+          <p>Capture several regions in one session and stack them into a single neat composite — perfect for docs and bug reports.</p>
+        </article>
+        <article class="card reveal">
+          <h3>Annotate, pin &amp; share</h3>
+          <p>Arrows, blur-to-redact, pin-to-screen, drag-to-paste, OCR text extraction, and searchable capture history.</p>
+        </article>
+        <article class="card card--accent reveal">
+          <h3>Calm by design</h3>
+          <p>No clutter, no dark patterns. Dexlyy Shot lives in the tray, appears when you need it, and disappears when you don't.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="quotes" id="use-cases">
+      <div class="section-head">
+        <p class="eyebrow">Made for real work</p>
+        <h2 class="section-title">One tool.<br /><em>Every kind of capture.</em></h2>
+      </div>
+      <div class="quotes__grid">
+        <figure class="quote reveal">
+          <blockquote>“File bug reports with annotated screenshots and AI-written repro steps — without leaving your flow.”</blockquote>
+          <figcaption><strong>For developers</strong><span>Errors, UI bugs &amp; PRs</span></figcaption>
+        </figure>
+        <figure class="quote reveal">
+          <blockquote>“Stack multiple UI states into one image for release notes, onboarding docs, or client updates.”</blockquote>
+          <figcaption><strong>For product &amp; design</strong><span>Multi-snip &amp; pin</span></figcaption>
+        </figure>
+        <figure class="quote reveal">
+          <blockquote>“Ask Dexlyy Shot to explain a confusing settings screen or summarize a long email thread from a single snip.”</blockquote>
+          <figcaption><strong>For everyone else</strong><span>Ask AI on any capture</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+      <div class="section-head">
+        <p class="eyebrow">Pricing</p>
+        <h2 class="section-title">Start free.<br /><em>Upgrade once, keep forever.</em></h2>
+      </div>
+      <div class="plans plans--2">
+        <article class="plan reveal">
+          <h3 class="plan__name">Free</h3>
+          <p class="plan__tag">Try every capture mode</p>
+          <div class="plan__price"><span class="plan__cur">$</span><span class="plan__amt">0</span><span class="plan__per">/forever</span></div>
+          <a href="#download" class="btn btn--line btn--block">Download free</a>
+          <ul class="plan__list">
+            <li>5 screenshots / day</li>
+            <li>Region, window &amp; fullscreen</li>
+            <li>Multi-snip &amp; scrolling capture</li>
+            <li>Annotate, pin &amp; history</li>
+            <li>Screen recording</li>
+          </ul>
+        </article>
+        <article class="plan plan--featured reveal">
+          <span class="plan__ribbon">Best value</span>
+          <h3 class="plan__name">Pro</h3>
+          <p class="plan__tag">Lifetime license</p>
+          <div class="plan__price"><span class="plan__cur">$</span><span class="plan__amt">39</span><span class="plan__per"> once</span></div>
+          <a href="#download" class="btn btn--solid btn--block">Get Dexlyy Shot</a>
+          <ul class="plan__list">
+            <li><strong>Unlimited</strong> screenshots</li>
+            <li>Ask your screenshot (AI)</li>
+            <li>Smart Capture &amp; OCR</li>
+            <li>300 hosted AI actions / month</li>
+            <li>Up to 3 computers</li>
+          </ul>
+          <p class="plan__note">Unlock inside the app after install — no subscription.</p>
+        </article>
+      </div>
+      <p class="pricing__foot">Windows 10 &amp; 11 · 64-bit · macOS &amp; Linux on the roadmap.</p>
+    </section>
+
+    <section class="faq" id="faq">
+      <div class="section-head">
+        <p class="eyebrow">FAQ</p>
+        <h2 class="section-title">Questions, answered.</h2>
+      </div>
+      <div class="faq__list">
+        <details class="faq__item">
+          <summary>How is Dexlyy Shot different from Snipping Tool?<span class="faq__plus" aria-hidden="true"></span></summary>
+          <p>Snipping Tool captures pixels. Dexlyy Shot captures <em>meaning</em> — AI Ask, Smart Capture, multi-snip, scrolling capture, pin-to-screen, and a searchable history, all in one calm app.</p>
+        </details>
+        <details class="faq__item">
+          <summary>Is Dexlyy Shot really a one-time purchase?<span class="faq__plus" aria-hidden="true"></span></summary>
+          <p>Yes. Pro is a $39 lifetime license for up to 3 computers — not a monthly subscription. You pay once inside the app and keep unlimited captures plus hosted AI features.</p>
+        </details>
+        <details class="faq__item">
+          <summary>Why does Windows SmartScreen warn me?<span class="faq__plus" aria-hidden="true"></span></summary>
+          <p>We're a small studio and haven't code-signed our installer yet. The app is safe — click <strong>More info → Run anyway</strong>. Code signing is on the way.</p>
+        </details>
+        <details class="faq__item">
+          <summary>What counts toward the free daily limit?<span class="faq__plus" aria-hidden="true"></span></summary>
+          <p>Each screenshot counts — including each snip in a multi-snip session. Combining them still uses one capture per region you selected.</p>
+        </details>
+        <details class="faq__item">
+          <summary>Do I need an account?<span class="faq__plus" aria-hidden="true"></span></summary>
+          <p>Yes — a free account tracks your daily quota and unlocks Pro when you upgrade. Sign in with email or Google right inside the app.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="dl dl--shot" id="download">
+      <div class="dl__glow" aria-hidden="true"></div>
+      <img class="dl__logo" src="logo-mark.png" width="72" height="72" alt="" aria-hidden="true" />
+      <p class="eyebrow">Ready when you are</p>
+      <h2 class="dl__title">Download Dexlyy Shot</h2>
+      <span id="dl-version" class="dl__version"></span>
+      <p class="dl__lead">
+        Install free on Windows. Capture in seconds with <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>.
+        Love it? Unlock Pro for a <strong>one-time $39</strong> — lifetime, up to 3 machines.
+      </p>
+      <a id="dl-primary" class="btn btn--solid btn--lg dl__primary" href="#" rel="noopener">
+        <span id="dl-primary-label">Download for Windows</span>
+        <span id="dl-primary-sub" class="dl__primary-sub">Windows 10 &amp; 11 · 64-bit</span>
+      </a>
+      <p id="dl-status" class="dl__status">Free to try · Pro $39 lifetime</p>
+      <div class="dl__alts-wrap">
+        <p class="dl__alts-label">Other platforms</p>
+        <div id="dl-others" class="dl__alts"></div>
+      </div>
+      <p class="dl__note">
+        SmartScreen may appear because we're not code-signed yet. Click <strong>More info → Run anyway</strong> — it's safe.
+      </p>
+    </section>
+
+    <section class="final">
+      <div class="final__glow" aria-hidden="true"></div>
+      <img class="final__logo" src="logo-mark.png" width="76" height="76" alt="" aria-hidden="true" />
+      <h2 class="final__title">Your next screenshot should<br /><em>do more than sit in a folder.</em></h2>
+      <p class="final__sub">Capture, annotate, ask, and share — without breaking your flow.</p>
+      <a href="#download" class="btn btn--solid btn--lg">Download for free</a>
+    </section>
+
   </main>
 
-  <!-- Feature recap -->
-  <section class="features" id="features" style="margin-top:0">
-    <div class="section-head">
-      <p class="eyebrow">Why DexlyyShot</p>
-      <h2 class="section-title">The screenshot app that<br /><em>understands what it captured.</em></h2>
-    </div>
-    <div class="feature-grid">
-      <article class="card reveal is-visible">
-        <h3>Capture anything</h3>
-        <p>Region, window or fullscreen — multi-monitor and Retina-sharp, with a calm glass editor.</p>
-      </article>
-      <article class="card reveal is-visible">
-        <h3>Ask your screenshot <span class="tag-pro">Pro</span></h3>
-        <p>“What does this error mean?” “Write a bug report from this.” AI answers, right from the capture.</p>
-      </article>
-      <article class="card reveal is-visible">
-        <h3>Describe it, AI snips it <span class="tag-pro">Pro</span></h3>
-        <p>“Grab the chat on the right and blur the rest.” DexlyyShot finds the regions and captures them.</p>
-      </article>
-      <article class="card reveal is-visible">
-        <h3>Annotate, pin &amp; share</h3>
-        <p>Arrows, blur-to-redact, pin-to-screen, drag-to-paste, and instant searchable history.</p>
-      </article>
-    </div>
-  </section>
-
   <footer class="footer">
-    <div class="footer__bar" style="border:0;margin-top:0;">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <a href="index.html" class="brand">
+          <img class="brand__logo" src="logo-mark.png" width="28" height="28" alt="Dexlyy logo" />
+          <span class="brand__name">Dexlyy<span class="brand__name-em">AI</span></span>
+        </a>
+        <p>AI-native screenshots for people who care about craft — part of the DexlyyAI suite.</p>
+      </div>
+      <nav class="footer__col" aria-label="Dexlyy Shot">
+        <h4>Dexlyy Shot</h4>
+        <a href="#download">Download</a>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+      </nav>
+      <nav class="footer__col" aria-label="Products">
+        <h4>Products</h4>
+        <a href="voice.html">Dexlyy Voice</a>
+        <a href="index.html">DexlyyAI home</a>
+      </nav>
+      <nav class="footer__col" aria-label="Legal">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="security.html">Security</a>
+      </nav>
+    </div>
+    <div class="footer__bar">
       <p>© 2026 DexlyyAI. All rights reserved.</p>
       <p><a href="index.html">Back to home</a></p>
     </div>
   </footer>
 
+  <script src="script.js"></script>
   <script src="shot-download.js"></script>
 </body>
 </html>

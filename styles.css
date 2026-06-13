@@ -184,7 +184,17 @@ img, svg { display: block; max-width: 100%; }
 .product__desc { color: var(--paper); opacity: .72; line-height: 1.6; margin-bottom: 1.4rem; flex: 1; }
 .product__soon { font-size: .85rem; font-weight: 600; color: var(--paper); opacity: .45; }
 .product--soon { opacity: .92; }
-.product-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 960px; margin: 0 auto; }
+.product-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 820px; margin: 0 auto; gap: 1rem; }
+.product-grid--2 .product { padding: 1.15rem 1.25rem 1.3rem; }
+.product-grid--2 .product__visual {
+  width: calc(100% + 2.5rem);
+  margin: -1.15rem -1.25rem .9rem;
+  aspect-ratio: 2 / 1;
+  max-height: 148px;
+}
+.product-grid--2 .product__name { font-size: clamp(1.2rem, 2vw, 1.45rem); }
+.product-grid--2 .product__desc { font-size: .9rem; line-height: 1.55; margin-bottom: 1rem; }
+.product-grid--2 .product__top { margin-bottom: .55rem; gap: .45rem; }
 .product__badge--soon { color: var(--accent); opacity: 1; background: rgba(217,119,6,.1); border-color: rgba(217,119,6,.24); }
 .product--shot { border-color: rgba(217,119,6,.22); }
 .product--shot::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: .7; }
@@ -775,6 +785,35 @@ body.page-brand .nav {
 }
 .dl-alt--soon { opacity: .55; pointer-events: none; cursor: default; }
 .dl-alt--soon .dl-alt__file { color: var(--muted-2); }
+
+/* Shot product page — embedded download block + hero preview */
+.dl--shot {
+  min-height: auto;
+  padding: clamp(4rem, 8vw, 6rem) var(--gutter);
+  scroll-margin-top: calc(5rem + var(--trust-h, 0px));
+}
+.hero--shot .hero__waves--shot { opacity: .35; }
+.shot-hero__preview {
+  margin-top: 2.2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  box-shadow: var(--sh-lg);
+  max-width: min(720px, 100%);
+}
+.shot-hero__preview img { width: 100%; height: auto; display: block; }
+
+.plans--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 720px;
+  margin: 0 auto;
+  align-items: stretch;
+}
+.plans--2 .plan { display: flex; flex-direction: column; }
+.plans--2 .plan__list { flex: 1; }
+@media (max-width: 640px) {
+  .plans--2 { grid-template-columns: 1fr; }
+}
 
 /* ============ 5-tier pricing + feature tags ============ */
 .plans--5 { grid-template-columns: repeat(5, 1fr); align-items: stretch; }
