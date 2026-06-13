@@ -904,3 +904,201 @@ body.page-brand .nav {
 .about { max-width: 900px; margin: var(--section) auto 0; padding: 0 var(--gutter); text-align: center; }
 .about__lead { font-family: var(--serif); font-size: clamp(1.5rem,3.4vw,2.2rem); line-height: 1.35; letter-spacing: -.01em; color: var(--paper); }
 .about__lead em { font-style: italic; background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* =========================================================
+   Prompt Snip — looping animated demo ("GIF" in pure CSS)
+   Story loop: drag a region → drop a numbered mark →
+   type a prompt → fly the brief into your coding agent.
+   Degrades to a finished still under reduced-motion.
+   ========================================================= */
+.psd {
+  --psd-accent: #c4610f;
+  --psd-accent-2: #e8923a;
+  --psd-loop: 9s;
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  margin-inline: auto;
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, #fffdf9, #f4eee2);
+  border: 1px solid var(--line-2);
+  box-shadow: var(--sh-xl);
+  overflow: hidden;
+  font-family: var(--sans);
+  user-select: none;
+}
+.psd__bar {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .55rem .9rem;
+  font-size: .76rem; font-weight: 600; letter-spacing: -.01em; color: var(--muted);
+  background: rgba(255,253,249,.85);
+  border-bottom: 1px solid var(--line);
+}
+.psd__dot { width: 9px; height: 9px; border-radius: 50%; background: linear-gradient(180deg,#f2a45c,#e98a2e); box-shadow: 0 1px 2px rgba(196,97,15,.4); }
+.psd__bar-tag { margin-left: auto; font-size: .66rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--psd-accent); }
+
+.psd__stage { display: grid; grid-template-columns: 1.55fr 1fr; height: 286px; }
+
+/* —— left: the captured screen —— */
+.psd__shot { position: relative; overflow: hidden; background: #141310; padding: 16px; }
+.psd__page {
+  height: 100%; border-radius: 10px; padding: 18px 16px;
+  background: radial-gradient(120% 90% at 50% 0%, #fbf6ec, #efe5d4);
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 9px;
+  box-shadow: inset 0 0 0 1px rgba(60,45,25,.06);
+}
+.psd__logo { width: 34px; height: 34px; border-radius: 9px; background: var(--grad-soft); box-shadow: 0 4px 10px -3px rgba(196,97,15,.5); }
+.psd__eyebrow { font-size: .5rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--psd-accent); }
+.psd__title { font-family: var(--serif); font-size: 1.18rem; line-height: 1.05; color: #2a2218; letter-spacing: -.01em; }
+.psd__title em { display: block; font-style: italic; background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.psd__lines { display: flex; flex-direction: column; gap: 5px; width: 78%; margin-top: 2px; }
+.psd__lines i { height: 5px; border-radius: 3px; background: rgba(60,45,25,.16); }
+.psd__lines i:nth-child(2) { width: 86%; align-self: center; }
+.psd__lines i:nth-child(3) { width: 64%; align-self: center; }
+.psd__btns { display: flex; gap: 7px; margin-top: 4px; }
+.psd__btns span { height: 16px; width: 60px; border-radius: 100px; }
+.psd__btns span:first-child { background: var(--grad); }
+.psd__btns span:last-child { background: #fff; box-shadow: inset 0 0 0 1px rgba(60,45,25,.18); }
+
+/* selection rectangle + numbered mark */
+.psd__sel {
+  position: absolute; left: 9%; top: 30%; width: 0; height: 0;
+  border: 2px solid var(--psd-accent-2); border-radius: 4px;
+  background: rgba(232,146,58,.14); opacity: 0;
+  box-shadow: 0 0 0 9999px rgba(20,19,16,.32);
+  animation: psdSel var(--psd-loop) var(--ease) infinite;
+}
+.psd__mark {
+  position: absolute; left: 9%; top: 30%; transform: translate(-45%,-45%) scale(0);
+  width: 22px; height: 22px; border-radius: 7px;
+  background: var(--grad-soft); color: #fff;
+  font: 700 12px/22px var(--sans); text-align: center;
+  box-shadow: 0 3px 8px -2px rgba(196,97,15,.6); opacity: 0;
+  animation: psdMark var(--psd-loop) var(--ease) infinite;
+}
+
+/* —— right: the prompt sidebar —— */
+.psd__side { padding: 14px 14px; background: #faf6ef; border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 9px; }
+.psd__side-label { font-size: .56rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-2); }
+.psd__field {
+  flex: 1; border: 1px solid var(--line-2); border-radius: 9px; background: #fff;
+  padding: 9px 10px; font-size: .72rem; line-height: 1.5; color: #2a2218;
+  box-shadow: inset 0 1px 2px rgba(60,45,25,.04); min-height: 0;
+}
+.psd__word { opacity: 0; }
+.psd__word:nth-child(1) { animation: psdW1 var(--psd-loop) steps(1) infinite; }
+.psd__word:nth-child(2) { animation: psdW2 var(--psd-loop) steps(1) infinite; }
+.psd__word:nth-child(3) { animation: psdW3 var(--psd-loop) steps(1) infinite; }
+.psd__word:nth-child(4) { animation: psdW4 var(--psd-loop) steps(1) infinite; }
+.psd__caret { display: inline-block; width: 1.5px; height: .85em; vertical-align: -1px; margin-left: 1px; background: var(--psd-accent); animation: psdCaret 1s steps(1) infinite, psdCaretShow var(--psd-loop) steps(1) infinite; }
+.psd__mark-pill {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 5px;
+  font-size: .6rem; font-weight: 600; color: var(--psd-accent);
+  background: rgba(232,146,58,.16); border-radius: 100px; padding: 3px 8px; opacity: 0;
+  animation: psdPill var(--psd-loop) var(--ease) infinite;
+}
+.psd__mark-pill b { width: 13px; height: 13px; border-radius: 4px; background: var(--grad-soft); color: #fff; font: 700 9px/13px var(--sans); text-align: center; }
+.psd__go {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: 9px; padding: 9px; font-size: .72rem; font-weight: 600; color: #fff;
+  background: var(--grad); box-shadow: 0 8px 18px -8px rgba(196,97,15,.6), var(--inset-hi);
+  animation: psdGo var(--psd-loop) var(--ease) infinite;
+}
+
+/* —— bottom: the agent receiving the brief —— */
+.psd__agent { display: flex; align-items: center; gap: 9px; padding: 10px 14px; background: #1a1917; border-top: 1px solid rgba(0,0,0,.3); }
+.psd__agent-mark { width: 18px; height: 18px; border-radius: 5px; background: var(--grad-soft); flex-shrink: 0; }
+.psd__agent-name { font-size: .68rem; font-weight: 600; color: rgba(255,255,255,.9); }
+.psd__agent-name span { color: rgba(255,255,255,.4); font-weight: 400; }
+.psd__agent-field {
+  margin-left: auto; display: flex; align-items: center; gap: 7px;
+  min-width: 0; flex: 1; max-width: 62%;
+  border: 1px solid rgba(255,255,255,.14); border-radius: 100px;
+  padding: 5px 7px 5px 9px; background: #232120;
+}
+.psd__agent-placeholder { font-size: .66rem; color: rgba(255,255,255,.32); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: psdAgentPh var(--psd-loop) steps(1) infinite; }
+.psd__agent-thumb {
+  width: 26px; height: 18px; border-radius: 4px; flex-shrink: 0;
+  background: linear-gradient(135deg,#fbf6ec,#e8923a); box-shadow: 0 0 0 1px rgba(255,255,255,.15);
+  opacity: 0; transform: scale(.6); animation: psdAgentThumb var(--psd-loop) var(--ease) infinite;
+}
+
+/* flying brief: thumbnail + prompt chip travels from sidebar into the agent */
+.psd__fly {
+  position: absolute; left: 70%; top: 52%; z-index: 5;
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 8px 4px 4px; border-radius: 100px;
+  background: #fffdf9; border: 1px solid var(--line-2);
+  box-shadow: var(--sh-lg); opacity: 0; transform: scale(.9);
+  animation: psdFly var(--psd-loop) var(--ease) infinite;
+}
+.psd__fly i { width: 22px; height: 15px; border-radius: 3px; background: linear-gradient(135deg,#fbf6ec,#e8923a); }
+.psd__fly span { font-size: .6rem; font-weight: 600; color: var(--paper); white-space: nowrap; }
+
+/* cursor glides across the whole card */
+.psd__cursor { position: absolute; left: 26%; top: 40%; z-index: 8; width: 16px; height: 16px; pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,.45)); animation: psdCursor var(--psd-loop) var(--ease) infinite; }
+
+@keyframes psdSel {
+  0%, 4% { width: 0; height: 0; opacity: 0; }
+  7% { opacity: 1; }
+  18%, 92% { width: 62%; height: 50%; opacity: 1; }
+  97%, 100% { width: 62%; height: 50%; opacity: 0; }
+}
+@keyframes psdMark {
+  0%, 19% { transform: translate(-45%,-45%) scale(0); opacity: 0; }
+  24% { transform: translate(-45%,-45%) scale(1.18); opacity: 1; }
+  28%, 92% { transform: translate(-45%,-45%) scale(1); opacity: 1; }
+  97%, 100% { opacity: 0; }
+}
+@keyframes psdPill {
+  0%, 20% { opacity: 0; transform: translateY(4px); }
+  26%, 95% { opacity: 1; transform: none; }
+  100% { opacity: 0; }
+}
+@keyframes psdW1 { 0%, 33% { opacity: 0; } 36%, 96% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes psdW2 { 0%, 39% { opacity: 0; } 42%, 96% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes psdW3 { 0%, 45% { opacity: 0; } 48%, 96% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes psdW4 { 0%, 51% { opacity: 0; } 54%, 96% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes psdCaret { 50% { opacity: 0; } }
+@keyframes psdCaretShow { 0%, 30% { opacity: 0; } 31%, 56% { opacity: 1; } 58%, 100% { opacity: 0; } }
+@keyframes psdGo {
+  0%, 60% { transform: none; box-shadow: 0 8px 18px -8px rgba(196,97,15,.6), var(--inset-hi); }
+  66% { transform: scale(.95); box-shadow: 0 4px 10px -6px rgba(196,97,15,.7), var(--inset-hi); }
+  72%, 100% { transform: none; }
+}
+@keyframes psdFly {
+  0%, 64% { opacity: 0; transform: translate(0,0) scale(.85); }
+  70% { opacity: 1; transform: translate(-6%,6%) scale(1); }
+  82% { opacity: 1; transform: translate(-46%,58%) scale(.8); }
+  86%, 100% { opacity: 0; transform: translate(-46%,58%) scale(.7); }
+}
+@keyframes psdAgentThumb {
+  0%, 83% { opacity: 0; transform: scale(.6); }
+  88% { opacity: 1; transform: scale(1.12); }
+  92%, 96% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(.6); }
+}
+@keyframes psdAgentPh { 0%, 86% { opacity: 1; } 88%, 100% { opacity: 0; } }
+@keyframes psdCursor {
+  0%, 6% { left: 26%; top: 40%; }
+  18%, 28% { left: 49%; top: 64%; }      /* finish dragging the region */
+  40%, 58% { left: 78%; top: 34%; }      /* over the prompt field */
+  66%, 74% { left: 82%; top: 86%; }      /* press the button */
+  82% { left: 60%; top: 92%; opacity: 1; }
+  86%, 99% { opacity: 0; }
+  100% { left: 26%; top: 40%; opacity: 0; }
+}
+
+@media (max-width: 560px) {
+  .psd__stage { height: 252px; grid-template-columns: 1.4fr 1fr; }
+  .psd__title { font-size: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* show the finished brief, no motion */
+  .psd__sel { width: 62%; height: 50%; opacity: 1; }
+  .psd__mark { transform: translate(-45%,-45%) scale(1); opacity: 1; }
+  .psd__mark-pill, .psd__word { opacity: 1; }
+  .psd__caret, .psd__fly, .psd__cursor { display: none; }
+  .psd__agent-thumb { opacity: 1; transform: none; }
+  .psd__agent-placeholder { opacity: 0; }
+}
