@@ -39,7 +39,7 @@
   <link rel="preload" as="image" href="logo-mark.png" />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="styles.css?v=20260613c" />
+  <link rel="stylesheet" href="styles.css?v=20260613d" />
 
   <!-- Organization: DexlyyAI is the parent brand -->
   <script type="application/ld+json">
@@ -68,6 +68,15 @@
 </head>
 <body class="page-brand">
   <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Trust note: unsigned Windows builds (dismissible) -->
+  <aside class="trust-pin" id="trustPin" role="note" aria-label="Download safety note">
+    <p class="trust-pin__text">
+      <strong>Windows downloads:</strong> our apps aren&rsquo;t code-signed yet, so SmartScreen may flag them.
+      Click <strong>More info &rarr; Run anyway</strong> &mdash; it&rsquo;s safe. Signing is on the way.
+    </p>
+    <button type="button" class="trust-pin__close" aria-label="Dismiss notice">&times;</button>
+  </aside>
 
   <!-- ============ NAV ============ -->
   <header class="nav" id="nav">

@@ -6,6 +6,25 @@
 
   var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* ---- Trust pin (homepage SmartScreen note) ---- */
+  var trustPin = document.getElementById('trustPin');
+  if (trustPin) {
+    var trustKey = 'dexlyy_trust_pin_dismissed';
+    if (localStorage.getItem(trustKey)) {
+      trustPin.remove();
+    } else {
+      document.body.classList.add('has-trust-pin');
+      var trustClose = trustPin.querySelector('.trust-pin__close');
+      if (trustClose) {
+        trustClose.addEventListener('click', function () {
+          try { localStorage.setItem(trustKey, '1'); } catch (_) {}
+          trustPin.remove();
+          document.body.classList.remove('has-trust-pin');
+        });
+      }
+    }
+  }
+
   /* ---- Nav: scrolled state + mobile toggle + hero watermark parallax ---- */
   var nav = document.getElementById('nav');
   var burger = document.querySelector('.nav__burger');

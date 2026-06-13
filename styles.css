@@ -40,6 +40,7 @@
   --radius-sm: 13px;
   --ease: cubic-bezier(.2,.7,.2,1);
   --ph-h: 42px;   /* Product Hunt strip height (pins the nav below it) */
+  --trust-h: 0px; /* SmartScreen trust pin (homepage) */
 
   /* warm layered shadows (brown-tinted, like the app) */
   --sh-sm: 0 1px 2px rgba(60,45,25,.06), 0 1px 1px rgba(60,45,25,.04);
@@ -50,7 +51,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--ph-h) + 72px); }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--ph-h) + var(--trust-h) + 72px); }
 
 body {
   font-family: var(--sans);
@@ -65,7 +66,8 @@ body {
 
 /* Brand hub (index) has no Product Hunt strip — drop the reserved top gap */
 body.page-brand { --ph-h: 0px; }
-html:has(body.page-brand) { scroll-padding-top: 5.5rem; }
+body.page-brand.has-trust-pin { --trust-h: 44px; }
+html:has(body.page-brand) { scroll-padding-top: calc(5.5rem + var(--trust-h)); }
 
 /* atmosphere: warm sun-wash glow + faint paper grain over the page */
 body::before {
@@ -170,7 +172,7 @@ img, svg { display: block; max-width: 100%; }
   margin: clamp(3rem, 7vw, 6rem) auto 0;
   padding: clamp(2rem, 4vw, 3.5rem) var(--gutter);
   overflow: hidden;
-  scroll-margin-top: calc(var(--ph-h) + 5.5rem);
+  scroll-margin-top: calc(var(--ph-h) + var(--trust-h) + 5.5rem);
 }
 .voice { margin-top: clamp(1.25rem, 2.5vw, 2rem); }
 .shot__glow,
@@ -234,6 +236,9 @@ img, svg { display: block; max-width: 100%; }
 .brand__name-em { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; }
 
 .bhero { position: relative; padding: clamp(5rem,11vw,9rem) var(--gutter) clamp(3rem,6vw,5rem); text-align: center; overflow: hidden; }
+body.page-brand.has-trust-pin .bhero {
+  padding-top: calc(clamp(5rem,11vw,9rem) + var(--trust-h));
+}
 .bhero__ambient { position: absolute; inset: -25% -15% -35%; z-index: 0; pointer-events: none; overflow: hidden; }
 .bhero__orb { position: absolute; border-radius: 50%; filter: blur(72px); opacity: .7; will-change: transform; }
 .bhero__orb--a {
@@ -350,9 +355,43 @@ img, svg { display: block; max-width: 100%; }
 .phbar__sep { opacity: .6; }
 .phbar__cta { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; transition: opacity .2s; }
 .phbar:hover .phbar__cta { opacity: .85; }
-@media (max-width: 560px) { :root { --ph-h: 38px; } .phbar { font-size: .8rem; } .phbar__sep { display: none; } }
+@media (max-width: 560px) { :root { --ph-h: 38px; } .phbar { font-size: .8rem; } .phbar__sep { display: none; } body.page-brand.has-trust-pin { --trust-h: 52px; } }
 
-.nav { position: fixed; inset: var(--ph-h) 0 auto 0; z-index: 100; transition: background .3s var(--ease), box-shadow .3s var(--ease), backdrop-filter .3s; }
+/* ============ TRUST PIN (unsigned apps / SmartScreen) ============ */
+.trust-pin {
+  position: fixed; inset: 0 0 auto 0; z-index: 110;
+  min-height: var(--trust-h);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  padding: .55rem 2.75rem .55rem 1rem;
+  background: linear-gradient(90deg, rgba(28,22,18,.94) 0%, rgba(42,32,26,.92) 50%, rgba(28,22,18,.94) 100%);
+  border-bottom: 1px solid rgba(217,119,6,.28);
+  color: rgba(255,248,240,.92);
+  font-size: .84rem;
+  line-height: 1.45;
+  box-shadow: 0 4px 24px -8px rgba(0,0,0,.35);
+}
+body.has-trust-pin .trust-pin { display: flex; }
+.trust-pin__text { margin: 0; max-width: 72ch; text-align: center; }
+.trust-pin__text strong { color: #fff8ef; font-weight: 600; }
+.trust-pin__close {
+  position: absolute; right: .65rem; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.08);
+  color: rgba(255,248,240,.9);
+  font-size: 1.15rem; line-height: 1; cursor: pointer;
+  transition: background .18s var(--ease), border-color .18s var(--ease);
+}
+.trust-pin__close:hover { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.28); }
+@media (max-width: 640px) {
+  .trust-pin { font-size: .78rem; padding: .65rem 2.5rem .65rem .85rem; text-align: left; }
+  .trust-pin__text { text-align: left; }
+}
+
+.nav { position: fixed; inset: calc(var(--ph-h) + var(--trust-h)) 0 auto 0; z-index: 100; transition: background .3s var(--ease), box-shadow .3s var(--ease), backdrop-filter .3s; }
 /* Brand hub scrolls long spotlight panels under the nav — keep it readable */
 body.page-brand .nav {
   background: rgba(255,253,249,.82);
