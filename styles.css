@@ -148,6 +148,31 @@ img, svg { display: block; max-width: 100%; }
 .product:hover { transform: translateY(-4px); box-shadow: var(--sh-lg); border-color: var(--line-2); }
 .product--live { border-color: rgba(217,119,6,.35); }
 .product--live::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--grad); }
+.product__visual {
+  position: relative;
+  width: calc(100% + clamp(1.7rem,2.6vw,2.3rem) * 2);
+  margin: calc(clamp(1.7rem,2.6vw,2.3rem) * -1) calc(clamp(1.7rem,2.6vw,2.3rem) * -1) 1.45rem;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(80,65,40,.12);
+  background:
+    radial-gradient(circle at 22% 15%, rgba(217,119,6,.24), transparent 42%),
+    linear-gradient(145deg, rgba(255,250,240,.7), rgba(80,54,34,.16));
+}
+.product__visual::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 58%, rgba(255,253,249,.9) 100%);
+  pointer-events: none;
+}
+.product__visual img {
+  width: 100%; height: 100%;
+  display: block; object-fit: cover;
+  transform: scale(1.015);
+  transition: transform .55s var(--ease), filter .55s var(--ease);
+}
+.product:hover .product__visual img { transform: scale(1.05); filter: saturate(1.05) contrast(1.03); }
+.product__visual--shot::after { background: linear-gradient(180deg, transparent 62%, rgba(255,253,249,.9) 100%); }
 .product__top { display: flex; flex-direction: column; gap: .7rem; margin-bottom: .9rem; }
 .product__badge {
   align-self: flex-start; font-size: .68rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
@@ -159,7 +184,7 @@ img, svg { display: block; max-width: 100%; }
 .product__desc { color: var(--paper); opacity: .72; line-height: 1.6; margin-bottom: 1.4rem; flex: 1; }
 .product__soon { font-size: .85rem; font-weight: 600; color: var(--paper); opacity: .45; }
 .product--soon { opacity: .92; }
-.product-grid--2 { grid-template-columns: repeat(2, 1fr); max-width: 880px; margin: 0 auto; }
+.product-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 960px; margin: 0 auto; }
 .product__badge--soon { color: var(--accent); opacity: 1; background: rgba(217,119,6,.1); border-color: rgba(217,119,6,.24); }
 .product--shot { border-color: rgba(217,119,6,.22); }
 .product--shot::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: .7; }
