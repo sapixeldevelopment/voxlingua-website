@@ -41,6 +41,34 @@
     });
   }
 
+  /* ---- Nav products dropdown ---- */
+  var dd = document.getElementById('navProducts');
+  if (dd) {
+    var ddTrigger = dd.querySelector('.nav__dd-trigger');
+    var hoverCapable = window.matchMedia('(hover: hover)').matches;
+    var closeTimer;
+
+    function ddOpen() { clearTimeout(closeTimer); dd.classList.add('is-open'); ddTrigger.setAttribute('aria-expanded', 'true'); }
+    function ddClose() { dd.classList.remove('is-open'); ddTrigger.setAttribute('aria-expanded', 'false'); }
+    function ddToggle() { dd.classList.contains('is-open') ? ddClose() : ddOpen(); }
+
+    // Click/tap always toggles (works on touch + as a11y fallback)
+    ddTrigger.addEventListener('click', function (e) { e.stopPropagation(); ddToggle(); });
+
+    // Desktop: open on hover, close shortly after leaving
+    if (hoverCapable) {
+      dd.addEventListener('mouseenter', ddOpen);
+      dd.addEventListener('mouseleave', function () { closeTimer = setTimeout(ddClose, 140); });
+    }
+
+    // Close on outside click, Escape, or selecting an item
+    document.addEventListener('click', function (e) { if (!dd.contains(e.target)) ddClose(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') ddClose(); });
+    dd.querySelectorAll('.nav__menu-item').forEach(function (a) {
+      a.addEventListener('click', ddClose);
+    });
+  }
+
   /* ---- Scroll reveal ---- */
   var reveals = document.querySelectorAll('.reveal');
 
@@ -139,6 +167,61 @@
     setTimeout(tick, 700);
   } else if (typed) {
     typed.textContent = 'Let’s ship the new release on Friday.';
+  }
+
+  /* ---- Dexlyy Shot early-access waitlist ----
+     Posts straight to Supabase via the public publishable key. RLS on
+     shot_waitlist allows insert-only for anon — the key can never read
+     the list back, so emails can't be scraped. ---- */
+  var shotForm = document.getElementById('shotForm');
+  if (shotForm) {
+    var SB_URL = 'https://mmgzuubrtyodhjtmjlvb.supabase.co';
+    var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZ3p1dWJydHlvZGhqdG1qbHZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMzY2NjQsImV4cCI6MjA5NTgxMjY2NH0.KvCAKHnqQoNl7_THOk2QtCDeKFWmd8Wmn_YUsvRtMsc';
+    var note = document.getElementById('shotNote');
+    var input = shotForm.querySelector('input[name="email"]');
+    var btn = shotForm.querySelector('button');
+
+    shotForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = (input.value || '').trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        note.textContent = 'Please enter a valid email address.';
+        note.className = 'shot__form-note is-error';
+        input.focus();
+        return;
+      }
+      btn.disabled = true;
+      var label = btn.textContent;
+      btn.textContent = 'Adding…';
+
+      fetch(SB_URL + '/rest/v1/shot_waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SB_KEY,
+          'Authorization': 'Bearer ' + SB_KEY,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ email: email, source: 'website' })
+      }).then(function (res) {
+        if (res.ok) {
+          shotForm.style.display = 'none';
+          note.textContent = "You're on the list — we'll email you when Dexlyy Shot launches. 🎉";
+          note.className = 'shot__form-note is-success';
+        } else if (res.status === 409) {
+          shotForm.style.display = 'none';
+          note.textContent = "You're already on the list — thanks for your patience!";
+          note.className = 'shot__form-note is-success';
+        } else {
+          throw new Error('http ' + res.status);
+        }
+      }).catch(function () {
+        btn.disabled = false;
+        btn.textContent = label;
+        note.textContent = 'Something went wrong — please try again, or email support@dexlyy.com.';
+        note.className = 'shot__form-note is-error';
+      });
+    });
   }
 
   /* ---- Download buttons ----
