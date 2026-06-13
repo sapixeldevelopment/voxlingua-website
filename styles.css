@@ -793,13 +793,33 @@ body.page-brand .nav {
   scroll-margin-top: calc(5rem + var(--trust-h, 0px));
 }
 .hero--shot .hero__waves--shot { opacity: .35; }
+.hero--shot .hero__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.hero--shot .hero__sub {
+  text-align: center;
+  width: 100%;
+  max-width: 42ch;
+}
+.hero--shot .hero__actions {
+  justify-content: center;
+  width: 100%;
+}
+.hero--shot .hero__micro {
+  text-align: center;
+  width: 100%;
+}
 .shot-hero__preview {
-  margin-top: 2.2rem;
+  margin: 2.2rem auto 0;
+  width: 100%;
+  max-width: min(720px, 100%);
   border-radius: var(--radius);
   border: 1px solid var(--line);
   overflow: hidden;
   box-shadow: var(--sh-lg);
-  max-width: min(720px, 100%);
 }
 .shot-hero__preview img { width: 100%; height: auto; display: block; }
 
