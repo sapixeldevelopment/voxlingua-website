@@ -17,8 +17,14 @@
   // known-good Shot release tag once you publish one (e.g. shot-v1.0.0). The
   // live resolver below tracks the newest Shot build regardless of version.
   var WINDOWS_URL =
-    'https://github.com/' + RELEASES_REPO + '/releases/download/shot-v1.0.0/DexlyyShot.Setup.1.0.0.exe';
+    'https://github.com/' + RELEASES_REPO + '/releases/download/shot-v1.1.0/DexlyyShot.Setup.1.1.0.exe';
   var WINDOWS_FILE = 'DexlyyShot-Setup.exe';
+
+  function formatVersion(tag) {
+    if (!tag) return '';
+    var m = String(tag).match(/v?(\d+\.\d+\.\d+)/);
+    return m ? m[1] : tag.replace(/^shot-/i, '');
+  }
 
   var LABELS = { windows: 'Windows', macos: 'macOS', linux: 'Linux' };
 
@@ -128,7 +134,7 @@
     WINDOWS_URL = latest.url;
     WINDOWS_FILE = latest.file;
     if (els.version && latest.version) {
-      els.version.textContent = 'Latest: ' + latest.version;
+      els.version.textContent = 'v' + formatVersion(latest.version);
     }
     render();
   });
