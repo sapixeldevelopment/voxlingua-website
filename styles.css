@@ -63,10 +63,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Brand hub (index) has no Product Hunt strip — drop the reserved top gap */
-body.page-brand { --ph-h: 0px; }
-html:has(body.page-brand) { scroll-padding-top: 72px; }
-
 /* atmosphere: warm sun-wash glow + faint paper grain over the page */
 body::before {
   content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
