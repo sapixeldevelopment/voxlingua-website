@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live review — Dexlyy Shot</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" type="image/png" href="logo-mark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0e0d0c;
+      --panel: #171513;
+      --panel-2: #1f1c19;
+      --line: rgba(255, 255, 255, .08);
+      --text: #f3ece3;
+      --muted: rgba(243, 236, 227, .58);
+      --accent: #e8923a;
+      --accent-2: #0088ff;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Hanken Grotesk", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(14, 13, 12, .92);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .brand img { width: 28px; height: 28px; }
+    .brand span em { color: var(--accent); font-style: normal; }
+    .meta { text-align: right; }
+    .meta h1 { margin: 0; font-size: 15px; font-weight: 600; }
+    .meta p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #8ce99a;
+      background: rgba(140, 233, 154, .12);
+      border: 1px solid rgba(140, 233, 154, .25);
+    }
+    .live-pill::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #8ce99a;
+      box-shadow: 0 0 8px #8ce99a;
+    }
+    #layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 200px minmax(0, 1fr) 360px;
+      min-height: 0;
+    }
+    #snipTabs {
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+      padding: 14px 10px;
+      overflow: auto;
+    }
+    #snipTabs h2 {
+      margin: 0 0 10px 8px;
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .snip-tab {
+      width: 100%;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .snip-tab:hover { background: rgba(255,255,255,.04); }
+    .snip-tab.active {
+      border-color: rgba(232, 146, 58, .35);
+      background: rgba(232, 146, 58, .1);
+    }
+    .snip-tab img {
+      width: 100%;
+      border-radius: 6px;
+      display: block;
+      margin-bottom: 6px;
+      background: #000;
+    }
+    .snip-tab span { font-size: 12px; font-weight: 600; }
+    #canvasArea {
+      overflow: auto;
+      padding: 24px;
+      background:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px),
+        #121110;
+      background-size: 24px 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    #stage {
+      position: relative;
+      box-shadow: 0 24px 60px rgba(0,0,0,.45);
+      border-radius: 8px;
+      overflow: hidden;
+      max-width: 100%;
+    }
+    #shot { display: block; max-width: 100%; height: auto; }
+    #overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: auto;
+      cursor: crosshair;
+    }
+    #sidebar {
+      border-left: 1px solid var(--line);
+      background: var(--panel);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    #sidebar header {
+      position: static;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel-2);
+      padding: 16px 18px;
+    }
+    #sidebar header h2 { margin: 0; font-size: 14px; }
+    #sidebar header p { margin: 6px 0 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
+    #noteList {
+      flex: 1;
+      overflow: auto;
+      padding: 12px 14px 20px;
+    }
+    .note-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 12px 12px 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .note-card:hover { border-color: rgba(86, 212, 255, .35); background: rgba(86, 212, 255, .06); }
+    .note-card.active {
+      border-color: rgba(0, 136, 255, .55);
+      background: rgba(0, 136, 255, .12);
+      box-shadow: 0 0 0 1px rgba(0, 136, 255, .15) inset;
+    }
+    .note-card__num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff8ef;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .note-card.active .note-card__num { background: var(--accent-2); }
+    .note-card p { margin: 0; font-size: 13px; line-height: 1.5; color: rgba(243,236,227,.92); }
+    .note-card small { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; }
+    .overall {
+      border: 1px dashed rgba(255,255,255,.12);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      background: rgba(255,255,255,.02);
+    }
+    .overall h3 {
+      margin: 0 0 6px;
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .overall p { margin: 0; font-size: 13px; line-height: 1.5; }
+    #empty, #loading, #error {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      text-align: center;
+      color: var(--muted);
+    }
+    #error { color: #ff8f8f; }
+    @media (max-width: 1100px) {
+      #layout { grid-template-columns: 1fr; }
+      #snipTabs {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      #snipTabs h2 { display: none; }
+      .snip-tab { min-width: 120px; }
+      #sidebar { max-height: 42vh; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="shot.html">
+      <img src="logo-mark.png" alt="" width="28" height="28" />
+      <span>Dexlyy<em>Shot</em> review</span>
+    </a>
+    <div class="meta">
+      <h1 id="boardTitle">Loading review…</h1>
+      <p id="boardMeta"></p>
+    </div>
+  </header>
+
+  <div id="loading">Loading review board…</div>
+  <div id="error" hidden></div>
+  <div id="layout" hidden>
+    <nav id="snipTabs" aria-label="Screens in this review"></nav>
+    <main id="canvasArea">
+      <div id="stage">
+        <img id="shot" alt="Review screenshot" />
+        <canvas id="overlay"></canvas>
+      </div>
+    </main>
+    <aside id="sidebar">
+      <header>
+        <h2>Review notes</h2>
+        <p>Click a note to highlight its marks on the screenshot. Overlapping marks fan out so every number stays visible.</p>
+      </header>
+      <div id="noteList"></div>
+    </aside>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="review-badges.js"></script>
+  <script src="review.js"></script>
+</body>
+</html>
