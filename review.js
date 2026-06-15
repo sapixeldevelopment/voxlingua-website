@@ -17,10 +17,21 @@ const boardMetaEl = document.getElementById('boardMeta');
 const snipTabsEl = document.getElementById('snipTabs');
 const shotEl = document.getElementById('shot');
 const overlay = document.getElementById('overlay');
-const ctx = overlay.getContext('2d');
 const noteListEl = document.getElementById('noteList');
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabase = null;
+try {
+  if (!window.supabase?.createClient) {
+    throw new Error('Could not load Supabase — check your connection or try again.');
+  }
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch (err) {
+  loadingEl.hidden = true;
+  errorEl.hidden = false;
+  errorEl.textContent = err?.message || 'Failed to initialize review viewer.';
+}
+
+const ctx = overlay?.getContext('2d');
 
 let board = null;
 let snips = [];
@@ -148,6 +159,7 @@ function layoutCanvas() {
 }
 
 function drawMarks() {
+  if (!ctx) return;
   const callouts = activeCallouts();
   ctx.clearRect(0, 0, overlay.width, overlay.height);
   const badgeLayouts = ReviewBadges.computeBadgeLayouts(
@@ -321,6 +333,7 @@ overlay.addEventListener('click', () => {
 });
 
 async function fetchBoard(code = accessCode) {
+  if (!supabase) throw new Error('Review viewer is not ready.');
   return supabase.rpc('get_shot_review_board', {
     p_slug: boardSlug,
     p_access_code: code || null,
@@ -347,28 +360,33 @@ function renderBoardData(data) {
 }
 
 async function loadBoard() {
+  if (!supabase) return;
   if (!boardSlug || boardSlug.length < 6) {
     showError('Missing or invalid review link. Ask your teammate to resend the URL.');
     return;
   }
 
-  accessCode = loadStoredAccessCode();
-  const { data, error } = await fetchBoard(accessCode);
-  if (error) {
-    showError(error.message || 'Could not load this review.');
-    return;
-  }
-  if (!data?.ok) {
-    showError('This review was not found or has expired.');
-    return;
-  }
-  if (data.locked) {
-    showLockScreen(data);
-    return;
-  }
+  try {
+    accessCode = loadStoredAccessCode();
+    const { data, error } = await fetchBoard(accessCode);
+    if (error) {
+      showError(error.message || 'Could not load this review.');
+      return;
+    }
+    if (!data?.ok) {
+      showError('This review was not found or has expired.');
+      return;
+    }
+    if (data.locked) {
+      showLockScreen(data);
+      return;
+    }
 
-  if (accessCode) storeAccessCode(accessCode);
-  renderBoardData(data);
+    if (accessCode) storeAccessCode(accessCode);
+    renderBoardData(data);
+  } catch (err) {
+    showError(err?.message || 'Could not load this review.');
+  }
 }
 
 async function tryUnlock() {
