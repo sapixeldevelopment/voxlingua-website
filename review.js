@@ -1,6 +1,10 @@
 const SUPABASE_URL = 'https://mmgzuubrtyodhjtmjlvb.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_LYP_tofuZNutUaE-KfjT7Q_Uf5XcaIO';
 
+const MIN_ZOOM = 0.2;
+const MAX_ZOOM = 8;
+const ZOOM_STEP = 1.2;
+
 const params = new URLSearchParams(location.search);
 const boardSlug = (params.get('b') || '').trim().toLowerCase();
 
@@ -15,9 +19,17 @@ const layoutEl = document.getElementById('layout');
 const boardTitleEl = document.getElementById('boardTitle');
 const boardMetaEl = document.getElementById('boardMeta');
 const snipTabsEl = document.getElementById('snipTabs');
+const viewportEl = document.getElementById('viewport');
+const stageWrapEl = document.getElementById('stageWrap');
+const stageEl = document.getElementById('stage');
 const shotEl = document.getElementById('shot');
 const overlay = document.getElementById('overlay');
 const noteListEl = document.getElementById('noteList');
+const zoomLabelEl = document.getElementById('zoomLabel');
+const zoomInEl = document.getElementById('zoomIn');
+const zoomOutEl = document.getElementById('zoomOut');
+const zoomFitEl = document.getElementById('zoomFit');
+const zoom100El = document.getElementById('zoom100');
 const ctx = overlay?.getContext('2d');
 
 let supabaseRealtime = null;
@@ -26,10 +38,19 @@ let snips = [];
 let activeSnipIndex = 0;
 let selectedGroupId = null;
 let hoveredCalloutId = null;
-let displayScale = 1;
 let imgW = 0;
 let imgH = 0;
 let accessCode = '';
+
+let fitScale = 1;
+let zoom = 1;
+let panX = 0;
+let panY = 0;
+let userAdjustedView = false;
+
+let isPanning = false;
+let panDrag = null;
+let pointerDown = null;
 
 function unlockStorageKey() {
   return `dexlyy-review-unlock:${boardSlug}`;
@@ -144,19 +165,134 @@ function badgeLayouts(callouts) {
   return new Map();
 }
 
+function clampZoom(z) {
+  return Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z));
+}
+
+function computeFitScale() {
+  if (!viewportEl || !imgW || !imgH) return 1;
+  const pad = 32;
+  const w = Math.max(1, viewportEl.clientWidth - pad);
+  const h = Math.max(1, viewportEl.clientHeight - pad);
+  return Math.min(w / imgW, h / imgH);
+}
+
+function viewScale() {
+  return fitScale * zoom;
+}
+
+function centerView() {
+  if (!viewportEl) return;
+  const s = viewScale();
+  panX = (viewportEl.clientWidth - imgW * s) / 2;
+  panY = (viewportEl.clientHeight - imgH * s) / 2;
+}
+
+function applyViewTransform() {
+  const s = viewScale();
+  stageWrapEl.style.transform = `translate(${panX}px, ${panY}px) scale(${s})`;
+
+  if (zoomLabelEl) {
+    const pct = Math.round(s * 100);
+    if (Math.abs(s - fitScale) < 0.01) zoomLabelEl.textContent = 'Fit';
+    else if (Math.abs(s - 1) < 0.01) zoomLabelEl.textContent = '100%';
+    else zoomLabelEl.textContent = `${pct}%`;
+  }
+}
+
+function resetView({ keepUserZoom = false } = {}) {
+  fitScale = computeFitScale();
+  if (!keepUserZoom || !userAdjustedView) {
+    zoom = 1;
+    userAdjustedView = false;
+  }
+  centerView();
+  applyViewTransform();
+}
+
+function setZoomAt(clientX, clientY, nextZoom) {
+  const oldS = viewScale();
+  const newZoom = clampZoom(nextZoom);
+  const newS = fitScale * newZoom;
+  const vp = viewportEl.getBoundingClientRect();
+  const zx = clientX - vp.left;
+  const zy = clientY - vp.top;
+  const ix = (zx - panX) / oldS;
+  const iy = (zy - panY) / oldS;
+  zoom = newZoom;
+  panX = zx - ix * newS;
+  panY = zy - iy * newS;
+  userAdjustedView = true;
+  applyViewTransform();
+}
+
+function zoomBy(factor, clientX, clientY) {
+  const cx = clientX ?? viewportEl.clientWidth / 2 + viewportEl.getBoundingClientRect().left;
+  const cy = clientY ?? viewportEl.clientHeight / 2 + viewportEl.getBoundingClientRect().top;
+  setZoomAt(cx, cy, zoom * factor);
+}
+
+function zoomToFit() {
+  fitScale = computeFitScale();
+  zoom = 1;
+  userAdjustedView = false;
+  centerView();
+  applyViewTransform();
+}
+
+function zoomTo100() {
+  fitScale = computeFitScale();
+  zoom = clampZoom(1 / fitScale);
+  userAdjustedView = true;
+  centerView();
+  applyViewTransform();
+}
+
+function groupBounds(gid, callouts) {
+  const members = callouts.filter(c => groupIdOf(c) === gid);
+  if (!members.length) return null;
+  const minX = Math.min(...members.map(c => c.rect.x));
+  const minY = Math.min(...members.map(c => c.rect.y));
+  const maxX = Math.max(...members.map(c => c.rect.x + c.rect.width));
+  const maxY = Math.max(...members.map(c => c.rect.y + c.rect.height));
+  return { minX, minY, maxX, maxY, cx: (minX + maxX) / 2, cy: (minY + maxY) / 2 };
+}
+
+function focusGroup(gid) {
+  const callouts = activeCallouts();
+  const bounds = groupBounds(gid, callouts);
+  if (!bounds || !viewportEl) return;
+
+  const pad = 48;
+  const bw = bounds.maxX - bounds.minX + pad * 2;
+  const bh = bounds.maxY - bounds.minY + pad * 2;
+  fitScale = computeFitScale();
+  const targetS = Math.min(
+    viewportEl.clientWidth / bw,
+    viewportEl.clientHeight / bh,
+    2.5
+  );
+  zoom = clampZoom(targetS / fitScale);
+  userAdjustedView = true;
+  panX = viewportEl.clientWidth / 2 - bounds.cx * targetS;
+  panY = viewportEl.clientHeight / 2 - bounds.cy * targetS;
+  applyViewTransform();
+}
+
 function layoutCanvas() {
-  const wrap = document.getElementById('canvasArea');
-  const maxW = Math.max(200, wrap.clientWidth - 48);
-  displayScale = Math.min(1, maxW / imgW);
-  const w = Math.max(1, Math.round(imgW * displayScale));
-  const h = Math.max(1, Math.round(imgH * displayScale));
-  shotEl.style.width = w + 'px';
-  shotEl.style.height = h + 'px';
+  if (!imgW || !imgH) return;
+
+  shotEl.style.width = `${imgW}px`;
+  shotEl.style.height = `${imgH}px`;
   overlay.width = imgW;
   overlay.height = imgH;
-  overlay.style.width = w + 'px';
-  overlay.style.height = h + 'px';
+  overlay.style.width = `${imgW}px`;
+  overlay.style.height = `${imgH}px`;
+  stageEl.style.width = `${imgW}px`;
+  stageEl.style.height = `${imgH}px`;
+
   drawMarks();
+  resetView({ keepUserZoom: userAdjustedView });
 }
 
 function drawMarks() {
@@ -176,19 +312,19 @@ function drawMarks() {
 
     ctx.save();
     if (selected) {
-      ctx.strokeStyle = '#0088ff';
+      ctx.strokeStyle = '#2b9fff';
       ctx.lineWidth = 3;
-      ctx.fillStyle = 'rgba(0, 136, 255, 0.22)';
+      ctx.fillStyle = 'rgba(43, 159, 255, 0.2)';
       ctx.fillRect(x, y, w, h);
       ctx.strokeRect(x, y, w, h);
     } else if (hovered) {
       ctx.strokeStyle = '#56d4ff';
       ctx.lineWidth = 2;
-      ctx.fillStyle = 'rgba(86, 212, 255, 0.16)';
+      ctx.fillStyle = 'rgba(86, 212, 255, 0.14)';
       ctx.fillRect(x, y, w, h);
       ctx.strokeRect(x, y, w, h);
     } else {
-      ctx.strokeStyle = 'rgba(232, 146, 58, .8)';
+      ctx.strokeStyle = 'rgba(232, 146, 58, .85)';
       ctx.lineWidth = 1.5;
       ctx.setLineDash([5, 4]);
       ctx.strokeRect(x, y, w, h);
@@ -198,7 +334,7 @@ function drawMarks() {
     const bx = layout?.badgeX ?? (x + 8 + badgeR);
     const by = layout?.badgeY ?? (y + 8 + badgeR);
     if (layout?.leader) {
-      ctx.strokeStyle = selected ? '#0088ff' : 'rgba(232, 146, 58, .75)';
+      ctx.strokeStyle = selected ? '#2b9fff' : 'rgba(232, 146, 58, .75)';
       ctx.lineWidth = 1.5;
       ctx.setLineDash([4, 3]);
       ctx.beginPath();
@@ -210,7 +346,7 @@ function drawMarks() {
 
     ctx.beginPath();
     ctx.arc(bx, by, badgeR, 0, Math.PI * 2);
-    ctx.fillStyle = selected ? '#0088ff' : hovered ? '#3ec5ff' : '#e8923a';
+    ctx.fillStyle = selected ? '#2b9fff' : hovered ? '#3ec5ff' : '#e8923a';
     ctx.fill();
     ctx.strokeStyle = '#fff8ef';
     ctx.lineWidth = 1.5;
@@ -253,6 +389,7 @@ function renderNotes() {
       selectedGroupId = g.gid;
       renderNotes();
       drawMarks();
+      focusGroup(g.gid);
     });
     noteListEl.appendChild(card);
   });
@@ -281,6 +418,7 @@ function selectSnip(index) {
   activeSnipIndex = index;
   selectedGroupId = null;
   hoveredCalloutId = null;
+  userAdjustedView = false;
   const snip = activeSnip();
   if (!snip?.image_url) {
     showError('This review screen has no image.');
@@ -314,10 +452,11 @@ function selectSnip(index) {
 }
 
 function canvasPos(e) {
-  const r = overlay.getBoundingClientRect();
+  const vp = viewportEl.getBoundingClientRect();
+  const s = viewScale();
   return {
-    x: (e.clientX - r.left) / displayScale,
-    y: (e.clientY - r.top) / displayScale,
+    x: (e.clientX - vp.left - panX) / s,
+    y: (e.clientY - vp.top - panY) / s,
   };
 }
 
@@ -332,21 +471,103 @@ function hitTestCallout(p) {
   return hits[0].id;
 }
 
-overlay?.addEventListener('mousemove', e => {
-  const hit = hitTestCallout(canvasPos(e));
-  if (hit === hoveredCalloutId) return;
-  hoveredCalloutId = hit;
-  if (hit) {
-    const c = activeCallouts().find(x => x.id === hit);
-    selectedGroupId = c ? groupIdOf(c) : null;
-    renderNotes();
-  }
-  drawMarks();
-});
+function setupViewport() {
+  if (!viewportEl) return;
 
-overlay?.addEventListener('click', () => {
-  if (hoveredCalloutId) renderNotes();
-});
+  viewportEl.addEventListener('wheel', e => {
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP;
+    zoomBy(factor, e.clientX, e.clientY);
+  }, { passive: false });
+
+  viewportEl.addEventListener('pointerdown', e => {
+    if (e.button > 2) return;
+    isPanning = e.button === 1 || e.button === 2 || e.altKey;
+    pointerDown = { x: e.clientX, y: e.clientY, panX, panY, button: e.button, altKey: e.altKey };
+    panDrag = null;
+    viewportEl.setPointerCapture(e.pointerId);
+    if (isPanning) viewportEl.classList.add('is-panning');
+  });
+
+  viewportEl.addEventListener('pointermove', e => {
+    if (!pointerDown) {
+      const hit = hitTestCallout(canvasPos(e));
+      if (hit !== hoveredCalloutId) {
+        hoveredCalloutId = hit;
+        viewportEl.classList.toggle('can-mark', !!hit);
+        if (hit) {
+          const c = activeCallouts().find(x => x.id === hit);
+          selectedGroupId = c ? groupIdOf(c) : null;
+          renderNotes();
+        }
+        drawMarks();
+      }
+      return;
+    }
+
+    const dx = e.clientX - pointerDown.x;
+    const dy = e.clientY - pointerDown.y;
+
+    if (!panDrag && Math.hypot(dx, dy) > 5) {
+      panDrag = true;
+      if (pointerDown.button === 0 && !pointerDown.altKey) {
+        isPanning = true;
+        viewportEl.classList.add('is-panning');
+      }
+    }
+
+    if (isPanning && panDrag) {
+      panX = pointerDown.panX + dx;
+      panY = pointerDown.panY + dy;
+      userAdjustedView = true;
+      applyViewTransform();
+    }
+  });
+
+  viewportEl.addEventListener('pointerup', e => {
+    if (!pointerDown) return;
+
+    const dx = e.clientX - pointerDown.x;
+    const dy = e.clientY - pointerDown.y;
+    const moved = Math.hypot(dx, dy) > 4;
+
+    if (!moved && pointerDown.button === 0 && !pointerDown.altKey) {
+      const hit = hitTestCallout(canvasPos(e));
+      if (hit) {
+        const c = activeCallouts().find(x => x.id === hit);
+        if (c) {
+          selectedGroupId = groupIdOf(c);
+          renderNotes();
+          drawMarks();
+          focusGroup(selectedGroupId);
+        }
+      } else {
+        selectedGroupId = null;
+        hoveredCalloutId = null;
+        renderNotes();
+        drawMarks();
+      }
+    }
+
+    pointerDown = null;
+    panDrag = null;
+    isPanning = false;
+    viewportEl.classList.remove('is-panning');
+    try { viewportEl.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+  });
+
+  viewportEl.addEventListener('dblclick', e => {
+    e.preventDefault();
+    zoomToFit();
+  });
+
+  viewportEl.addEventListener('contextmenu', e => e.preventDefault());
+}
+
+zoomInEl?.addEventListener('click', () => zoomBy(ZOOM_STEP));
+zoomOutEl?.addEventListener('click', () => zoomBy(1 / ZOOM_STEP));
+zoomFitEl?.addEventListener('click', () => zoomToFit());
+zoom100El?.addEventListener('click', () => zoomTo100());
 
 async function fetchBoard(code = accessCode) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_shot_review_board`, {
@@ -505,8 +726,12 @@ async function refreshBoard({ quiet = false } = {}) {
   }
 }
 
+let resizeTimer = null;
 window.addEventListener('resize', () => {
-  if (imgW && imgH) layoutCanvas();
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (imgW && imgH) resetView({ keepUserZoom: userAdjustedView });
+  }, 120);
 });
 
 if (lockSubmitEl) lockSubmitEl.addEventListener('click', tryUnlock);
@@ -516,4 +741,5 @@ if (lockPasswordEl) {
   });
 }
 
+setupViewport();
 loadBoard();
