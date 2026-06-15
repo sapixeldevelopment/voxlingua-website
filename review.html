@@ -343,88 +343,105 @@
     }
 
     .note-card {
-      display: grid;
-      grid-template-columns: 36px 1fr 34px;
-      gap: 0 10px;
-      align-items: start;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       border: 1px solid var(--panel-border);
       border-radius: var(--radius-sm);
-      padding: 12px 10px 12px 12px;
-      margin-bottom: 10px;
+      padding: 13px 12px;
+      margin-bottom: 8px;
       cursor: pointer;
       background: rgba(255, 255, 255, 0.02);
       transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
     }
     .note-card:hover {
-      border-color: rgba(86, 212, 255, 0.28);
-      background: rgba(86, 212, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
     }
     .note-card.active {
-      border-color: rgba(43, 159, 255, 0.5);
-      background: linear-gradient(135deg, rgba(43, 159, 255, 0.14), rgba(43, 159, 255, 0.04));
-      box-shadow: 0 0 0 1px rgba(43, 159, 255, 0.12) inset;
+      border-color: rgba(43, 159, 255, 0.45);
+      background: linear-gradient(135deg, rgba(43, 159, 255, 0.12), rgba(43, 159, 255, 0.03));
+      box-shadow: inset 3px 0 0 var(--select);
     }
     .note-card__num {
-      grid-row: span 2;
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
       background: linear-gradient(145deg, #f0a04d, #d4762a);
       color: #fff8ef;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
-      box-shadow: 0 4px 12px var(--accent-glow);
+      box-shadow: 0 3px 10px var(--accent-glow);
     }
     .note-card.active .note-card__num {
       background: linear-gradient(145deg, #4db0ff, #1a8ae8);
-      box-shadow: 0 4px 14px var(--select-glow);
+      box-shadow: 0 3px 12px var(--select-glow);
     }
-    .note-card p {
-      margin: 2px 0 0;
+    .note-card__body {
+      flex: 1;
+      min-width: 0;
+    }
+    .note-card__body p {
+      margin: 0;
       font-size: 13px;
-      line-height: 1.5;
+      font-weight: 500;
+      line-height: 1.45;
       color: rgba(246, 239, 230, 0.94);
     }
-    .note-card small {
-      display: block;
-      margin-top: 4px;
+    .note-card__meta {
+      display: inline-block;
+      margin-top: 5px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
       color: var(--faint);
-      font-size: 11px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .note-card.active .note-card__meta {
+      color: rgba(43, 159, 255, 0.85);
+      border-color: rgba(43, 159, 255, 0.2);
+      background: rgba(43, 159, 255, 0.08);
     }
     .note-card__zoom {
-      grid-row: span 2;
-      align-self: center;
-      width: 34px;
-      height: 34px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 9px;
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--muted);
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      margin-left: 2px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--faint);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0;
-      flex-shrink: 0;
-      transition: background 0.12s, border-color 0.12s, color 0.12s, transform 0.12s;
+      opacity: 0.55;
+      transition: opacity 0.12s, background 0.12s, color 0.12s;
+    }
+    .note-card:hover .note-card__zoom,
+    .note-card.active .note-card__zoom {
+      opacity: 1;
     }
     .note-card__zoom:hover {
-      background: rgba(232, 146, 58, 0.14);
-      border-color: rgba(232, 146, 58, 0.35);
+      background: rgba(232, 146, 58, 0.12);
       color: var(--accent);
-      transform: scale(1.05);
+    }
+    .note-card.active .note-card__zoom:hover {
+      background: rgba(43, 159, 255, 0.12);
+      color: var(--select);
     }
     .note-card__zoom svg {
-      width: 16px;
-      height: 16px;
+      width: 17px;
+      height: 17px;
       pointer-events: none;
-    }
-    .note-card.active .note-card__zoom {
-      border-color: rgba(43, 159, 255, 0.3);
-      color: var(--select);
     }
 
     .overall {
@@ -571,7 +588,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="review-badges.js?v=4"></script>
-  <script src="review.js?v=4"></script>
+  <script src="review-badges.js?v=5"></script>
+  <script src="review.js?v=5"></script>
 </body>
 </html>
