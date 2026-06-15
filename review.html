@@ -344,12 +344,12 @@
 
     .note-card {
       display: grid;
-      grid-template-columns: 36px 1fr;
-      gap: 0 12px;
+      grid-template-columns: 36px 1fr 34px;
+      gap: 0 10px;
       align-items: start;
       border: 1px solid var(--panel-border);
       border-radius: var(--radius-sm);
-      padding: 12px 14px 12px 12px;
+      padding: 12px 10px 12px 12px;
       margin-bottom: 10px;
       cursor: pointer;
       background: rgba(255, 255, 255, 0.02);
@@ -393,6 +393,38 @@
       margin-top: 4px;
       color: var(--faint);
       font-size: 11px;
+    }
+    .note-card__zoom {
+      grid-row: span 2;
+      align-self: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      flex-shrink: 0;
+      transition: background 0.12s, border-color 0.12s, color 0.12s, transform 0.12s;
+    }
+    .note-card__zoom:hover {
+      background: rgba(232, 146, 58, 0.14);
+      border-color: rgba(232, 146, 58, 0.35);
+      color: var(--accent);
+      transform: scale(1.05);
+    }
+    .note-card__zoom svg {
+      width: 16px;
+      height: 16px;
+      pointer-events: none;
+    }
+    .note-card.active .note-card__zoom {
+      border-color: rgba(43, 159, 255, 0.3);
+      color: var(--select);
     }
 
     .overall {
@@ -532,14 +564,14 @@
     <aside id="sidebar" class="panel">
       <div class="sidebar-head">
         <h2>Review notes</h2>
-        <p>Click a note to jump to its mark. Scroll the image to inspect details at full resolution.</p>
+        <p>Click a note to highlight its marks. Use the zoom button to jump in on that area.</p>
       </div>
       <div id="noteList"></div>
     </aside>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="review-badges.js?v=3"></script>
-  <script src="review.js?v=3"></script>
+  <script src="review-badges.js?v=4"></script>
+  <script src="review.js?v=4"></script>
 </body>
 </html>

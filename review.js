@@ -360,6 +360,12 @@ function drawMarks() {
   });
 }
 
+function selectGroup(gid) {
+  selectedGroupId = gid;
+  renderNotes();
+  drawMarks();
+}
+
 function renderNotes() {
   const snip = activeSnip();
   if (!snip) return;
@@ -384,11 +390,19 @@ function renderNotes() {
       <span class="note-card__num">${n}</span>
       <p>${escapeHtml(text)}</p>
       ${g.members.length > 1 ? `<small>${g.members.length} linked areas</small>` : ''}
+      <button type="button" class="note-card__zoom" title="Zoom to this note" aria-label="Zoom to note ${n}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/>
+          <path d="M21 21l-4.35-4.35"/>
+          <path d="M11 8v6M8 11h6"/>
+        </svg>
+      </button>
     `;
-    card.addEventListener('click', () => {
-      selectedGroupId = g.gid;
-      renderNotes();
-      drawMarks();
+    card.addEventListener('click', () => selectGroup(g.gid));
+    const zoomBtn = card.querySelector('.note-card__zoom');
+    zoomBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      selectGroup(g.gid);
       focusGroup(g.gid);
     });
     noteListEl.appendChild(card);
@@ -535,12 +549,7 @@ function setupViewport() {
       const hit = hitTestCallout(canvasPos(e));
       if (hit) {
         const c = activeCallouts().find(x => x.id === hit);
-        if (c) {
-          selectedGroupId = groupIdOf(c);
-          renderNotes();
-          drawMarks();
-          focusGroup(selectedGroupId);
-        }
+        if (c) selectGroup(groupIdOf(c));
       } else {
         selectedGroupId = null;
         hoveredCalloutId = null;
