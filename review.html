@@ -224,7 +224,13 @@
       text-align: center;
       color: var(--muted);
     }
-    #error { color: #ff8f8f; }
+    #loading[hidden],
+    #error[hidden],
+    #layout[hidden],
+    #lockScreen[hidden] {
+      display: none !important;
+    }
+    #error { color: #ff8f8f; display: flex; }
     #lockScreen {
       flex: 1;
       display: flex;
@@ -232,7 +238,6 @@
       justify-content: center;
       padding: 40px 20px;
     }
-    #lockScreen[hidden] { display: none !important; }
     .lock-card {
       width: min(400px, 100%);
       padding: 28px 24px;
@@ -324,7 +329,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="review-badges.js"></script>
-  <script src="review.js"></script>
+  <script src="review-badges.js?v=2"></script>
+  <script src="review.js?v=2"></script>
 </body>
 </html>

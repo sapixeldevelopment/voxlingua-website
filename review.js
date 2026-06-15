@@ -18,21 +18,9 @@ const snipTabsEl = document.getElementById('snipTabs');
 const shotEl = document.getElementById('shot');
 const overlay = document.getElementById('overlay');
 const noteListEl = document.getElementById('noteList');
-
-let supabase = null;
-try {
-  if (!window.supabase?.createClient) {
-    throw new Error('Could not load Supabase — check your connection or try again.');
-  }
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-} catch (err) {
-  loadingEl.hidden = true;
-  errorEl.hidden = false;
-  errorEl.textContent = err?.message || 'Failed to initialize review viewer.';
-}
-
 const ctx = overlay?.getContext('2d');
 
+let supabaseRealtime = null;
 let board = null;
 let snips = [];
 let activeSnipIndex = 0;
@@ -124,6 +112,7 @@ function parseSession(raw) {
 function showError(msg) {
   loadingEl.hidden = true;
   layoutEl.hidden = true;
+  lockScreenEl.hidden = true;
   errorEl.hidden = false;
   errorEl.textContent = msg;
 }
@@ -143,9 +132,21 @@ function activeCallouts() {
   return parseSession(snip?.session).callouts;
 }
 
+function badgeLayouts(callouts) {
+  if (globalThis.ReviewBadges?.computeBadgeLayouts) {
+    return ReviewBadges.computeBadgeLayouts(
+      callouts,
+      c => markNumberForCallout(c, callouts),
+      imgW,
+      imgH
+    );
+  }
+  return new Map();
+}
+
 function layoutCanvas() {
   const wrap = document.getElementById('canvasArea');
-  const maxW = wrap.clientWidth - 48;
+  const maxW = Math.max(200, wrap.clientWidth - 48);
   displayScale = Math.min(1, maxW / imgW);
   const w = Math.max(1, Math.round(imgW * displayScale));
   const h = Math.max(1, Math.round(imgH * displayScale));
@@ -162,12 +163,7 @@ function drawMarks() {
   if (!ctx) return;
   const callouts = activeCallouts();
   ctx.clearRect(0, 0, overlay.width, overlay.height);
-  const badgeLayouts = ReviewBadges.computeBadgeLayouts(
-    callouts,
-    c => markNumberForCallout(c, callouts),
-    imgW,
-    imgH
-  );
+  const layouts = badgeLayouts(callouts);
 
   callouts.forEach(c => {
     const gid = groupIdOf(c);
@@ -175,7 +171,7 @@ function drawMarks() {
     const selected = selectedGroupId === gid;
     const hovered = hoveredCalloutId === c.id && !selected;
     const { x, y, width: w, height: h } = c.rect;
-    const layout = badgeLayouts.get(c.id);
+    const layout = layouts.get(c.id);
     const badgeR = selected ? 15 : hovered ? 13 : 12;
 
     ctx.save();
@@ -286,15 +282,35 @@ function selectSnip(index) {
   selectedGroupId = null;
   hoveredCalloutId = null;
   const snip = activeSnip();
-  if (!snip) return;
+  if (!snip?.image_url) {
+    showError('This review screen has no image.');
+    return;
+  }
   renderSnipTabs();
-  shotEl.onload = () => {
+
+  const url = snip.image_url;
+  const applyLoaded = () => {
     imgW = snip.img_w || shotEl.naturalWidth;
     imgH = snip.img_h || shotEl.naturalHeight;
+    if (!imgW || !imgH) {
+      showError('Could not read the review screenshot dimensions.');
+      return;
+    }
     layoutCanvas();
     renderNotes();
   };
-  shotEl.src = snip.image_url;
+
+  shotEl.onload = applyLoaded;
+  shotEl.onerror = () => {
+    showError('Could not load the review screenshot. Ask your teammate to copy the live link again.');
+  };
+
+  if (shotEl.src === url && shotEl.complete && shotEl.naturalWidth) {
+    applyLoaded();
+    return;
+  }
+  shotEl.src = url;
+  if (shotEl.complete && shotEl.naturalWidth) applyLoaded();
 }
 
 function canvasPos(e) {
@@ -316,7 +332,7 @@ function hitTestCallout(p) {
   return hits[0].id;
 }
 
-overlay.addEventListener('mousemove', e => {
+overlay?.addEventListener('mousemove', e => {
   const hit = hitTestCallout(canvasPos(e));
   if (hit === hoveredCalloutId) return;
   hoveredCalloutId = hit;
@@ -328,16 +344,38 @@ overlay.addEventListener('mousemove', e => {
   drawMarks();
 });
 
-overlay.addEventListener('click', () => {
+overlay?.addEventListener('click', () => {
   if (hoveredCalloutId) renderNotes();
 });
 
 async function fetchBoard(code = accessCode) {
-  if (!supabase) throw new Error('Review viewer is not ready.');
-  return supabase.rpc('get_shot_review_board', {
-    p_slug: boardSlug,
-    p_access_code: code || null,
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_shot_review_board`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      p_slug: boardSlug,
+      p_access_code: code || null,
+    }),
   });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data?.message || data?.error || `Could not load review (${res.status})`;
+    return { data: null, error: { message: msg } };
+  }
+  return { data, error: null };
+}
+
+function showBoardChrome(data) {
+  lockScreenEl.hidden = true;
+  loadingEl.hidden = true;
+  errorEl.hidden = true;
+  layoutEl.hidden = false;
+  boardTitleEl.textContent = data.title || 'Screenshot review';
+  boardMetaEl.innerHTML = `${(data.snips || []).length} screen${(data.snips || []).length === 1 ? '' : 's'} · Updated ${formatUpdated(data.updated_at)} <span class="live-pill">Live</span>`;
 }
 
 function renderBoardData(data) {
@@ -347,20 +385,13 @@ function renderBoardData(data) {
     showError('This review board has no screens yet.');
     return;
   }
-
-  lockScreenEl.hidden = true;
-  loadingEl.hidden = true;
-  layoutEl.hidden = false;
-  boardTitleEl.textContent = data.title || 'Screenshot review';
-  boardMetaEl.innerHTML = `${snips.length} screen${snips.length === 1 ? '' : 's'} · Updated ${formatUpdated(data.updated_at)} <span class="live-pill">Live</span>`;
-
+  showBoardChrome(data);
   renderSnipTabs();
   selectSnip(0);
   setupRealtime();
 }
 
 async function loadBoard() {
-  if (!supabase) return;
   if (!boardSlug || boardSlug.length < 6) {
     showError('Missing or invalid review link. Ask your teammate to resend the URL.');
     return;
@@ -381,7 +412,6 @@ async function loadBoard() {
       showLockScreen(data);
       return;
     }
-
     if (accessCode) storeAccessCode(accessCode);
     renderBoardData(data);
   } catch (err) {
@@ -417,8 +447,11 @@ async function tryUnlock() {
 }
 
 function setupRealtime() {
-  if (!board?.id) return;
-  supabase
+  if (!board?.id || !window.supabase?.createClient) return;
+  if (!supabaseRealtime) {
+    supabaseRealtime = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+  supabaseRealtime
     .channel(`review-${boardSlug}`)
     .on('postgres_changes', {
       event: '*',
@@ -452,25 +485,24 @@ async function refreshBoard({ quiet = false } = {}) {
   const prevId = activeSnip()?.id;
   board = data;
   snips = Array.isArray(data.snips) ? data.snips : snips;
-  boardTitleEl.textContent = data.title || boardTitleEl.textContent;
-  boardMetaEl.innerHTML = `${snips.length} screen${snips.length === 1 ? '' : 's'} · Updated ${formatUpdated(data.updated_at)} <span class="live-pill">Live</span>`;
+  showBoardChrome(data);
   renderSnipTabs();
 
   const idx = prevId ? snips.findIndex(s => s.id === prevId) : activeSnipIndex;
   if (idx >= 0) {
-    const snip = snips[idx];
     activeSnipIndex = idx;
-    imgW = snip.img_w;
-    imgH = snip.img_h;
-    if (snip.image_url !== shotEl.src) {
-      shotEl.src = snip.image_url;
-    } else {
-      layoutCanvas();
-      renderNotes();
+    if (!quiet) selectSnip(idx);
+    else {
+      const snip = snips[idx];
+      imgW = snip.img_w;
+      imgH = snip.img_h;
+      if (snip.image_url !== shotEl.src) shotEl.src = snip.image_url;
+      else {
+        layoutCanvas();
+        renderNotes();
+      }
     }
   }
-
-  if (!quiet) selectSnip(activeSnipIndex);
 }
 
 window.addEventListener('resize', () => {
