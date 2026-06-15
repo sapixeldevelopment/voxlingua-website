@@ -7,6 +7,7 @@ const ZOOM_STEP = 1.2;
 
 const params = new URLSearchParams(location.search);
 const boardSlug = (params.get('b') || '').trim().toLowerCase();
+const isOfflineMode = !!window.__OFFLINE_REVIEW__;
 
 const loadingEl = document.getElementById('loading');
 const errorEl = document.getElementById('error');
@@ -30,6 +31,8 @@ const zoomInEl = document.getElementById('zoomIn');
 const zoomOutEl = document.getElementById('zoomOut');
 const zoomFitEl = document.getElementById('zoomFit');
 const zoom100El = document.getElementById('zoom100');
+const downloadOfflineBtn = document.getElementById('downloadOfflineBtn');
+const downloadOfflineLabel = document.getElementById('downloadOfflineLabel');
 const ctx = overlay?.getContext('2d');
 
 let supabaseRealtime = null;
@@ -606,7 +609,16 @@ function showBoardChrome(data) {
   errorEl.hidden = true;
   layoutEl.hidden = false;
   boardTitleEl.textContent = data.title || 'Screenshot review';
-  boardMetaEl.innerHTML = `${(data.snips || []).length} screen${(data.snips || []).length === 1 ? '' : 's'} · Updated ${formatUpdated(data.updated_at)} <span class="live-pill">Live</span>`;
+  const exported = data.exported_at ? formatUpdated(data.exported_at) : null;
+  const updated = formatUpdated(data.updated_at);
+  const statusPill = isOfflineMode
+    ? '<span class="offline-pill">Offline</span>'
+    : '<span class="live-pill">Live</span>';
+  const metaParts = [`${(data.snips || []).length} screen${(data.snips || []).length === 1 ? '' : 's'}`];
+  if (isOfflineMode && exported) metaParts.push(`Saved ${exported}`);
+  else if (updated) metaParts.push(`Updated ${updated}`);
+  boardMetaEl.innerHTML = `${metaParts.join(' · ')} ${statusPill}`;
+  if (downloadOfflineBtn) downloadOfflineBtn.hidden = isOfflineMode;
 }
 
 function renderBoardData(data) {
@@ -623,6 +635,10 @@ function renderBoardData(data) {
 }
 
 async function loadBoard() {
+  if (isOfflineMode) {
+    renderBoardData(window.__OFFLINE_REVIEW__);
+    return;
+  }
   if (!boardSlug || boardSlug.length < 6) {
     showError('Missing or invalid review link. Ask your teammate to resend the URL.');
     return;
@@ -678,7 +694,7 @@ async function tryUnlock() {
 }
 
 function setupRealtime() {
-  if (!board?.id || !window.supabase?.createClient) return;
+  if (isOfflineMode || !board?.id || !window.supabase?.createClient) return;
   if (!supabaseRealtime) {
     supabaseRealtime = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
@@ -704,6 +720,7 @@ function setupRealtime() {
 }
 
 async function refreshBoard({ quiet = false } = {}) {
+  if (isOfflineMode) return;
   const { data, error } = await fetchBoard(accessCode);
   if (error || !data?.ok) return;
   if (data.locked) {
@@ -744,11 +761,137 @@ window.addEventListener('resize', () => {
   }, 120);
 });
 
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function fetchAsDataUrl(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Could not fetch ${url}`);
+  return blobToDataUrl(await res.blob());
+}
+
+function safeFilenamePart(s) {
+  return String(s || 'review')
+    .replace(/[^\w\-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 48) || 'review';
+}
+
+function jsonForScriptTag(value) {
+  return JSON.stringify(value).replace(/</g, '\\u003c');
+}
+
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function setDownloadOfflineStatus(text, disabled = false) {
+  if (downloadOfflineLabel) downloadOfflineLabel.textContent = text;
+  if (downloadOfflineBtn) downloadOfflineBtn.disabled = disabled;
+}
+
+async function buildOfflineHtml(offlineBoard) {
+  const [pageHtml, badgesJs, viewerJs, logoData] = await Promise.all([
+    fetch('review.html').then(r => {
+      if (!r.ok) throw new Error('Could not load review page template');
+      return r.text();
+    }),
+    fetch('review-badges.js?v=6').then(r => r.text()),
+    fetch('review.js?v=6').then(r => r.text()),
+    fetch('logo-mark.png').then(r => r.blob()).then(blobToDataUrl).catch(() => ''),
+  ]);
+
+  let html = pageHtml
+    .replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@2"><\/script>\s*/i, '')
+    .replace(/<link rel="preconnect" href="https:\/\/fonts\.googleapis\.com" \/>\s*/g, '')
+    .replace(/<link rel="preconnect" href="https:\/\/fonts\.gstatic\.com" crossorigin \/>\s*/g, '')
+    .replace(/<link href="https:\/\/fonts\.googleapis\.com\/[^"]+" rel="stylesheet" \/>\s*/g, '')
+    .replace(
+      /<script src="review-badges\.js[^"]*"><\/script>\s*<script src="review\.js[^"]*"><\/script>/,
+      `<script>window.__OFFLINE_REVIEW__=${jsonForScriptTag(offlineBoard)};<\/script>
+  <script>${badgesJs}<\/script>
+  <script>${viewerJs}<\/script>`
+    )
+    .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(offlineBoard.title || 'Review')} — Offline</title>`)
+    .replace('id="downloadOfflineBtn"', 'id="downloadOfflineBtn" hidden');
+
+  if (logoData) {
+    html = html.replace(/src="logo-mark\.png"/g, `src="${logoData}"`);
+  }
+
+  return html;
+}
+
+async function downloadForOffline() {
+  if (isOfflineMode || !board || !snips.length) return;
+  setDownloadOfflineStatus('Preparing…', true);
+
+  try {
+    const embeddedSnips = [];
+    for (let i = 0; i < snips.length; i++) {
+      setDownloadOfflineStatus(`Embedding screen ${i + 1}/${snips.length}…`, true);
+      const snip = snips[i];
+      const session = typeof snip.session === 'string'
+        ? snip.session
+        : JSON.stringify(snip.session || {});
+      embeddedSnips.push({
+        id: snip.id,
+        title: snip.title || `Screen ${i + 1}`,
+        img_w: snip.img_w,
+        img_h: snip.img_h,
+        session,
+        image_url: await fetchAsDataUrl(snip.image_url),
+      });
+    }
+
+    const offlineBoard = {
+      ok: true,
+      title: board.title || 'Screenshot review',
+      updated_at: board.updated_at,
+      exported_at: new Date().toISOString(),
+      snips: embeddedSnips,
+    };
+
+    setDownloadOfflineStatus('Building file…', true);
+    const html = await buildOfflineHtml(offlineBoard);
+    const slug = safeFilenamePart(boardSlug);
+    const title = safeFilenamePart(board.title);
+    const filename = `${title || slug}-review-offline.html`;
+    triggerDownload(new Blob([html], { type: 'text/html;charset=utf-8' }), filename);
+    setDownloadOfflineStatus('Downloaded', false);
+    setTimeout(() => setDownloadOfflineStatus('Download for offline', false), 2500);
+  } catch (err) {
+    console.error('offline download failed:', err);
+    setDownloadOfflineStatus('Download failed', false);
+    alert(err?.message || 'Could not prepare offline copy. Try again while online.');
+  }
+}
+
 if (lockSubmitEl) lockSubmitEl.addEventListener('click', tryUnlock);
 if (lockPasswordEl) {
   lockPasswordEl.addEventListener('keydown', e => {
     if (e.key === 'Enter') tryUnlock();
   });
+}
+
+if (downloadOfflineBtn) {
+  downloadOfflineBtn.addEventListener('click', downloadForOffline);
+  if (isOfflineMode) downloadOfflineBtn.hidden = true;
 }
 
 setupViewport();
