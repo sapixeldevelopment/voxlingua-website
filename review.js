@@ -6,6 +6,11 @@ const boardSlug = (params.get('b') || '').trim().toLowerCase();
 
 const loadingEl = document.getElementById('loading');
 const errorEl = document.getElementById('error');
+const lockScreenEl = document.getElementById('lockScreen');
+const lockTitleEl = document.getElementById('lockTitle');
+const lockPasswordEl = document.getElementById('lockPassword');
+const lockSubmitEl = document.getElementById('lockSubmit');
+const lockErrorEl = document.getElementById('lockError');
 const layoutEl = document.getElementById('layout');
 const boardTitleEl = document.getElementById('boardTitle');
 const boardMetaEl = document.getElementById('boardMeta');
@@ -25,6 +30,37 @@ let hoveredCalloutId = null;
 let displayScale = 1;
 let imgW = 0;
 let imgH = 0;
+let accessCode = '';
+
+function unlockStorageKey() {
+  return `dexlyy-review-unlock:${boardSlug}`;
+}
+
+function loadStoredAccessCode() {
+  try {
+    return sessionStorage.getItem(unlockStorageKey()) || '';
+  } catch {
+    return '';
+  }
+}
+
+function storeAccessCode(code) {
+  try {
+    if (code) sessionStorage.setItem(unlockStorageKey(), code);
+    else sessionStorage.removeItem(unlockStorageKey());
+  } catch { /* ignore */ }
+}
+
+function showLockScreen(data) {
+  loadingEl.hidden = true;
+  layoutEl.hidden = true;
+  errorEl.hidden = true;
+  lockScreenEl.hidden = false;
+  lockTitleEl.textContent = data?.title || 'Protected review';
+  lockErrorEl.textContent = '';
+  lockPasswordEl.value = '';
+  lockPasswordEl.focus();
+}
 
 function groupIdOf(c) {
   return c.groupId ?? c.id;
@@ -284,22 +320,14 @@ overlay.addEventListener('click', () => {
   if (hoveredCalloutId) renderNotes();
 });
 
-async function loadBoard() {
-  if (!boardSlug || boardSlug.length < 6) {
-    showError('Missing or invalid review link. Ask your teammate to resend the URL.');
-    return;
-  }
+async function fetchBoard(code = accessCode) {
+  return supabase.rpc('get_shot_review_board', {
+    p_slug: boardSlug,
+    p_access_code: code || null,
+  });
+}
 
-  const { data, error } = await supabase.rpc('get_shot_review_board', { p_slug: boardSlug });
-  if (error) {
-    showError(error.message || 'Could not load this review.');
-    return;
-  }
-  if (!data?.ok) {
-    showError('This review was not found or has expired.');
-    return;
-  }
-
+function renderBoardData(data) {
   board = data;
   snips = Array.isArray(data.snips) ? data.snips : [];
   if (!snips.length) {
@@ -307,6 +335,7 @@ async function loadBoard() {
     return;
   }
 
+  lockScreenEl.hidden = true;
   loadingEl.hidden = true;
   layoutEl.hidden = false;
   boardTitleEl.textContent = data.title || 'Screenshot review';
@@ -315,6 +344,58 @@ async function loadBoard() {
   renderSnipTabs();
   selectSnip(0);
   setupRealtime();
+}
+
+async function loadBoard() {
+  if (!boardSlug || boardSlug.length < 6) {
+    showError('Missing or invalid review link. Ask your teammate to resend the URL.');
+    return;
+  }
+
+  accessCode = loadStoredAccessCode();
+  const { data, error } = await fetchBoard(accessCode);
+  if (error) {
+    showError(error.message || 'Could not load this review.');
+    return;
+  }
+  if (!data?.ok) {
+    showError('This review was not found or has expired.');
+    return;
+  }
+  if (data.locked) {
+    showLockScreen(data);
+    return;
+  }
+
+  if (accessCode) storeAccessCode(accessCode);
+  renderBoardData(data);
+}
+
+async function tryUnlock() {
+  const code = (lockPasswordEl?.value || '').trim();
+  if (!code) {
+    lockErrorEl.textContent = 'Enter the review password.';
+    return;
+  }
+  lockSubmitEl.disabled = true;
+  lockErrorEl.textContent = '';
+  const { data, error } = await fetchBoard(code);
+  lockSubmitEl.disabled = false;
+  if (error) {
+    lockErrorEl.textContent = error.message || 'Could not unlock review.';
+    return;
+  }
+  if (!data?.ok) {
+    lockErrorEl.textContent = 'This review was not found or has expired.';
+    return;
+  }
+  if (data.locked) {
+    lockErrorEl.textContent = 'Incorrect password — try again.';
+    return;
+  }
+  accessCode = code;
+  storeAccessCode(code);
+  renderBoardData(data);
 }
 
 function setupRealtime() {
@@ -341,8 +422,14 @@ function setupRealtime() {
 }
 
 async function refreshBoard({ quiet = false } = {}) {
-  const { data, error } = await supabase.rpc('get_shot_review_board', { p_slug: boardSlug });
+  const { data, error } = await fetchBoard(accessCode);
   if (error || !data?.ok) return;
+  if (data.locked) {
+    storeAccessCode('');
+    accessCode = '';
+    showLockScreen(data);
+    return;
+  }
 
   const prevId = activeSnip()?.id;
   board = data;
@@ -371,5 +458,12 @@ async function refreshBoard({ quiet = false } = {}) {
 window.addEventListener('resize', () => {
   if (imgW && imgH) layoutCanvas();
 });
+
+if (lockSubmitEl) lockSubmitEl.addEventListener('click', tryUnlock);
+if (lockPasswordEl) {
+  lockPasswordEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter') tryUnlock();
+  });
+}
 
 loadBoard();
