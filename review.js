@@ -33,6 +33,7 @@ const zoomFitEl = document.getElementById('zoomFit');
 const zoom100El = document.getElementById('zoom100');
 const downloadOfflineBtn = document.getElementById('downloadOfflineBtn');
 const downloadOfflineLabel = document.getElementById('downloadOfflineLabel');
+const toggleNumbersBtn = document.getElementById('toggleNumbersBtn');
 const ctx = overlay?.getContext('2d');
 
 let supabaseRealtime = null;
@@ -54,6 +55,7 @@ let userAdjustedView = false;
 let isPanning = false;
 let panDrag = null;
 let pointerDown = null;
+let showNumbering = true;
 
 function unlockStorageKey() {
   return `dexlyy-review-unlock:${boardSlug}`;
@@ -336,29 +338,31 @@ function drawMarks() {
 
     const bx = layout?.badgeX ?? (x + 8 + badgeR);
     const by = layout?.badgeY ?? (y + 8 + badgeR);
-    if (layout?.leader) {
-      ctx.strokeStyle = selected ? '#2b9fff' : 'rgba(232, 146, 58, .75)';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([4, 3]);
-      ctx.beginPath();
-      ctx.moveTo(bx, by);
-      ctx.lineTo(layout.leaderX, layout.leaderY);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
+    if (showNumbering) {
+      if (layout?.leader) {
+        ctx.strokeStyle = selected ? '#2b9fff' : 'rgba(232, 146, 58, .75)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+        ctx.lineTo(layout.leaderX, layout.leaderY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
 
-    ctx.beginPath();
-    ctx.arc(bx, by, badgeR, 0, Math.PI * 2);
-    ctx.fillStyle = selected ? '#2b9fff' : hovered ? '#3ec5ff' : '#e8923a';
-    ctx.fill();
-    ctx.strokeStyle = '#fff8ef';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.fillStyle = '#fff8ef';
-    ctx.font = `bold ${selected ? 13 : 12}px "Hanken Grotesk", system-ui, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(String(n), bx, by + 1);
+      ctx.beginPath();
+      ctx.arc(bx, by, badgeR, 0, Math.PI * 2);
+      ctx.fillStyle = selected ? '#2b9fff' : hovered ? '#3ec5ff' : '#e8923a';
+      ctx.fill();
+      ctx.strokeStyle = '#fff8ef';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#fff8ef';
+      ctx.font = `bold ${selected ? 13 : 12}px "Hanken Grotesk", system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(n), bx, by + 1);
+    }
     ctx.restore();
   });
 }
@@ -811,8 +815,8 @@ async function buildOfflineHtml(offlineBoard) {
       if (!r.ok) throw new Error('Could not load review page template');
       return r.text();
     }),
-    fetch('review-badges.js?v=6').then(r => r.text()),
-    fetch('review.js?v=6').then(r => r.text()),
+    fetch('review-badges.js?v=7').then(r => r.text()),
+    fetch('review.js?v=7').then(r => r.text()),
     fetch('logo-mark.png').then(r => r.blob()).then(blobToDataUrl).catch(() => ''),
   ]);
 
@@ -892,6 +896,19 @@ if (lockPasswordEl) {
 if (downloadOfflineBtn) {
   downloadOfflineBtn.addEventListener('click', downloadForOffline);
   if (isOfflineMode) downloadOfflineBtn.hidden = true;
+}
+
+if (toggleNumbersBtn) {
+  toggleNumbersBtn.addEventListener('click', () => {
+    showNumbering = !showNumbering;
+    toggleNumbersBtn.textContent = showNumbering ? 'Numbers on' : 'Numbers off';
+    toggleNumbersBtn.setAttribute('aria-pressed', String(showNumbering));
+    toggleNumbersBtn.classList.toggle('is-off', !showNumbering);
+    toggleNumbersBtn.title = showNumbering
+      ? 'Hide numbered pins on the screenshot'
+      : 'Show numbered pins on the screenshot';
+    drawMarks();
+  });
 }
 
 setupViewport();
