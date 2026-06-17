@@ -447,6 +447,7 @@ function selectSnip(index) {
     return;
   }
   renderSnipTabs();
+  updateBoardMeta();
 
   const url = snip.image_url;
   const applyLoaded = () => {
@@ -613,16 +614,23 @@ function showBoardChrome(data) {
   errorEl.hidden = true;
   layoutEl.hidden = false;
   boardTitleEl.textContent = data.title || 'Screenshot review';
+  updateBoardMeta(data);
+  if (downloadOfflineBtn) downloadOfflineBtn.hidden = isOfflineMode;
+}
+
+function updateBoardMeta(data = board) {
+  if (!boardMetaEl || !data) return;
   const exported = data.exported_at ? formatUpdated(data.exported_at) : null;
   const updated = formatUpdated(data.updated_at);
   const statusPill = isOfflineMode
     ? '<span class="offline-pill">Offline</span>'
     : '<span class="live-pill">Live</span>';
   const metaParts = [`${(data.snips || []).length} screen${(data.snips || []).length === 1 ? '' : 's'}`];
+  const snip = activeSnip();
+  if (snip?.title) metaParts.push(`Viewing: ${escapeHtml(snip.title)}`);
   if (isOfflineMode && exported) metaParts.push(`Saved ${exported}`);
   else if (updated) metaParts.push(`Updated ${updated}`);
   boardMetaEl.innerHTML = `${metaParts.join(' · ')} ${statusPill}`;
-  if (downloadOfflineBtn) downloadOfflineBtn.hidden = isOfflineMode;
 }
 
 function renderBoardData(data) {
