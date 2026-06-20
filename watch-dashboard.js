@@ -43,8 +43,21 @@ function planLabel(plan) {
   return plan === "squadron" ? "Squadron" : plan === "pro" ? "Pro" : "Watch";
 }
 
+function hasPaidPlan(signupRow) {
+  return Boolean(signupRow) && (signupRow.plan === "pro" || signupRow.plan === "squadron");
+}
+
+// A user keeps paid access while their plan is pro/squadron and the subscription
+// has not yet expired. "cancelled" means they cancelled but still have paid days
+// left (PayPal sends EXPIRED -> plan:"watch", status:"expired" when access ends).
 function isPaid(signupRow) {
-  return signupRow && (signupRow.plan === "pro" || signupRow.plan === "squadron") && signupRow.status === "active";
+  return hasPaidPlan(signupRow) && signupRow.status !== "expired";
+}
+
+// True only when the paid subscription is live (not cancelled) — used to decide
+// which billing actions to show.
+function isActivePaid(signupRow) {
+  return hasPaidPlan(signupRow) && signupRow.status === "active";
 }
 
 function setMessage(text, kind = "") {
@@ -194,13 +207,14 @@ function renderSignup(signupRow) {
   $("#dashboard").hidden = !paid;
   $("#compare").hidden = !paid;
 
+  const cancelledWithAccess = hasPaidPlan(signupRow) && signupRow.status === "cancelled";
   $("#planName").textContent = `DexlyyWatch ${planLabel(signupRow.plan)}`;
-  $("#planState").textContent = paid
-    ? "Active paid plan"
-    : signupRow.pending_plan
-      ? `Checkout pending — ${planLabel(signupRow.pending_plan)}`
-      : signupRow.status === "cancelled"
-        ? "Subscription cancelled"
+  $("#planState").textContent = cancelledWithAccess
+    ? "Cancelled — access until period ends"
+    : paid
+      ? "Active paid plan"
+      : signupRow.pending_plan
+        ? `Checkout pending — ${planLabel(signupRow.pending_plan)}`
         : "Free watch — weekly digest";
 
   if (!paid) {
