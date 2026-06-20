@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — DexlyyWatch</title>
+  <meta name="description" content="Upgrade to DexlyyWatch Pro or Squadron — be alerted first the moment any AI model drops." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="canonical" href="https://dexlyy.com/watch-checkout.html" />
+  <link rel="icon" type="image/png" href="logo-mark.png" />
+  <link rel="stylesheet" href="watch.css?v=20260620b" />
+  <style>
+    .co { max-width: 480px; margin: 0 auto; padding: 8rem 1.5rem 5rem; }
+    .co__card { background: var(--ink-2); border: 1px solid var(--line-2); border-radius: var(--radius); padding: 2rem 1.8rem; box-shadow: var(--sh-lg); position: relative; overflow: hidden; }
+    .co__card::before { content:""; position:absolute; inset:0 0 auto 0; height:3px; background:var(--grad); }
+    .co__eyebrow { font-size:.78rem; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); font-weight:700; }
+    .co__title { font-family:var(--serif); font-weight:400; font-size:2rem; letter-spacing:-.02em; margin:.4rem 0 .2rem; }
+    .co__tag { color:var(--muted); font-size:.95rem; margin-bottom:1.4rem; }
+    .co__price { display:flex; align-items:baseline; gap:.15rem; margin:1.2rem 0; }
+    .co__cur { font-size:1.2rem; color:var(--muted); align-self:flex-start; margin-top:.4rem; font-weight:600; }
+    .co__amt { font-family:var(--serif); font-size:3rem; line-height:.9; letter-spacing:-.02em; }
+    .co__per { color:var(--muted); font-size:.9rem; margin-left:.3rem; }
+    .co__list { list-style:none; margin:0 0 1.6rem; display:flex; flex-direction:column; gap:.55rem; }
+    .co__list li { font-size:.92rem; padding-left:1.6rem; position:relative; color:var(--paper); }
+    .co__list li::before { content:''; position:absolute; left:0; top:.32em; width:13px; height:7px; border-left:2px solid var(--amber); border-bottom:2px solid var(--rust); transform:rotate(-45deg); }
+    .co__field { text-align:left; margin-bottom:1rem; }
+    .co__field label { display:block; font-size:.82rem; font-weight:600; margin-bottom:.4rem; color:var(--paper); }
+    .co__field input { width:100%; padding:.85rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--line-2); background:var(--ink-3); color:var(--paper); font:inherit; outline:none; }
+    .co__msg { margin-top:1rem; font-size:.9rem; min-height:1.3em; color:var(--muted); line-height:1.5; }
+    .co__msg.is-error { color:#c0392b; }
+    .co__msg.is-success { color:var(--accent); font-weight:600; }
+    .co__toggle { margin: 0 0 1.4rem; }
+    .co__back { display:inline-flex; align-items:center; gap:.4rem; margin-top:1.4rem; color:var(--muted); font-size:.9rem; }
+    .co__secure { display:flex; align-items:center; justify-content:center; gap:.5rem; margin-top:1.1rem; color:var(--muted-2); font-size:.8rem; }
+    .co__banner { border-radius:var(--radius-sm); padding:.8rem 1rem; font-size:.9rem; margin-bottom:1.2rem; }
+    .co__banner--ok { background:rgba(217,119,6,.1); border:1px solid rgba(217,119,6,.26); color:var(--accent); }
+    .co__banner--warn { background:rgba(60,45,25,.06); border:1px solid var(--line-2); color:var(--muted); }
+  </style>
+</head>
+<body>
+  <header class="nav is-scrolled">
+    <div class="nav__inner">
+      <a href="watch.html" class="brand">
+        <span class="brand__name">Dexlyy<span class="brand__name-em">Watch</span></span>
+      </a>
+    </div>
+  </header>
+
+  <main class="co">
+    <div class="co__card">
+      <div id="banner"></div>
+      <p class="co__eyebrow" id="coEyebrow">DexlyyWatch Pro</p>
+      <h1 class="co__title" id="coTitle">Be first in line.</h1>
+      <p class="co__tag" id="coTag">Alerted the moment any model drops.</p>
+
+      <div class="toggle co__toggle" id="billing" role="tablist" aria-label="Billing period">
+        <button class="toggle__btn is-active" data-cycle="monthly" role="tab">Monthly</button>
+        <button class="toggle__btn" data-cycle="annual" role="tab">Annual <span class="toggle__save">2 months free</span></button>
+      </div>
+
+      <div class="co__price">
+        <span class="co__cur">$</span><span class="co__amt" id="coAmt">5</span><span class="co__per" id="coPer">/ month</span>
+      </div>
+
+      <ul class="co__list" id="coList"></ul>
+
+      <div id="auth-form">
+        <div class="co__field">
+          <label for="email">Email</label>
+          <input id="email" type="email" autocomplete="email" placeholder="you@company.com" />
+        </div>
+        <div class="co__field" id="password-field">
+          <label for="password">Password</label>
+          <input id="password" type="password" autocomplete="current-password" placeholder="Your password" />
+        </div>
+        <button type="button" class="btn btn--solid btn--block" id="auth-btn">Sign in</button>
+        <button type="button" class="btn btn--line btn--block" id="magic-btn" style="margin-top:.75rem">Email me a sign-in link</button>
+        <button type="button" class="btn btn--line btn--block" id="google-btn" style="margin-top:.75rem">Continue with Google</button>
+        <button type="button" class="btn btn--ghost btn--block" id="signup-toggle" style="margin-top:.5rem">Create account instead</button>
+        <p class="co__msg" id="auth-msg"></p>
+      </div>
+
+      <div id="checkout-form" hidden>
+        <p>Signed in as <strong id="user-email"></strong></p>
+        <button type="button" class="btn btn--solid btn--block" id="pay">Continue to PayPal</button>
+        <button type="button" class="btn btn--ghost btn--block" id="sign-out" style="margin-top:.75rem">Sign out</button>
+        <p class="co__msg" id="msg"></p>
+      </div>
+
+      <div class="co__secure" aria-hidden="true">Secure checkout via PayPal · cancel anytime</div>
+      <a href="watch.html#pricing" class="co__back">← Back to plans</a>
+    </div>
+  </main>
+
+  <script type="module">
+    const SUPABASE_URL = "https://mmgzuubrtyodhjtmjlvb.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_LYP_tofuZNutUaE-KfjT7Q_Uf5XcaIO";
+
+    const params = new URLSearchParams(location.search);
+    const plan = params.get("plan") === "squadron" ? "squadron" : "pro";
+    let cycle = params.get("interval") === "annual" ? "annual" : "monthly";
+    const status = params.get("status");
+
+    const PLANS = {
+      pro: {
+        eyebrow: "DexlyyWatch Pro", title: "Be first in line.",
+        tag: "Alerted the moment any model drops — ahead of the free list.",
+        price: { monthly: "5", annual: "4" },
+        per: { monthly: "/ month", annual: "/ mo · billed yearly ($50)" },
+        feats: ["Instant email — alerted first", "Filter by lab & capability", "Day-zero benchmark snapshots", "Side-by-side comparison view", "Dashboard for alert email & filters", "SMS & calls — coming soon"],
+      },
+      squadron: {
+        eyebrow: "DexlyyWatch Squadron", title: "Arm the whole team.",
+        tag: "Everything in Pro, for up to 10 seats — with Slack, webhooks & an API.",
+        price: { monthly: "15", annual: "13" },
+        per: { monthly: "/ month", annual: "/ mo · billed yearly ($150)" },
+        feats: ["Everything in Pro, up to 10 seats", "Shared watchlist & routing rules", "Slack & webhook delivery + alert API", "Priority queue — first in line, always", "Team dashboard with model comparison", "SMS & calls — coming soon"],
+      },
+    };
+
+    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, detectSessionInUrl: true, flowType: "pkce" },
+    });
+
+    const billing = document.getElementById("billing");
+    const authForm = document.getElementById("auth-form");
+    const checkoutForm = document.getElementById("checkout-form");
+    const authMsg = document.getElementById("auth-msg");
+    const msg = document.getElementById("msg");
+    let authMode = "signin";
+
+    function render() {
+      const p = PLANS[plan];
+      document.getElementById("coEyebrow").textContent = p.eyebrow;
+      document.getElementById("coTitle").textContent = p.title;
+      document.getElementById("coTag").innerHTML = p.tag;
+      document.getElementById("coAmt").textContent = p.price[cycle];
+      document.getElementById("coPer").textContent = p.per[cycle];
+      document.getElementById("coList").innerHTML = p.feats.map((f) => `<li>${f}</li>`).join("");
+      document.title = `${p.eyebrow} — Checkout`;
+      [...billing.querySelectorAll(".toggle__btn")].forEach((b) =>
+        b.classList.toggle("is-active", b.dataset.cycle === cycle));
+    }
+
+    const banner = document.getElementById("banner");
+    if (status === "cancel") {
+      banner.innerHTML = '<div class="co__banner co__banner--warn">Checkout cancelled — no charge was made.</div>';
+    }
+
+    billing.addEventListener("click", (e) => {
+      const btn = e.target.closest(".toggle__btn");
+      if (!btn) return;
+      cycle = btn.dataset.cycle;
+      render();
+    });
+
+    function showAuth() {
+      authForm.hidden = false;
+      checkoutForm.hidden = true;
+    }
+
+    function showCheckout(email) {
+      authForm.hidden = true;
+      checkoutForm.hidden = false;
+      document.getElementById("user-email").textContent = email;
+    }
+
+    async function refreshSession() {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user?.email) showCheckout(data.session.user.email);
+      else showAuth();
+    }
+
+    supabase.auth.onAuthStateChange(() => refreshSession());
+    await refreshSession();
+
+    document.getElementById("auth-btn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      if (!email || !password) {
+        authMsg.textContent = "Enter email and password.";
+        authMsg.className = "co__msg is-error";
+        return;
+      }
+      authMsg.className = "co__msg";
+      authMsg.textContent = authMode === "signup" ? "Creating account…" : "Signing in…";
+      const fn = authMode === "signup"
+        ? () => supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${location.origin}${location.pathname}?plan=${plan}&interval=${cycle}` } })
+        : () => supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await fn();
+      if (error) {
+        authMsg.textContent = error.message;
+        authMsg.className = "co__msg is-error";
+        return;
+      }
+      if (authMode === "signup" && !data.session) {
+        authMsg.textContent = "Check your email to confirm, then sign in.";
+        authMsg.className = "co__msg is-success";
+        return;
+      }
+      authMsg.textContent = "";
+      await refreshSession();
+    });
+
+    document.getElementById("magic-btn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      if (!email) {
+        authMsg.textContent = "Enter your email first.";
+        authMsg.className = "co__msg is-error";
+        return;
+      }
+      authMsg.textContent = "Sending link…";
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: `${location.origin}${location.pathname}?plan=${plan}&interval=${cycle}` },
+      });
+      authMsg.textContent = error ? error.message : "Check your email for the sign-in link.";
+      authMsg.className = error ? "co__msg is-error" : "co__msg is-success";
+    });
+
+    document.getElementById("signup-toggle").addEventListener("click", () => {
+      authMode = authMode === "signup" ? "signin" : "signup";
+      document.getElementById("auth-btn").textContent = authMode === "signup" ? "Create account" : "Sign in";
+      document.getElementById("signup-toggle").textContent = authMode === "signup" ? "Sign in instead" : "Create account instead";
+      authMsg.textContent = "";
+      authMsg.className = "co__msg";
+    });
+
+    document.getElementById("google-btn").addEventListener("click", async () => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${location.origin}${location.pathname}?plan=${plan}&interval=${cycle}` },
+      });
+      if (error) {
+        authMsg.textContent = error.message;
+        authMsg.className = "co__msg is-error";
+      }
+    });
+
+    document.getElementById("sign-out").addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      showAuth();
+    });
+
+    document.getElementById("pay").addEventListener("click", async () => {
+      const btn = document.getElementById("pay");
+      btn.disabled = true;
+      msg.textContent = "Connecting to PayPal…";
+      msg.className = "co__msg";
+      try {
+        const { data } = await supabase.auth.getSession();
+        const token = data.session?.access_token;
+        if (!token) throw new Error("Sign in to continue.");
+
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/dexlyywatch-checkout`, {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ plan, interval: cycle, origin: location.origin }),
+        });
+        const body = await res.json();
+        if (body.ok && body.url) {
+          location.href = body.url;
+          return;
+        }
+        if (body.code === "NOT_CONFIGURED") {
+          msg.textContent = "Checkout isn't live yet — we'll email you when billing opens.";
+          msg.className = "co__msg is-success";
+          return;
+        }
+        throw new Error(body.error || "Checkout failed");
+      } catch (err) {
+        msg.textContent = err.message || "Something went wrong.";
+        msg.className = "co__msg is-error";
+        btn.disabled = false;
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>

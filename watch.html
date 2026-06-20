@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DexlyyWatch — know the moment the frontier moves</title>
+  <meta name="description" content="DexlyyWatch is a live radar for every major AI lab. The instant a new model ships — OpenAI, Anthropic, Google, xAI, Meta, DeepSeek, Mistral, Qwen and more — you get alerted first, with a day-zero benchmark snapshot and a side-by-side comparison." />
+
+  <meta property="og:title" content="DexlyyWatch — one radar for every AI lab" />
+  <meta property="og:description" content="Get alerted the instant any frontier model drops, with day-zero benchmarks and side-by-side comparisons." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://dexlyy.com/watch.html" />
+  <link rel="canonical" href="https://dexlyy.com/watch.html" />
+  <meta name="theme-color" content="#fdf6ec" />
+  <link rel="icon" type="image/png" href="logo-mark.png" />
+  <link rel="apple-touch-icon" href="logo-mark.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="watch.css?v=20260620" />
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <!-- ===== Nav ===== -->
+  <header class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="brand" aria-label="DexlyyAI home">
+        <span class="brand__logo" aria-hidden="true">
+          <svg viewBox="0 0 40 40" width="34" height="34">
+            <defs>
+              <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#e8923a" /><stop offset="1" stop-color="#b4540a" />
+              </linearGradient>
+            </defs>
+            <rect x="1.5" y="1.5" width="37" height="37" rx="11" fill="url(#bg)" />
+            <g fill="none" stroke="#fff" stroke-width="1.8" opacity=".95">
+              <path d="M20 20 a9 9 0 0 1 9 -9" stroke-linecap="round" />
+              <path d="M20 20 a13.5 13.5 0 0 1 13 -10" stroke-linecap="round" opacity=".55" />
+            </g>
+            <circle cx="20" cy="20" r="2.6" fill="#fff" />
+            <circle cx="29" cy="11" r="1.9" fill="#fff" />
+          </svg>
+        </span>
+        <span class="brand__name">Dexlyy<span class="brand__name-em">Watch</span></span>
+      </a>
+
+      <nav class="nav__links" aria-label="Primary">
+        <a href="index.html">DexlyyAI</a>
+        <a href="#how">How it works</a>
+        <a href="#coverage">Coverage</a>
+        <a href="#request-lab">Request a source</a>
+        <a href="#drops">Recent drops</a>
+        <a href="#pricing">Pricing</a>
+        <a href="watch-dashboard.html">Dashboard</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <div class="nav__cta">
+        <a href="watch-dashboard.html" class="btn btn--line">Sign in</a>
+        <a href="watch-dashboard.html?tab=signup" class="btn btn--solid">Sign up free</a>
+      </div>
+
+      <button class="nav__burger" id="burger" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ===== Hero ===== -->
+    <section class="hero" id="top">
+      <div class="hero__glow" aria-hidden="true"></div>
+      <div class="hero__inner">
+        <div class="hero__copy">
+          <p class="eyebrow"><span class="live-dot"></span> Live model radar</p>
+          <h1 class="hero__title">
+            Know the moment<br />the <span class="hero__title-em">frontier</span> moves.
+          </h1>
+          <p class="hero__sub">
+            New AI models ship with almost no warning — a changelog line, an API id that quietly starts answering. <strong>DexlyyWatch</strong> keeps a constant eye on every major lab and tells you the instant something new lands, with a benchmark snapshot and a side-by-side comparison ready to read.
+          </p>
+
+          <a href="watch-dashboard.html" class="btn btn--solid">Create free account</a>
+          <p class="join__note" id="heroNote">Free forever for the weekly watch. Sign in with email or Google — no card required.</p>
+
+          <div class="hero__proof">
+            <div class="hero__faces" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <p>Current signups: <strong id="watchCount">0</strong></p>
+          </div>
+        </div>
+
+        <!-- Premium monitor card -->
+        <aside class="radar" aria-label="Frontier radar — labs currently monitored">
+          <div class="radar__head">
+            <div class="radar__title">
+              <span class="radar__pulse" aria-hidden="true"></span>
+              Frontier radar
+            </div>
+            <span class="radar__poll">polling every 60s</span>
+          </div>
+
+          <ul class="radar__list" id="radarList"><!-- rows injected --></ul>
+
+          <div class="radar__foot">
+            <div class="radar__progress" aria-hidden="true"><i id="radarBar"></i></div>
+            <span id="radarNext">next sweep in 60s</span>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Coverage ticker -->
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker__track" id="ticker"></div>
+      </div>
+    </section>
+
+    <!-- ===== What you get ===== -->
+    <section class="features" id="what">
+      <div class="section-head">
+        <p class="eyebrow">What you get</p>
+        <h2 class="section-title">Not just a ping. <em>The whole picture.</em></h2>
+        <p class="section-lead">A model is only an advantage if you can act on it before everyone else. Three things land the moment the radar trips.</p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="card reveal">
+          <div class="card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.7 21a2 2 0 0 1-3.4 0" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Alerted first</h3>
+          <p>Instant email the same minute a model goes live — ahead of the free digest. Filter by lab or capability so you only hear what matters to your stack. SMS and voice calls are coming soon.</p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>A day-zero snapshot</h3>
+          <p>We pull the launch numbers, pricing, context window and API id into one clean card — so you read signal, not a launch thread, in the first five minutes.</p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M12 3v18" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Side-by-side, instantly</h3>
+          <p>Each new model drops into a comparison against the current leaders — price, speed, context and benchmark deltas — so you know in minutes whether it's worth switching.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== How it works ===== -->
+    <section class="how" id="how">
+      <div class="section-head">
+        <p class="eyebrow">How it works</p>
+        <h2 class="section-title">From a quiet API id to <em>a decision.</em></h2>
+      </div>
+      <ol class="steps">
+        <li class="step reveal">
+          <span class="step__no">01</span>
+          <h3>We keep watch</h3>
+          <p>Around the clock, we check each lab's APIs, model registries and changelogs for an id or release that wasn't there before.</p>
+        </li>
+        <li class="step reveal">
+          <span class="step__no">02</span>
+          <h3>Something new lands</h3>
+          <p>A release is confirmed — debounced, never on a single blip — and we capture the launch details before they scroll off your feed.</p>
+        </li>
+        <li class="step reveal">
+          <span class="step__no">03</span>
+          <h3>You get the brief</h3>
+          <p>The alert, the snapshot and the comparison reach you together — first, and ready to act on.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ===== Coverage ===== -->
+    <section class="coverage" id="coverage">
+      <div class="section-head">
+        <p class="eyebrow">Coverage</p>
+        <h2 class="section-title">One watchtower for <em>every lab that matters.</em></h2>
+        <p class="section-lead">We track the public model surface of the labs setting the pace. Latest releases shown are accurate as of June 2026 — the radar updates them as new ones ship.</p>
+      </div>
+
+      <div class="labs" id="labs"><!-- lab cards injected --></div>
+      <p class="coverage__note">Plus emerging players — Moonshot (Kimi), Zhipu (GLM), MiniMax, NVIDIA Nemotron and more. Need a lab we're not on? <a href="#request-lab">Tell us and we'll add it.</a></p>
+    </section>
+
+    <!-- ===== Request a source ===== -->
+    <section class="request" id="request-lab">
+      <div class="request__card reveal">
+        <div class="request__copy">
+          <p class="eyebrow">Request coverage</p>
+          <h2>Tell us what the radar should watch next.</h2>
+          <p>If there is a lab, model family, changelog, leaderboard or registry we should monitor, send it here. It goes straight to Dexlyy support, not to a signup black hole.</p>
+        </div>
+        <form class="request__form" id="requestForm" novalidate>
+          <input class="hp" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <label>
+            <span>Your email</span>
+            <input name="email" type="email" autocomplete="email" required placeholder="you@company.com" />
+          </label>
+          <label>
+            <span>Lab, model or source</span>
+            <input name="lab" type="text" required placeholder="e.g. Cohere Command, LMSYS feed, new lab URL" />
+          </label>
+          <label>
+            <span>Source URL, if you have one</span>
+            <input name="url" type="url" placeholder="https://..." />
+          </label>
+          <label>
+            <span>Why should we track it?</span>
+            <textarea name="note" rows="4" placeholder="Tell us what changed, where announcements appear, or why this source matters."></textarea>
+          </label>
+          <button class="btn btn--solid btn--block" type="submit">Send request</button>
+          <p class="request__note" id="requestNote">We reply from support@dexlyy.com when we need more detail.</p>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===== Recent drops ===== -->
+    <section class="drops" id="drops">
+      <div class="section-head">
+        <p class="eyebrow">Recent drops</p>
+        <h2 class="section-title">The frontier, <em>as it happened.</em></h2>
+        <p class="section-lead">A sourced feed of recent releases — newest first. This is the kind of brief that reaches paid watchers the moment it lands.</p>
+      </div>
+      <ol class="timeline" id="timeline"><!-- injected --></ol>
+    </section>
+
+    <!-- ===== Pricing ===== -->
+    <section class="pricing" id="pricing">
+      <div class="section-head">
+        <p class="eyebrow">Pricing</p>
+        <h2 class="section-title">Pick how ready <em>you want to be.</em></h2>
+        <p class="section-lead">Start free. Upgrade when being first actually matters to your work — the next big drop is always closer than you think.</p>
+        <div class="toggle" id="billing" role="tablist" aria-label="Billing period">
+          <button class="toggle__btn is-active" data-cycle="monthly" role="tab" aria-selected="true">Monthly</button>
+          <button class="toggle__btn" data-cycle="annual" role="tab" aria-selected="false">Annual <span class="toggle__save">2 months free</span></button>
+        </div>
+      </div>
+
+      <div class="plans plans--3">
+        <!-- Watch (free) -->
+        <article class="plan reveal">
+          <h3 class="plan__name">Watch</h3>
+          <p class="plan__tag">For staying loosely in the loop</p>
+          <div class="plan__price">
+            <span class="plan__cur">$</span><span class="plan__amt">0</span><span class="plan__per">forever</span>
+          </div>
+          <ul class="plan__list">
+            <li>Weekly “what shipped” digest</li>
+            <li>Email alert on every major model</li>
+            <li>Full coverage &amp; recent-drops feed</li>
+            <li>No card, unsubscribe anytime</li>
+          </ul>
+          <button type="button" class="btn btn--line btn--block plan__cta" data-plan="watch">Join free</button>
+          <p class="plan__note">Sent in a batch after paid watchers are alerted.</p>
+        </article>
+
+        <!-- Pro -->
+        <article class="plan plan--featured reveal">
+          <span class="plan__ribbon">Most popular</span>
+          <h3 class="plan__name">Pro</h3>
+          <p class="plan__tag">For engineers who need to be first</p>
+          <div class="plan__price">
+            <span class="plan__cur">$</span><span class="plan__amt" data-monthly="5" data-annual="4">5</span><span class="plan__per" data-monthly="/ month" data-annual="/ mo, billed yearly">/ month</span>
+          </div>
+          <ul class="plan__list">
+            <li><strong>Alerted first</strong> — instant email ahead of the free list</li>
+            <li>Filter by lab &amp; capability</li>
+            <li>Day-zero benchmark snapshots</li>
+            <li>Side-by-side comparison view</li>
+            <li>Private dashboard for alert settings</li>
+            <li>SMS &amp; automated calls — <em>coming soon</em></li>
+          </ul>
+          <button type="button" class="btn btn--solid btn--block plan__cta" data-plan="pro">Get Pro</button>
+          <p class="plan__note">Launch pricing · email alerts live now · cancel anytime.</p>
+        </article>
+
+        <!-- Squadron -->
+        <article class="plan reveal">
+          <h3 class="plan__name">Squadron</h3>
+          <p class="plan__tag">For teams shipping on the frontier</p>
+          <div class="plan__price">
+            <span class="plan__cur">$</span><span class="plan__amt" data-monthly="15" data-annual="13">15</span><span class="plan__per" data-monthly="/ month" data-annual="/ mo, billed yearly">/ month</span>
+          </div>
+          <ul class="plan__list">
+            <li>Everything in Pro, up to <strong>10 seats</strong></li>
+            <li>Shared team watchlist &amp; routing rules</li>
+            <li>Slack &amp; webhook delivery</li>
+            <li>Alert API for your own tooling</li>
+            <li>Priority queue — first in line, always</li>
+            <li>Team dashboard with model comparison</li>
+            <li>SMS &amp; calls for the team — <em>coming soon</em></li>
+          </ul>
+          <button type="button" class="btn btn--line btn--block plan__cta" data-plan="squadron">Get Squadron</button>
+          <p class="plan__note">Add or remove seats anytime.</p>
+        </article>
+      </div>
+      <p class="pricing__foot">Independent service. Launch pricing in USD — email alerts and the full dashboard are live today. SMS and automated calls arrive after carrier registration; existing Pro/Squadron subscribers will get them at no extra charge.</p>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section class="faq" id="faq">
+      <div class="section-head">
+        <p class="eyebrow">Questions</p>
+        <h2 class="section-title">The honest answers.</h2>
+      </div>
+      <div class="faq__list">
+        <details class="faq__item"><summary>What does DexlyyWatch actually watch?<span class="faq__plus"></span></summary>
+          <p>The public model surface of every major lab — <em>OpenAI, Anthropic, Google, xAI, Meta, DeepSeek, Mistral and Alibaba (Qwen)</em>, plus emerging players like Moonshot, Zhipu and MiniMax. We check APIs, model registries and changelogs continuously and confirm a release before alerting.</p>
+        </details>
+        <details class="faq__item"><summary>How fast will I hear about a drop?<span class="faq__plus"></span></summary>
+          <p>Paid tiers get an instant email the same minute a model goes live. The free Watch tier hears in a batched digest shortly after. SMS and voice calls are on the roadmap and will land for paid users first.</p>
+        </details>
+        <details class="faq__item"><summary>What's in the day-zero snapshot?<span class="faq__plus"></span></summary>
+          <p>The launch numbers, pricing, context window and API id, pulled into one card the moment a model is detected — and slotted into a side-by-side against the current leaders so you can judge it quickly.</p>
+        </details>
+        <details class="faq__item"><summary>Do paid plans include a dashboard?<span class="faq__plus"></span></summary>
+          <p>Yes. After PayPal approval, Pro and Squadron buyers land in a private dashboard where they confirm the alert email, choose lab and capability filters, and compare AI models side by side. Squadron also gets team routing fields for Slack and webhooks. Phone/SMS settings will appear when those channels go live.</p>
+        </details>
+        <details class="faq__item"><summary>Is it a subscription?<span class="faq__plus"></span></summary>
+          <p>Pro and Squadron are simple monthly or annual plans — <em>cancel anytime.</em> The Watch tier is free forever, no card required.</p>
+        </details>
+        <details class="faq__item"><summary>Are you affiliated with these AI labs?<span class="faq__plus"></span></summary>
+          <p>No. DexlyyWatch is an <em>independent</em> monitor and is not affiliated with, endorsed by or operated by any AI lab. We simply track what they ship so you don't miss it.</p>
+        </details>
+        <details class="faq__item"><summary>How accurate is the data?<span class="faq__plus"></span></summary>
+          <p>Releases and details are drawn from official lab announcements and registries, and marked with their date. Where a figure is vendor-reported rather than independently verified, we say so. The radar reflects what we can confirm.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===== Final CTA ===== -->
+    <section class="final" id="join">
+      <div class="final__glow" aria-hidden="true"></div>
+      <h2 class="final__title">Never be the <em>last to know.</em></h2>
+      <p class="final__sub">Start with the free watch — no card. Let the radar stand the vigil so the next frontier model never slips past you.</p>
+      <a href="watch-dashboard.html" class="btn btn--solid btn--lg">Create free account</a>
+      <p class="join__note" id="ctaNote">Free · every major drop · sign in from your dashboard.</p>
+    </section>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <a href="#top" class="brand">
+          <span class="brand__logo" aria-hidden="true">
+            <svg viewBox="0 0 40 40" width="30" height="30">
+              <rect x="1.5" y="1.5" width="37" height="37" rx="11" fill="url(#bg)" />
+              <g fill="none" stroke="#fff" stroke-width="1.8" opacity=".95">
+                <path d="M20 20 a9 9 0 0 1 9 -9" stroke-linecap="round" />
+              </g>
+              <circle cx="20" cy="20" r="2.6" fill="#fff" /><circle cx="29" cy="11" r="1.9" fill="#fff" />
+            </svg>
+          </span>
+          <span class="brand__name">Dexlyy<span class="brand__name-em">Watch</span></span>
+        </a>
+        <p>One radar for every AI lab. Know the second a new model drops.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Product</h4>
+        <a href="#what">What you get</a>
+        <a href="#coverage">Coverage</a>
+        <a href="#drops">Recent drops</a>
+        <a href="#pricing">Pricing</a>
+        <a href="watch-dashboard.html">Dashboard</a>
+      </div>
+      <div class="footer__col">
+        <h4>Company</h4>
+        <a href="#faq">FAQ</a>
+        <a href="#join">Start watching</a>
+        <a href="index.html">DexlyyAI</a>
+      </div>
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </div>
+    </div>
+    <div class="footer__bar">
+      <span>© 2026 DexlyyWatch · An independent project by Dexlyy.</span>
+      <span>Not affiliated with, endorsed by, or connected to any AI lab.</span>
+    </div>
+  </footer>
+
+  <!-- ===== Detected toast ===== -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <span class="toast__dot" aria-hidden="true"></span>
+    <div class="toast__body">
+      <strong class="toast__title" id="toastTitle">Recently detected</strong>
+      <span class="toast__model" id="toastModel"></span>
+    </div>
+    <a href="#drops" class="toast__cta">View →</a>
+  </div>
+
+  <script src="watch.js?v=20260620"></script>
+</body>
+</html>

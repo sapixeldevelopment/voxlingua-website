@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DexlyyWatch Dashboard</title>
+  <meta name="description" content="Manage DexlyyWatch alert destinations and compare frontier AI models side by side." />
+  <link rel="canonical" href="https://dexlyy.com/watch-dashboard.html" />
+  <link rel="icon" type="image/png" href="logo-mark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="watch.css?v=20260620" />
+</head>
+<body class="dash-page">
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <header class="nav is-scrolled" id="nav">
+    <div class="nav__inner">
+      <a href="watch.html" class="brand" aria-label="DexlyyWatch home">
+        <span class="brand__logo" aria-hidden="true">
+          <svg viewBox="0 0 40 40" width="34" height="34">
+            <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8923a"/><stop offset="1" stop-color="#b4540a"/></linearGradient></defs>
+            <rect x="1.5" y="1.5" width="37" height="37" rx="11" fill="url(#bg)"/>
+            <path d="M20 20 a9 9 0 0 1 9 -9" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="20" cy="20" r="2.6" fill="#fff"/><circle cx="29" cy="11" r="1.9" fill="#fff"/>
+          </svg>
+        </span>
+        <span class="brand__name">Dexlyy<span class="brand__name-em">Watch</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Dashboard">
+        <a href="#destinations">Destinations</a>
+        <a href="#filters">Filters</a>
+        <a href="#compare">Compare</a>
+        <button type="button" class="btn btn--ghost" id="signOutBtn" style="font:inherit">Sign out</button>
+        <a href="watch.html">Public page</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="dash">
+    <section class="dash-hero">
+      <p class="eyebrow"><span class="live-dot"></span> Watch command room</p>
+      <div class="dash-hero__grid">
+        <div>
+          <h1 class="dash-hero__title">Control where the next model drop reaches you.</h1>
+          <p class="dash-hero__sub">Confirm your alert inbox, tune lab filters, route team alerts, and compare frontier models — email alerts are live; SMS and calls are coming soon.</p>
+        </div>
+        <aside class="dash-status" aria-live="polite">
+          <span class="dash-status__label">Current plan</span>
+          <strong id="planName">Loading...</strong>
+          <span id="planState">Checking your account</span>
+          <div class="dash-billing" id="billingPanel" hidden>
+            <div class="dash-billing__actions" id="billingActions"></div>
+            <p class="dash-billing__note" id="billingNote"></p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="dash-auth" id="authPanel">
+      <div class="dash-card">
+        <p class="eyebrow">DexlyyWatch account</p>
+        <h2>Sign in or create your free watch.</h2>
+        <p>Use the same Dexlyy account — email, password, magic link, or Google. Free users can set where weekly alerts go; upgrade anytime for first-in-line delivery.</p>
+
+        <div class="dash-auth__tabs" role="tablist">
+          <button type="button" class="is-active" data-auth-tab="signin" role="tab">Sign in</button>
+          <button type="button" data-auth-tab="signup" role="tab">Sign up</button>
+        </div>
+
+        <div id="authSignin">
+          <label class="dash-field">
+            <span>Email</span>
+            <input id="authEmail" type="email" autocomplete="email" placeholder="you@company.com" />
+          </label>
+          <label class="dash-field">
+            <span>Password</span>
+            <input id="authPassword" type="password" autocomplete="current-password" placeholder="Your password" />
+          </label>
+          <div class="dash-inline">
+            <button class="btn btn--solid" id="signInBtn" type="button">Sign in</button>
+            <button class="btn btn--line" id="magicLinkBtn" type="button">Email me a link</button>
+          </div>
+        </div>
+
+        <div id="authSignup" hidden>
+          <label class="dash-field">
+            <span>Email</span>
+            <input id="signupEmail" type="email" autocomplete="email" placeholder="you@company.com" />
+          </label>
+          <label class="dash-field">
+            <span>Password</span>
+            <input id="signupPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" />
+          </label>
+          <button class="btn btn--solid btn--block" id="signUpBtn" type="button">Create free account</button>
+        </div>
+
+        <div class="dash-auth__divider">or</div>
+        <button class="btn btn--line btn--block" id="googleBtn" type="button">Continue with Google</button>
+
+        <p class="dash-message" id="authMsg" role="status"></p>
+        <p class="dash-note">Paid plans are purchased from this dashboard after you sign in.</p>
+      </div>
+    </section>
+
+    <section class="dash-grid" id="dashboard" hidden>
+      <article class="dash-card" id="destinations">
+        <div class="dash-card__head">
+          <div>
+            <p class="eyebrow">Destinations</p>
+            <h2>Confirm where alerts go.</h2>
+          </div>
+          <span class="dash-pill" id="emailState">Email pending</span>
+        </div>
+
+        <label class="dash-field">
+          <span>Alert email</span>
+          <input id="alertEmail" type="email" autocomplete="email" placeholder="you@company.com" />
+        </label>
+        <div class="dash-inline">
+          <span id="emailHint">Use the inbox that should receive drop alerts.</span>
+        </div>
+
+        <div class="dash-coming-soon" id="phoneComingSoon">
+          <p class="dash-mini">SMS &amp; voice alerts</p>
+          <p><strong>Coming soon.</strong> Email alerts are live on Pro and Squadron. We will enable SMS verification and automated calls after carrier registration — you will not need a new plan.</p>
+        </div>
+      </article>
+
+      <article class="dash-card" id="filters">
+        <div class="dash-card__head">
+          <div>
+            <p class="eyebrow">Watch rules</p>
+            <h2>Choose the signal you care about.</h2>
+          </div>
+        </div>
+        <h3 class="dash-mini">Labs</h3>
+        <div class="dash-tags" id="labTags"></div>
+        <h3 class="dash-mini">Capabilities</h3>
+        <div class="dash-tags" id="capabilityTags"></div>
+      </article>
+
+      <article class="dash-card dash-card--squadron" id="squadronCard">
+        <div class="dash-card__head">
+          <div>
+            <p class="eyebrow">Squadron routing</p>
+            <h2>Team delivery.</h2>
+          </div>
+          <span class="dash-pill">Squadron</span>
+        </div>
+        <label class="dash-field">
+          <span>Seats</span>
+          <input id="seatLimit" type="number" min="1" max="10" />
+        </label>
+        <label class="dash-field">
+          <span>Slack webhook URL</span>
+          <input id="slackWebhook" type="url" placeholder="https://hooks.slack.com/services/..." />
+        </label>
+        <label class="dash-field">
+          <span>Generic webhook URL</span>
+          <input id="webhookUrl" type="url" placeholder="https://your-app.com/dexlyywatch" />
+        </label>
+      </article>
+
+      <article class="dash-card dash-card--save">
+        <button class="btn btn--solid btn--block" id="saveSettings" type="button">Save alert settings</button>
+        <p class="dash-message" id="saveMsg" role="status"></p>
+      </article>
+    </section>
+
+    <section class="compare" id="compare">
+      <div class="section-head">
+        <p class="eyebrow">Model comparison</p>
+        <h2 class="section-title">Put two models <em>on the same table.</em></h2>
+        <p class="section-lead">Compare context, pricing posture, launch status and best-fit use cases. Live detections are added as they appear.</p>
+      </div>
+      <div class="compare__shell">
+        <div class="compare__pickers">
+          <label class="dash-field">
+            <span>Model A</span>
+            <select id="modelA"></select>
+          </label>
+          <label class="dash-field">
+            <span>Model B</span>
+            <select id="modelB"></select>
+          </label>
+        </div>
+        <div class="compare__table" id="compareTable"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="watch-dashboard.js?v=20260620b"></script>
+</body>
+</html>
