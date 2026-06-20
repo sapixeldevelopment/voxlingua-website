@@ -142,6 +142,17 @@ function renderBilling() {
   });
 }
 
+// Show nav links only for sections the current user can actually use, so a
+// free user never clicks a link that scrolls to a hidden/locked section.
+function setDashLinks(visible, paid = false) {
+  $$(".js-dash-link").forEach((el) => {
+    const target = el.getAttribute("href") || "";
+    // Destinations (email) is available to everyone; Filters & Compare are paid.
+    const paidOnly = target === "#filters" || target === "#compare";
+    el.hidden = !visible || (paidOnly && !paid);
+  });
+}
+
 function renderSignup(signupRow) {
   signup = signupRow;
   const paid = isPaid(signupRow);
@@ -150,6 +161,7 @@ function renderSignup(signupRow) {
   $("#authPanel").hidden = true;
   $("#dashboard").hidden = false;
   $("#signOutBtn").hidden = false;
+  setDashLinks(true, paid);
   $("#planName").textContent = `DexlyyWatch ${planLabel(signupRow.plan)}`;
   $("#planState").textContent = paid
     ? "Active paid plan"
@@ -190,9 +202,20 @@ async function ensureSignup() {
   return data;
 }
 
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} timed out. Check your connection and try again.`)), ms)),
+  ]);
+}
+
 async function loadSignup() {
-  await ensureSignup();
-  const { data, error } = await supabase.from("dexlyywatch_signups").select("*").maybeSingle();
+  await withTimeout(ensureSignup(), 12000, "Loading your profile");
+  const { data, error } = await withTimeout(
+    supabase.from("dexlyywatch_signups").select("*").maybeSingle(),
+    12000,
+    "Loading your profile",
+  );
   if (error) throw error;
   if (!data) throw new Error("Could not load your watch profile.");
   renderSignup(data);
@@ -253,6 +276,7 @@ function showAuth() {
   $("#authPanel").hidden = false;
   $("#dashboard").hidden = true;
   $("#signOutBtn").hidden = true;
+  setDashLinks(false);
   $("#planName").textContent = "Sign in required";
   $("#planState").textContent = "Create a free account or sign in";
   $("#billingPanel").hidden = true;
@@ -263,6 +287,7 @@ function showLoading(message = "Checking your signed-in session and preparing yo
   $("#authPanel").hidden = true;
   $("#dashboard").hidden = true;
   $("#signOutBtn").hidden = true;
+  setDashLinks(false);
   $("#loadingMsg").textContent = message;
   $("#planName").textContent = "Loading...";
   $("#planState").textContent = "Checking your account";
@@ -271,14 +296,19 @@ function showLoading(message = "Checking your signed-in session and preparing yo
 
 function showSignedInError(err) {
   const message = friendlyAuthError(err);
+  const seatsFull = String(err?.message || "").includes("FREE_SEATS_FULL");
   $("#loadingPanel").hidden = false;
   $("#authPanel").hidden = true;
   $("#dashboard").hidden = true;
   $("#signOutBtn").hidden = false;
-  $("#loadingMsg").innerHTML = `${escapeHtml(message)} <a href="watch.html#pricing">View paid plans</a> or use Sign out above.`;
+  const action = seatsFull
+    ? `<a href="watch.html#pricing">View paid plans</a> or use Sign out above.`
+    : `<button type="button" class="btn btn--line" id="retryLoadBtn">Try again</button>`;
+  $("#loadingMsg").innerHTML = `${escapeHtml(message)} ${action}`;
   $("#planName").textContent = "Signed in";
   $("#planState").textContent = "Could not finish profile setup";
   $("#billingPanel").hidden = true;
+  $("#retryLoadBtn")?.addEventListener("click", () => { refreshAuth(); });
 }
 
 async function refreshAuth() {

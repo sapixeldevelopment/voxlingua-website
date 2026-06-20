@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="watch.css?v=20260620b" />
+  <link rel="stylesheet" href="watch.css?v=20260620c" />
 </head>
 <body class="dash-page">
   <a href="#main" class="skip-link">Skip to content</a>
@@ -29,9 +29,9 @@
         <span class="brand__name">Dexlyy<span class="brand__name-em">Watch</span></span>
       </a>
       <nav class="nav__links" aria-label="Dashboard">
-        <a href="#destinations">Destinations</a>
-        <a href="#filters">Filters</a>
-        <a href="#compare">Compare</a>
+        <a href="#destinations" class="js-dash-link" hidden>Destinations</a>
+        <a href="#filters" class="js-dash-link" hidden>Filters</a>
+        <a href="#compare" class="js-dash-link" hidden>Compare</a>
         <button type="button" class="btn btn--ghost" id="signOutBtn" style="font:inherit" hidden>Sign out</button>
         <a href="watch.html">Public page</a>
       </nav>
@@ -199,6 +199,6 @@
     </section>
   </main>
 
-  <script type="module" src="watch-dashboard.js?v=20260620c"></script>
+  <script type="module" src="watch-dashboard.js?v=20260620d"></script>
 </body>
 </html>
