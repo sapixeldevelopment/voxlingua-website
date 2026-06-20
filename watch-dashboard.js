@@ -17,15 +17,95 @@ const CAPABILITIES = [
 ];
 
 const MODELS = [
-  { id: "gpt-5.5", lab: "OpenAI", released: "Apr 2026", context: "1M tokens", pricing: "Premium API", strengths: "Agentic coding, terminal work, broad reasoning", access: "API + ChatGPT", note: "Best default when tool use and reliability matter." },
-  { id: "claude-opus-4-8", lab: "Anthropic", released: "May 2026", context: "1M tokens", pricing: "Premium API", strengths: "Writing, code review, long documents, careful reasoning", access: "API + Claude", note: "Strong fit for analysis-heavy product and engineering work." },
-  { id: "gemini-3.5-flash", lab: "Google", released: "May 2026", context: "1M tokens", pricing: "Cost-efficient", strengths: "Fast multimodal tasks, high-volume agents", access: "API + AI Studio", note: "Useful when latency and throughput matter." },
-  { id: "grok-4.3", lab: "xAI", released: "Apr 2026", context: "1M tokens", pricing: "Premium API", strengths: "Real-time context, low-hallucination frontier chat", access: "API + Grok", note: "Watch closely for news-aware and social-context workflows." },
-  { id: "DeepSeek-V4-Pro", lab: "DeepSeek", released: "Apr 2026", context: "256K tokens", pricing: "Aggressive API pricing", strengths: "Reasoning, math, efficient code tasks", access: "API + open-weight family", note: "Often the value benchmark when cost matters." },
-  { id: "Qwen3.7-Plus", lab: "Alibaba", released: "May 2026", context: "1M tokens", pricing: "Enterprise API", strengths: "Agent workflows, multilingual work, long context", access: "API", note: "A major contender for enterprise agent pipelines." },
-  { id: "Mistral-Medium-3.5", lab: "Mistral", released: "Apr 2026", context: "128K tokens", pricing: "Mid-market API", strengths: "European deployment, fast general-purpose inference", access: "API", note: "Good candidate when data residency and speed are priorities." },
-  { id: "Llama 4 family", lab: "Meta", released: "2026", context: "Varies", pricing: "Open weights", strengths: "Self-hosting, customization, broad ecosystem", access: "Open weights", note: "Best when control and local deployment beat managed API ease." },
+  {
+    id: "gpt-5.5", lab: "OpenAI", released: "Apr 2026", context: "1M tokens",
+    inputPrice: "$2.50 / 1M in", outputPrice: "$10 / 1M out", cachePrice: "$0.25 / 1M cached",
+    subscription: "ChatGPT Plus ~$20/mo · Pro ~$200/mo", freeTier: "Limited free tier in ChatGPT",
+    speed: "Fast", coding: "9/10 — agentic coding & tool loops", reasoning: "Frontier",
+    tools: "Functions, code interpreter, web, computer use", apiModel: "gpt-5.5",
+    openWeights: "No", access: "API + ChatGPT", latency: "~600–900ms TTFT",
+    vibePick: "Your daily driver when you want reliable tools + codegen in one stack.",
+    note: "Default pick for shipping features fast with strong tool use.",
+  },
+  {
+    id: "claude-opus-4-8", lab: "Anthropic", released: "May 2026", context: "1M tokens",
+    inputPrice: "$15 / 1M in", outputPrice: "$75 / 1M out", cachePrice: "$1.50 / 1M cached",
+    subscription: "Claude Pro ~$20/mo · Max tiers higher", freeTier: "Free Claude with daily caps",
+    speed: "Medium", coding: "9/10 — careful refactors & review", reasoning: "Frontier+",
+    tools: "Tools, bash, computer use, MCP", apiModel: "claude-opus-4-8",
+    openWeights: "No", access: "API + Claude", latency: "~1–2s TTFT",
+    vibePick: "When code quality and long-context reasoning beat raw speed.",
+    note: "Best for hard bugs, architecture reviews, and dense specs.",
+  },
+  {
+    id: "gemini-3.5-flash", lab: "Google", released: "May 2026", context: "1M tokens",
+    inputPrice: "$0.15 / 1M in", outputPrice: "$0.60 / 1M out", cachePrice: "$0.04 / 1M cached",
+    subscription: "Google AI Pro bundles vary", freeTier: "Generous free tier in AI Studio",
+    speed: "Very fast", coding: "7/10 — great for volume & multimodal", reasoning: "Strong mid-frontier",
+    tools: "Functions, search grounding, vision", apiModel: "gemini-3.5-flash",
+    openWeights: "No", access: "API + AI Studio", latency: "~300–500ms TTFT",
+    vibePick: "Burn tokens on agents, classifiers, and UI-heavy prototypes.",
+    note: "Price-per-token king for high-volume vibe coding loops.",
+  },
+  {
+    id: "grok-4.3", lab: "xAI", released: "Apr 2026", context: "1M tokens",
+    inputPrice: "$3 / 1M in", outputPrice: "$12 / 1M out", cachePrice: "—",
+    subscription: "SuperGrok subscription", freeTier: "Limited free in Grok app",
+    speed: "Fast", coding: "8/10 — strong chat + live context", reasoning: "Frontier",
+    tools: "Tools, live search, X context", apiModel: "grok-4.3",
+    openWeights: "No", access: "API + Grok", latency: "~700ms TTFT",
+    vibePick: "News-aware apps and social-signal copilots.",
+    note: "Watch for real-time / social-context workflows.",
+  },
+  {
+    id: "DeepSeek-V4-Pro", lab: "DeepSeek", released: "Apr 2026", context: "256K tokens",
+    inputPrice: "$0.55 / 1M in", outputPrice: "$2.19 / 1M out", cachePrice: "$0.14 / 1M cached",
+    subscription: "—", freeTier: "Open-weight variants self-host",
+    speed: "Fast", coding: "8/10 — math & efficient codegen", reasoning: "Strong value frontier",
+    tools: "Functions, JSON mode", apiModel: "deepseek-v4-pro",
+    openWeights: "Partial (open-weight family)", access: "API + open weights", latency: "~500–800ms TTFT",
+    vibePick: "Maximum IQ per dollar on API bills.",
+    note: "Benchmark when cost matters more than brand.",
+  },
+  {
+    id: "Qwen3.7-Plus", lab: "Alibaba", released: "May 2026", context: "1M tokens",
+    inputPrice: "$0.80 / 1M in", outputPrice: "$3.20 / 1M out", cachePrice: "$0.20 / 1M cached",
+    subscription: "—", freeTier: "Trial credits on DashScope",
+    speed: "Fast", coding: "8/10 — agents & multilingual", reasoning: "Strong",
+    tools: "Functions, agents, vision", apiModel: "qwen3.7-plus",
+    openWeights: "Partial", access: "API", latency: "~600ms TTFT",
+    vibePick: "Enterprise agents with long context and multilingual UX.",
+    note: "Major contender for agent pipelines outside US labs.",
+  },
+  {
+    id: "Mistral-Medium-3.5", lab: "Mistral", released: "Apr 2026", context: "128K tokens",
+    inputPrice: "$0.40 / 1M in", outputPrice: "$2 / 1M out", cachePrice: "—",
+    subscription: "Le Chat tiers", freeTier: "Free Le Chat tier",
+    speed: "Very fast", coding: "7/10 — EU-friendly generalist", reasoning: "Capable",
+    tools: "Functions, JSON", apiModel: "mistral-medium-3.5",
+    openWeights: "No", access: "API", latency: "~400ms TTFT",
+    vibePick: "EU residency + fast iteration without OpenAI pricing.",
+    note: "Good when data residency and latency both matter.",
+  },
+  {
+    id: "Llama 4 family", lab: "Meta", released: "2026", context: "128K–1M (variant)",
+    inputPrice: "Self-host / cloud GPU", outputPrice: "Varies by host", cachePrice: "—",
+    subscription: "—", freeTier: "Weights free to download",
+    speed: "Depends on hardware", coding: "7/10 — customizable stacks", reasoning: "Varies by size",
+    tools: "Bring your own (vLLM, Ollama, etc.)", apiModel: "meta-llama/llama-4-*",
+    openWeights: "Yes", access: "Open weights", latency: "Hardware-dependent",
+    vibePick: "You own the stack — fine-tune, air-gap, or slash SaaS spend.",
+    note: "Best when control beats managed API convenience.",
+  },
 ];
+
+const LIVE_MODEL_DEFAULTS = {
+  context: "TBD", inputPrice: "Pricing pending", outputPrice: "—", cachePrice: "—",
+  subscription: "—", freeTier: "—", speed: "TBD", coding: "TBD", reasoning: "TBD",
+  tools: "TBD", apiModel: "", openWeights: "Unknown", access: "Detected signal",
+  latency: "TBD", vibePick: "New drop — we're filling in benchmarks and pricing.",
+  note: "Live DexlyyWatch detection. Specs update as sources confirm.",
+};
 
 const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -158,6 +238,14 @@ function setPaidFieldsEnabled(paid) {
   if (!paid) $("#squadronCard").hidden = true;
 }
 
+function showFeedbackPanel(visible, email = "") {
+  const panel = $("#feedbackPanel");
+  if (!panel) return;
+  panel.hidden = !visible;
+  const emailInput = $("#feedbackEmail");
+  if (emailInput && email && !emailInput.value) emailInput.value = email;
+}
+
 function setAuthMessage(text, kind = "") {
   const el = $("#authMsg");
   if (!el) return;
@@ -235,9 +323,13 @@ function renderBilling() {
 // Show nav links only for sections the current user can actually use, so a
 // free user never clicks a link that scrolls to a hidden/locked section.
 function setDashLinks(visible, paid = false) {
-  // The section anchor links only make sense for the full paid dashboard.
-  // Free users get a single focused view, so hide them entirely.
-  $$(".js-dash-link").forEach((el) => { el.hidden = !visible || !paid; });
+  $$(".js-dash-link").forEach((el) => {
+    if (el.classList.contains("js-feedback-link")) {
+      el.hidden = !visible;
+      return;
+    }
+    el.hidden = !visible || !paid;
+  });
 }
 
 function setFreeEmailMsg(text, kind = "") {
@@ -318,9 +410,8 @@ function renderSignup(signupRow) {
 
   if (!paid) {
     renderFreeView(signupRow);
-    // The free view's plan card + comparison already cover upgrades, so keep the
-    // sidebar minimal (plan name + state) instead of duplicating the buttons.
     $("#billingPanel").hidden = true;
+    showFeedbackPanel(true, signupRow.alert_email || signupRow.email || "");
     handleStatusParam();
     return;
   }
@@ -340,6 +431,7 @@ function renderSignup(signupRow) {
 
   setPaidFieldsEnabled(paid);
   renderBilling();
+  showFeedbackPanel(true, signupRow.alert_email || signupRow.email || "");
   handleStatusParam();
 }
 
@@ -567,6 +659,7 @@ function showAuth() {
   $("#dashboard").hidden = true;
   $("#freeView").hidden = true;
   $("#compare").hidden = true;
+  $("#feedbackPanel").hidden = true;
   $("#signOutBtn").hidden = true;
   setDashLinks(false);
   $("#planName").textContent = "Sign in required";
@@ -580,6 +673,7 @@ function showLoading(message = "Checking your signed-in session and preparing yo
   $("#dashboard").hidden = true;
   $("#freeView").hidden = true;
   $("#compare").hidden = true;
+  $("#feedbackPanel").hidden = true;
   $("#signOutBtn").hidden = true;
   setDashLinks(false);
   $("#loadingMsg").textContent = message;
@@ -596,6 +690,7 @@ function showSignedInError(err) {
   $("#dashboard").hidden = true;
   $("#freeView").hidden = true;
   $("#compare").hidden = true;
+  $("#feedbackPanel").hidden = true;
   $("#signOutBtn").hidden = false;
   const action = seatsFull
     ? `<a href="watch.html#pricing">View paid plans</a> or use Sign out above.`
@@ -814,29 +909,88 @@ function modelLabel(model) {
   return `${model.lab} · ${model.id}`;
 }
 
-function fillModelSelects() {
-  const html = MODELS.map((m, i) => `<option value="${i}">${escapeHtml(modelLabel(m))}</option>`).join("");
-  $("#modelA").innerHTML = html;
-  $("#modelB").innerHTML = html;
-  $("#modelA").value = "0";
-  $("#modelB").value = "1";
+function modelField(model, key) {
+  return model[key] || LIVE_MODEL_DEFAULTS[key] || "—";
 }
 
-function compareRow(label, a, b) {
-  return `<div class="compare-row"><div class="compare-row__label">${escapeHtml(label)}</div><div>${escapeHtml(a)}</div><div>${escapeHtml(b)}</div></div>`;
+function compareCell(value, mono = false) {
+  const cls = mono ? " compare-cell--mono" : "";
+  return `<div class="compare-cell${cls}">${escapeHtml(value)}</div>`;
 }
+
+function compareRow(label, a, b, opts = {}) {
+  return `<div class="compare-row${opts.mono ? " compare-row--mono" : ""}"><div class="compare-row__label">${escapeHtml(label)}</div>${compareCell(a, opts.mono)}${compareCell(b, opts.mono)}</div>`;
+}
+
+function compareSection(title, rows, a, b) {
+  const body = rows.map((row) => compareRow(row.label, modelField(a, row.key), modelField(b, row.key), { mono: row.mono })).join("");
+  return `<div class="compare-section"><h3 class="compare-section__title">${escapeHtml(title)}</h3>${body}</div>`;
+}
+
+function compareSummary(model) {
+  return `
+    <article class="compare-summary">
+      <p class="compare-summary__lab">${escapeHtml(model.lab)}</p>
+      <h3 class="compare-summary__name">${escapeHtml(model.id)}</h3>
+      <p class="compare-summary__vibe">${escapeHtml(modelField(model, "vibePick"))}</p>
+      <dl class="compare-summary__stats">
+        <div><dt>Input</dt><dd>${escapeHtml(modelField(model, "inputPrice"))}</dd></div>
+        <div><dt>Output</dt><dd>${escapeHtml(modelField(model, "outputPrice"))}</dd></div>
+        <div><dt>Coding</dt><dd>${escapeHtml(modelField(model, "coding"))}</dd></div>
+        <div><dt>Speed</dt><dd>${escapeHtml(modelField(model, "speed"))}</dd></div>
+      </dl>
+      <p class="compare-summary__api"><span>API model</span> <code>${escapeHtml(modelField(model, "apiModel") || model.id)}</code></p>
+    </article>`;
+}
+
+const COMPARE_SECTIONS = [
+  {
+    title: "Pricing & access",
+    rows: [
+      { key: "inputPrice", label: "API input", mono: true },
+      { key: "outputPrice", label: "API output", mono: true },
+      { key: "cachePrice", label: "Cached input", mono: true },
+      { key: "subscription", label: "Chat subscriptions" },
+      { key: "freeTier", label: "Free tier" },
+      { key: "openWeights", label: "Open weights" },
+      { key: "access", label: "How to use" },
+    ],
+  },
+  {
+    title: "Vibe-coder fit",
+    rows: [
+      { key: "vibePick", label: "Pick this if…" },
+      { key: "coding", label: "Coding & agents" },
+      { key: "reasoning", label: "Reasoning tier" },
+      { key: "speed", label: "Speed feel" },
+      { key: "latency", label: "Typical latency", mono: true },
+      { key: "tools", label: "Tools & integrations" },
+    ],
+  },
+  {
+    title: "Specs",
+    rows: [
+      { key: "released", label: "Released" },
+      { key: "context", label: "Context window" },
+      { key: "apiModel", label: "API model ID", mono: true },
+      { key: "note", label: "DexlyyWatch take" },
+    ],
+  },
+];
 
 function renderCompare() {
   const a = MODELS[Number($("#modelA").value)] || MODELS[0];
   const b = MODELS[Number($("#modelB").value)] || MODELS[1];
-  $("#compareTable").innerHTML = `
-    <div class="compare-row compare-row--head"><div></div><div>${escapeHtml(modelLabel(a))}</div><div>${escapeHtml(modelLabel(b))}</div></div>
-    ${compareRow("Released", a.released, b.released)}
-    ${compareRow("Context", a.context, b.context)}
-    ${compareRow("Pricing posture", a.pricing, b.pricing)}
-    ${compareRow("Best at", a.strengths, b.strengths)}
-    ${compareRow("Access", a.access, b.access)}
-    ${compareRow("DexlyyWatch read", a.note, b.note)}`;
+  const table = $("#compareTable");
+  if (!table) return;
+  table.innerHTML = `
+    <div class="compare__summaries">
+      ${compareSummary(a)}
+      ${compareSummary(b)}
+    </div>
+    <div class="compare__sections">
+      ${COMPARE_SECTIONS.map((section) => compareSection(section.title, section.rows, a, b)).join("")}
+    </div>`;
 }
 
 async function loadLiveModels() {
@@ -848,14 +1002,12 @@ async function loadLiveModels() {
       if (seen.has(key)) return;
       seen.add(key);
       MODELS.push({
+        ...LIVE_MODEL_DEFAULTS,
         id: drop.model_id,
         lab: drop.lab,
+        apiModel: drop.model_id,
         released: drop.released_at ? new Date(drop.released_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "Detected",
-        context: "TBD",
-        pricing: "TBD",
-        strengths: drop.source_kind === "huggingface" ? "Open-weight release detected" : "Announcement detected",
-        access: drop.url ? "Source linked" : "Detected signal",
-        note: "Live DexlyyWatch detection. Benchmark and pricing snapshot pending.",
+        access: drop.url ? `Source · ${drop.url}` : "Detected signal",
       });
     });
     fillModelSelects();
@@ -863,6 +1015,21 @@ async function loadLiveModels() {
   } catch {
     /* static catalog is enough */
   }
+}
+
+function fillModelSelects() {
+  const html = MODELS.map((m, i) => `<option value="${i}">${escapeHtml(modelLabel(m))}</option>`).join("");
+  $("#modelA").innerHTML = html;
+  $("#modelB").innerHTML = html;
+  if (!$("#modelA").value) $("#modelA").value = "0";
+  if (!$("#modelB").value) $("#modelB").value = String(Math.min(1, MODELS.length - 1));
+}
+
+function setFeedbackMessage(text, kind = "") {
+  const el = $("#feedbackMsg");
+  if (!el) return;
+  el.textContent = text;
+  el.className = `dash-message ${kind}`.trim();
 }
 
 $("#modelA")?.addEventListener("change", renderCompare);
@@ -885,6 +1052,47 @@ $("#dashBilling")?.addEventListener("click", (e) => {
 });
 
 setBillingInterval(billingInterval);
+
+$("#feedbackForm")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("#feedbackSubmit");
+  const email = $("#feedbackEmail").value.trim().toLowerCase();
+  const kind = $("#feedbackKind").value;
+  const message = $("#feedbackMessage").value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setFeedbackMessage("Enter a valid email so we can follow up.", "is-error");
+    return;
+  }
+  if (message.length < 10) {
+    setFeedbackMessage("Give us a bit more detail (at least 10 characters).", "is-error");
+    return;
+  }
+  const original = btn?.textContent;
+  if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
+  setFeedbackMessage("Sending to Dexlyy support…");
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/dexlyywatch-contact`, {
+      method: "POST",
+      headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        kind,
+        email,
+        note: message,
+        plan: signup?.plan || "unknown",
+        page: "watch-dashboard",
+      }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok || !body.ok) throw new Error(body.error || "Could not send feedback.");
+    $("#feedbackForm").reset();
+    if ($("#feedbackEmail")) $("#feedbackEmail").value = email;
+    setFeedbackMessage("Thanks — we got it. Dexlyy support will read every submission.", "is-success");
+  } catch (err) {
+    setFeedbackMessage(err.message || "Could not send. Email support@dexlyy.com instead.", "is-error");
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = original || "Send feedback"; }
+  }
+});
 
 if (params.get("signout") === "1") {
   try {

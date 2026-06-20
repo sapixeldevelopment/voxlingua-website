@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="watch.css?v=20260620h" />
+  <link rel="stylesheet" href="watch.css?v=20260620i" />
 </head>
 <body class="dash-page">
   <a href="#main" class="skip-link">Skip to content</a>
@@ -32,6 +32,7 @@
         <a href="#destinations" class="js-dash-link" hidden>Destinations</a>
         <a href="#filters" class="js-dash-link" hidden>Filters</a>
         <a href="#compare" class="js-dash-link" hidden>Compare</a>
+        <a href="#feedback" class="js-dash-link js-feedback-link" hidden>Feedback</a>
         <button type="button" class="btn btn--ghost" id="signOutBtn" style="font:inherit" hidden>Sign out</button>
         <a href="watch.html">Public page</a>
       </nav>
@@ -227,8 +228,8 @@
     <section class="compare" id="compare">
       <div class="section-head">
         <p class="eyebrow">Model comparison</p>
-        <h2 class="section-title">Put two models <em>on the same table.</em></h2>
-        <p class="section-lead">Compare context, pricing posture, launch status and best-fit use cases. Live detections are added as they appear.</p>
+        <h2 class="section-title">Which model should you <em>actually ship with?</em></h2>
+        <p class="section-lead">API pricing, coding fit, latency, tools, and context — the stuff vibe coders care about when picking a default model. Prices are indicative; confirm on each lab's pricing page before you scale.</p>
       </div>
       <div class="compare__shell">
         <div class="compare__pickers">
@@ -244,8 +245,43 @@
         <div class="compare__table" id="compareTable"></div>
       </div>
     </section>
+
+    <section class="dash-feedback" id="feedbackPanel" hidden>
+      <div class="dash-feedback__shell" id="feedback">
+        <article class="dash-card">
+          <div class="dash-card__head">
+            <div>
+              <p class="eyebrow">Help us improve</p>
+              <h2>Report bugs &amp; send suggestions.</h2>
+            </div>
+          </div>
+          <p class="dash-mini-note">Found something broken? Want a feature? Tell us — every message goes straight to Dexlyy support.</p>
+          <form id="feedbackForm" class="dash-feedback__form">
+            <label class="dash-field">
+              <span>Your email</span>
+              <input id="feedbackEmail" type="email" autocomplete="email" placeholder="you@company.com" required />
+            </label>
+            <label class="dash-field">
+              <span>Type</span>
+              <select id="feedbackKind" required>
+                <option value="bug">Bug report</option>
+                <option value="suggestion">Feature suggestion</option>
+                <option value="feedback">General feedback</option>
+                <option value="compare">Compare data correction</option>
+              </select>
+            </label>
+            <label class="dash-field">
+              <span>Message</span>
+              <textarea id="feedbackMessage" rows="5" placeholder="What happened? What should we build? Which model pricing is wrong?" required></textarea>
+            </label>
+            <button type="submit" class="btn btn--solid" id="feedbackSubmit">Send feedback</button>
+            <p class="dash-message" id="feedbackMsg" role="status"></p>
+          </form>
+        </article>
+      </div>
+    </section>
   </main>
 
-  <script type="module" src="watch-dashboard.js?v=20260620n"></script>
+  <script type="module" src="watch-dashboard.js?v=20260620o"></script>
 </body>
 </html>
