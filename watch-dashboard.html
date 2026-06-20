@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="watch.css?v=20260620f" />
+  <link rel="stylesheet" href="watch.css?v=20260620h" />
 </head>
 <body class="dash-page">
   <a href="#main" class="skip-link">Skip to content</a>
@@ -131,6 +131,11 @@
         <div class="dash-upgrade">
           <h3 class="dash-mini">Compare plans</h3>
           <p class="dash-mini-note">Upgrade for real-time alerts the moment a model drops, plus filters, comparison and team routing.</p>
+          <div class="toggle dash-billing-toggle" id="dashBilling" role="tablist" aria-label="Billing period">
+            <button type="button" class="toggle__btn is-active" data-cycle="monthly">Monthly</button>
+            <button type="button" class="toggle__btn" data-cycle="annual">Annual <span class="toggle__save">2 months free</span></button>
+          </div>
+          <p class="dash-mini-note" id="dashBillingNote">Monthly billing: Pro $5/month · Squadron $15/month. Cancel anytime.</p>
           <div class="plan-tiers" id="freePlansCompare"></div>
         </div>
       </article>
@@ -241,6 +246,6 @@
     </section>
   </main>
 
-  <script type="module" src="watch-dashboard.js?v=20260620l"></script>
+  <script type="module" src="watch-dashboard.js?v=20260620n"></script>
 </body>
 </html>

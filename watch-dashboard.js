@@ -36,14 +36,13 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 });
 
 let signup = null;
-let billingInterval = "annual";
+let billingInterval = "monthly";
 
 const PLAN_TIERS = [
   {
     key: "watch",
     name: "Watch",
     short: "Watch",
-    price: "Free",
     features: [
       "Weekly digest of major model drops",
       "Email delivery",
@@ -54,8 +53,9 @@ const PLAN_TIERS = [
     key: "pro",
     name: "Pro",
     short: "Pro",
-    price: "$5",
     featured: true,
+    monthly: { amount: "5", label: "$5 / month" },
+    annual: { amount: "4", total: "50", label: "$4 / mo · $50 billed yearly" },
     features: [
       "Real-time alerts the moment a model drops",
       "Lab & capability filters",
@@ -67,7 +67,8 @@ const PLAN_TIERS = [
     key: "squadron",
     name: "Squadron",
     short: "Squadron",
-    price: "$15",
+    monthly: { amount: "15", label: "$15 / month" },
+    annual: { amount: "13", total: "150", label: "$13 / mo · $150 billed yearly" },
     features: [
       "Everything in Pro",
       "Team routing — up to 10 seats",
@@ -76,6 +77,40 @@ const PLAN_TIERS = [
     ],
   },
 ];
+
+function tierCheckoutLabel(tier) {
+  if (tier.key === "watch") return "";
+  const p = billingInterval === "annual" ? tier.annual : tier.monthly;
+  return billingInterval === "annual" ? `$${p.total}/year` : `$${p.amount}/mo`;
+}
+
+function tierPriceHtml(tier) {
+  if (tier.key === "watch") return `<div class="plan-tier__price-block"><span class="plan-tier__price">Free</span></div>`;
+  const annual = billingInterval === "annual";
+  const p = annual ? tier.annual : tier.monthly;
+  const per = annual ? "/ mo" : "/ month";
+  const billed = annual
+    ? `<span class="plan-tier__billed">$${p.total} billed yearly</span>`
+    : "";
+  return `<div class="plan-tier__price-block"><span class="plan-tier__price">$${p.amount}<small>${per}</small></span>${billed}</div>`;
+}
+
+function setBillingInterval(interval) {
+  billingInterval = interval === "annual" ? "annual" : "monthly";
+  const toggle = $("#dashBilling");
+  if (toggle) {
+    $$(".toggle__btn", toggle).forEach((b) => {
+      b.classList.toggle("is-active", b.dataset.cycle === billingInterval);
+    });
+  }
+  const note = $("#dashBillingNote");
+  if (note) {
+    note.textContent = billingInterval === "annual"
+      ? "Annual billing: Pro $50/year · Squadron $150/year (2 months free vs monthly)."
+      : "Monthly billing: Pro $5/month · Squadron $15/month. Cancel anytime.";
+  }
+  if (signup && !isPaid(signup)) renderFreeView(signup);
+}
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -235,12 +270,11 @@ function renderFreeView(signupRow) {
       const classes = ["plan-tier"];
       if (t.key === "watch") classes.push("plan-tier--current");
       if (t.featured) classes.push("plan-tier--featured");
-      const price = t.key === "watch"
-        ? `<span class="plan-tier__price">Free</span>`
-        : `<span class="plan-tier__price">${escapeHtml(t.price)}<small>/mo</small></span>`;
+      const price = tierPriceHtml(t);
+      const checkoutLabel = tierCheckoutLabel(t);
       const cta = t.key === "watch"
-        ? `<span class="plan-tier__badge">Your plan</span>`
-        : `<button type="button" class="btn ${t.featured ? "btn--solid" : "btn--line"} btn--block js-upgrade-plan" data-plan="${t.key}">Choose ${escapeHtml(t.short)}</button>`;
+        ? `<div class="plan-tier__foot"><span class="plan-tier__badge">Your plan</span></div>`
+        : `<div class="plan-tier__foot"><button type="button" class="btn ${t.featured ? "btn--solid" : "btn--line"} btn--block plan-tier__btn js-upgrade-plan" data-plan="${t.key}">Choose ${escapeHtml(t.short)}</button><span class="plan-tier__checkout">${escapeHtml(checkoutLabel)} at checkout</span></div>`;
       return `
         <div class="${classes.join(" ")}">
           <div class="plan-tier__head">
@@ -319,12 +353,6 @@ function handleStatusParam() {
   }
 }
 
-async function ensureSignup() {
-  const { data, error } = await supabase.rpc("watch_ensure_signup");
-  if (error) throw error;
-  return data;
-}
-
 function withTimeout(promise, ms, label) {
   return Promise.race([
     promise,
@@ -332,34 +360,83 @@ function withTimeout(promise, ms, label) {
   ]);
 }
 
-async function loadSignup() {
-  const { data: sess } = await supabase.auth.getSession();
-  const uid = sess.session?.user?.id;
-  if (!uid) throw new Error("Not signed in.");
+async function primeAuthClient(stored) {
+  if (!stored?.access_token) return stored;
+  try {
+    const { data, error } = await withTimeout(
+      supabase.auth.setSession({
+        access_token: stored.access_token,
+        refresh_token: stored.refresh_token ?? "",
+      }),
+      4000,
+      "Restoring session",
+    );
+    if (error) return stored;
+    return data.session ?? stored;
+  } catch (_e) {
+    return stored;
+  }
+}
 
-  // Try to read the existing profile first. Only existing-user reads are on the
-  // critical path; the watch_ensure_signup RPC (which can be slow / enforce the
-  // free-seat cap) runs only when there is no row yet.
-  let { data, error } = await withTimeout(
-    supabase.from("dexlyywatch_signups").select("*").eq("user_id", uid).maybeSingle(),
+async function loadSignup(sessionHint) {
+  const stored = readStoredSession();
+  const uid = sessionHint?.uid || stored?.user?.id;
+  const token = sessionHint?.token || stored?.access_token;
+  if (!uid || !token) {
+    let resolvedUid = uid;
+    if (!resolvedUid) {
+      const { data: sess } = await withTimeout(supabase.auth.getSession(), 5000, "Session check");
+      resolvedUid = sess.session?.user?.id;
+    }
+    if (!resolvedUid) throw new Error("Not signed in.");
+    const accessToken = token || await getAccessToken();
+    if (!accessToken) throw new Error("Not signed in.");
+    return loadSignup({ uid: resolvedUid, token: accessToken });
+  }
+
+  let data = await fetchSignupRow(uid, token);
+  if (!data) {
+    await withTimeout(ensureSignupWithToken(token), 12000, "Creating your profile");
+    data = await fetchSignupRow(uid, token);
+  }
+  if (!data) throw new Error("Could not load your watch profile.");
+  renderSignup(data);
+}
+
+async function fetchSignupRow(uid, token) {
+  const res = await withTimeout(
+    fetch(`${SUPABASE_URL}/rest/v1/dexlyywatch_signups?user_id=eq.${uid}&select=*`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    }),
     10000,
     "Loading your profile",
   );
-  if (error) throw error;
-
-  if (!data) {
-    await withTimeout(ensureSignup(), 12000, "Creating your profile");
-    const res = await withTimeout(
-      supabase.from("dexlyywatch_signups").select("*").eq("user_id", uid).maybeSingle(),
-      10000,
-      "Loading your profile",
-    );
-    if (res.error) throw res.error;
-    data = res.data;
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(text || `Profile load failed (${res.status})`);
   }
+  const rows = await res.json();
+  return Array.isArray(rows) ? rows[0] ?? null : null;
+}
 
-  if (!data) throw new Error("Could not load your watch profile.");
-  renderSignup(data);
+async function ensureSignupWithToken(token) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/watch_ensure_signup`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: "{}",
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(text || "Could not create your profile");
+  }
 }
 
 async function authHeaders() {
@@ -385,7 +462,8 @@ function readStoredSession() {
     const parsed = JSON.parse(raw);
     const session = parsed?.currentSession || parsed;
     if (!session?.access_token) return null;
-    if (session.expires_at && Number(session.expires_at) * 1000 <= Date.now()) return null;
+    const expired = session.expires_at && Number(session.expires_at) * 1000 <= Date.now();
+    if (expired && !session.refresh_token) return null;
     return session;
   } catch (_e) {
     return null;
@@ -529,29 +607,51 @@ function showSignedInError(err) {
   $("#retryLoadBtn")?.addEventListener("click", () => { refreshAuth(); });
 }
 
+let authLoadInFlight = false;
+
 async function refreshAuth() {
-  showLoading();
-  let session = null;
+  if (authLoadInFlight) return;
+  authLoadInFlight = true;
   try {
-    const { data } = await withTimeout(supabase.auth.getSession(), 8000, "Checking your session");
-    session = data.session;
-  } catch (err) {
-    // getSession should never hang now (detectSessionInUrl is off), but if it
-    // does we must not get stuck on Loading — fall back to the sign-in view.
-    console.warn("getSession failed:", err);
-    showAuth();
-    return;
-  }
-  if (session?.user) {
-    $("#signOutBtn").hidden = false;
-    showLoading("Signed in. Loading your Watch profile...");
-    try {
-      await loadSignup();
-    } catch (err) {
-      showSignedInError(err);
+    showLoading();
+
+    // Fast path on refresh: read localStorage directly so we never depend on
+    // getSession(), which can hang when the auth client is mid-initialization.
+    const stored = readStoredSession();
+    if (stored?.user?.id && stored.access_token) {
+      const session = await primeAuthClient(stored);
+      $("#signOutBtn").hidden = false;
+      showLoading("Signed in. Loading your Watch profile...");
+      try {
+        await loadSignup({ uid: session.user.id, token: session.access_token });
+      } catch (err) {
+        showSignedInError(err);
+      }
+      return;
     }
-  } else {
-    showAuth();
+
+    let session = null;
+    try {
+      const { data } = await withTimeout(supabase.auth.getSession(), 8000, "Checking your session");
+      session = data.session;
+    } catch (err) {
+      console.warn("getSession failed:", err);
+      showAuth();
+      return;
+    }
+    if (session?.user) {
+      $("#signOutBtn").hidden = false;
+      showLoading("Signed in. Loading your Watch profile...");
+      try {
+        await loadSignup({ uid: session.user.id, token: session.access_token });
+      } catch (err) {
+        showSignedInError(err);
+      }
+    } else {
+      showAuth();
+    }
+  } finally {
+    authLoadInFlight = false;
   }
 }
 
@@ -778,6 +878,14 @@ $("#freePlansCompare")?.addEventListener("click", (e) => {
   startPayPalCheckout(btn.dataset.plan, btn);
 });
 
+$("#dashBilling")?.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-cycle]");
+  if (!btn) return;
+  setBillingInterval(btn.dataset.cycle);
+});
+
+setBillingInterval(billingInterval);
+
 if (params.get("signout") === "1") {
   try {
     await withTimeout(supabase.auth.signOut({ scope: "local" }), 5000, "Sign out");
@@ -811,7 +919,12 @@ async function settleAuthFromUrl() {
   history.replaceState({}, "", "watch-dashboard.html");
 }
 
-supabase.auth.onAuthStateChange(() => refreshAuth());
+supabase.auth.onAuthStateChange((event) => {
+  if (event === "SIGNED_OUT") {
+    signup = null;
+    showAuth();
+  }
+});
 try {
   await settleAuthFromUrl();
   await refreshAuth();

@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="canonical" href="https://dexlyy.com/watch-checkout.html" />
   <link rel="icon" type="image/png" href="logo-mark.png" />
-  <link rel="stylesheet" href="watch.css?v=20260620f" />
+  <link rel="stylesheet" href="watch.css?v=20260620g" />
   <style>
     .co { max-width: 480px; margin: 0 auto; padding: 8rem 1.5rem 5rem; }
     .co__card { background: var(--ink-2); border: 1px solid var(--line-2); border-radius: var(--radius); padding: 2rem 1.8rem; box-shadow: var(--sh-lg); position: relative; overflow: hidden; }
@@ -18,10 +18,11 @@
     .co__eyebrow { font-size:.78rem; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); font-weight:700; }
     .co__title { font-family:var(--serif); font-weight:400; font-size:2rem; letter-spacing:-.02em; margin:.4rem 0 .2rem; }
     .co__tag { color:var(--muted); font-size:.95rem; margin-bottom:1.4rem; }
-    .co__price { display:flex; align-items:baseline; gap:.15rem; margin:1.2rem 0; }
+    .co__price { display:flex; align-items:baseline; gap:.15rem; margin:1.2rem 0 .35rem; }
     .co__cur { font-size:1.2rem; color:var(--muted); align-self:flex-start; margin-top:.4rem; font-weight:600; }
     .co__amt { font-family:var(--serif); font-size:3rem; line-height:.9; letter-spacing:-.02em; }
     .co__per { color:var(--muted); font-size:.9rem; margin-left:.3rem; }
+    .co__total { font-size:.92rem; font-weight:600; color:var(--paper); margin:0 0 1.2rem; }
     .co__list { list-style:none; margin:0 0 1.6rem; display:flex; flex-direction:column; gap:.55rem; }
     .co__list li { font-size:.92rem; padding-left:1.6rem; position:relative; color:var(--paper); }
     .co__list li::before { content:''; position:absolute; left:0; top:.32em; width:13px; height:7px; border-left:2px solid var(--amber); border-bottom:2px solid var(--rust); transform:rotate(-45deg); }
@@ -63,6 +64,7 @@
       <div class="co__price">
         <span class="co__cur">$</span><span class="co__amt" id="coAmt">5</span><span class="co__per" id="coPer">/ month</span>
       </div>
+      <p class="co__total" id="coTotal">Total due today: $5/month</p>
 
       <ul class="co__list" id="coList"></ul>
 
@@ -119,6 +121,7 @@
         tag: "Alerted the moment any model drops — ahead of the free list.",
         price: { monthly: "5", annual: "4" },
         per: { monthly: "/ month", annual: "/ mo · billed yearly ($50)" },
+        checkout: { monthly: "$5/month", annual: "$50/year" },
         feats: ["Instant email — alerted first", "Filter by lab & capability", "Day-zero benchmark snapshots", "Side-by-side comparison view", "Dashboard for alert email & filters", "SMS & calls — coming soon"],
       },
       squadron: {
@@ -126,6 +129,7 @@
         tag: "Everything in Pro, for up to 10 seats — with Slack, webhooks & an API.",
         price: { monthly: "15", annual: "13" },
         per: { monthly: "/ month", annual: "/ mo · billed yearly ($150)" },
+        checkout: { monthly: "$15/month", annual: "$150/year" },
         feats: ["Everything in Pro, up to 10 seats", "Shared watchlist & routing rules", "Slack & webhook delivery + alert API", "Priority queue — first in line, always", "Team dashboard with model comparison", "SMS & calls — coming soon"],
       },
     };
@@ -213,6 +217,10 @@
       document.getElementById("coAmt").textContent = p.price[cycle];
       document.getElementById("coPer").textContent = p.per[cycle];
       document.getElementById("coList").innerHTML = p.feats.map((f) => `<li>${f}</li>`).join("");
+      const total = document.getElementById("coTotal");
+      if (total) total.textContent = `Total due today: ${p.checkout[cycle]}`;
+      const payBtn = document.getElementById("pay");
+      if (payBtn) payBtn.textContent = `Continue to PayPal — ${p.checkout[cycle]}`;
       document.title = `${p.eyebrow} — Checkout`;
       [...billing.querySelectorAll(".toggle__btn")].forEach((b) =>
         b.classList.toggle("is-active", b.dataset.cycle === cycle));
