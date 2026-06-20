@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="watch.css?v=20260620i" />
+  <link rel="stylesheet" href="watch.css?v=20260620j" />
 </head>
 <body class="dash-page">
   <a href="#main" class="skip-link">Skip to content</a>
@@ -161,40 +161,47 @@
     </section>
 
     <section class="dash-grid" id="dashboard" hidden>
-      <article class="dash-card" id="destinations">
+      <article class="dash-card dash-card--dest" id="destinations">
         <div class="dash-card__head">
           <div>
             <p class="eyebrow">Destinations</p>
-            <h2>Confirm where alerts go.</h2>
+            <h2>Where alerts land.</h2>
           </div>
           <span class="dash-pill" id="emailState">Email pending</span>
         </div>
 
-        <label class="dash-field">
-          <span>Alert email</span>
-          <input id="alertEmail" type="email" autocomplete="email" placeholder="you@company.com" />
-        </label>
-        <div class="dash-inline">
-          <span id="emailHint">Use the inbox that should receive drop alerts.</span>
-        </div>
+        <div class="dash-card__body">
+          <label class="dash-field">
+            <span>Alert email</span>
+            <input id="alertEmail" type="email" autocomplete="email" placeholder="you@company.com" />
+            <small class="dash-field__hint" id="emailHint">Use the inbox that should receive drop alerts.</small>
+          </label>
 
-        <div class="dash-coming-soon" id="phoneComingSoon">
-          <p class="dash-mini">SMS &amp; voice alerts</p>
-          <p><strong>Coming soon.</strong> Email alerts are live on Pro and Squadron. We will enable SMS verification and automated calls after carrier registration — you will not need a new plan.</p>
+          <div class="dash-coming-soon" id="phoneComingSoon">
+            <p class="dash-coming-soon__label">SMS &amp; voice</p>
+            <p class="dash-coming-soon__text"><strong>Coming soon.</strong> Email is live on Pro and Squadron. SMS and calls unlock after carrier registration — same plan, no extra charge.</p>
+          </div>
         </div>
       </article>
 
-      <article class="dash-card" id="filters">
+      <article class="dash-card dash-card--rules" id="filters">
         <div class="dash-card__head">
           <div>
             <p class="eyebrow">Watch rules</p>
-            <h2>Choose the signal you care about.</h2>
+            <h2>Filter the signal.</h2>
           </div>
         </div>
-        <h3 class="dash-mini">Labs</h3>
-        <div class="dash-tags" id="labTags"></div>
-        <h3 class="dash-mini">Capabilities</h3>
-        <div class="dash-tags" id="capabilityTags"></div>
+
+        <div class="dash-card__body">
+          <div class="dash-filter-block">
+            <h3 class="dash-mini">Labs</h3>
+            <div class="dash-tags" id="labTags"></div>
+          </div>
+          <div class="dash-filter-block">
+            <h3 class="dash-mini">Capabilities</h3>
+            <div class="dash-tags" id="capabilityTags"></div>
+          </div>
+        </div>
       </article>
 
       <article class="dash-card dash-card--squadron" id="squadronCard">
@@ -205,24 +212,26 @@
           </div>
           <span class="dash-pill">Squadron</span>
         </div>
-        <label class="dash-field">
-          <span>Seats</span>
-          <input id="seatLimit" type="number" min="1" max="10" />
-        </label>
-        <label class="dash-field">
-          <span>Slack webhook URL</span>
-          <input id="slackWebhook" type="url" placeholder="https://hooks.slack.com/services/..." />
-        </label>
-        <label class="dash-field">
-          <span>Generic webhook URL</span>
-          <input id="webhookUrl" type="url" placeholder="https://your-app.com/dexlyywatch" />
-        </label>
+        <div class="dash-card__fields">
+          <label class="dash-field">
+            <span>Seats</span>
+            <input id="seatLimit" type="number" min="1" max="10" />
+          </label>
+          <label class="dash-field">
+            <span>Slack webhook</span>
+            <input id="slackWebhook" type="url" placeholder="https://hooks.slack.com/services/..." />
+          </label>
+          <label class="dash-field">
+            <span>Webhook URL</span>
+            <input id="webhookUrl" type="url" placeholder="https://your-app.com/dexlyywatch" />
+          </label>
+        </div>
       </article>
 
-      <article class="dash-card dash-card--save">
-        <button class="btn btn--solid btn--block" id="saveSettings" type="button">Save alert settings</button>
+      <div class="dash-savebar">
+        <button class="btn btn--solid" id="saveSettings" type="button">Save alert settings</button>
         <p class="dash-message" id="saveMsg" role="status"></p>
-      </article>
+      </div>
     </section>
 
     <section class="compare" id="compare">
