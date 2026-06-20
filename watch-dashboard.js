@@ -146,8 +146,10 @@ function renderSignup(signupRow) {
   signup = signupRow;
   const paid = isPaid(signupRow);
 
+  $("#loadingPanel").hidden = true;
   $("#authPanel").hidden = true;
   $("#dashboard").hidden = false;
+  $("#signOutBtn").hidden = false;
   $("#planName").textContent = `DexlyyWatch ${planLabel(signupRow.plan)}`;
   $("#planState").textContent = paid
     ? "Active paid plan"
@@ -247,21 +249,48 @@ async function changePlan(plan) {
 }
 
 function showAuth() {
+  $("#loadingPanel").hidden = true;
   $("#authPanel").hidden = false;
   $("#dashboard").hidden = true;
+  $("#signOutBtn").hidden = true;
   $("#planName").textContent = "Sign in required";
   $("#planState").textContent = "Create a free account or sign in";
   $("#billingPanel").hidden = true;
 }
 
+function showLoading(message = "Checking your signed-in session and preparing your Watch profile...") {
+  $("#loadingPanel").hidden = false;
+  $("#authPanel").hidden = true;
+  $("#dashboard").hidden = true;
+  $("#signOutBtn").hidden = true;
+  $("#loadingMsg").textContent = message;
+  $("#planName").textContent = "Loading...";
+  $("#planState").textContent = "Checking your account";
+  $("#billingPanel").hidden = true;
+}
+
+function showSignedInError(err) {
+  const message = friendlyAuthError(err);
+  $("#loadingPanel").hidden = false;
+  $("#authPanel").hidden = true;
+  $("#dashboard").hidden = true;
+  $("#signOutBtn").hidden = false;
+  $("#loadingMsg").innerHTML = `${escapeHtml(message)} <a href="watch.html#pricing">View paid plans</a> or use Sign out above.`;
+  $("#planName").textContent = "Signed in";
+  $("#planState").textContent = "Could not finish profile setup";
+  $("#billingPanel").hidden = true;
+}
+
 async function refreshAuth() {
+  showLoading();
   const { data } = await supabase.auth.getSession();
   if (data.session?.user) {
+    $("#signOutBtn").hidden = false;
+    showLoading("Signed in. Loading your Watch profile...");
     try {
       await loadSignup();
     } catch (err) {
-      setAuthMessage(friendlyAuthError(err), "is-error");
-      showAuth();
+      showSignedInError(err);
     }
   } else {
     showAuth();

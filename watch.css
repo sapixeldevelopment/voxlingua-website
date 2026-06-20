@@ -368,6 +368,8 @@ svg { display: block; }
 .dash-tags { display: flex; flex-wrap: wrap; gap: .55rem; margin: .75rem 0 1.35rem; }
 .dash-message { min-height: 1.3em; color: var(--muted); font-size: .92rem; }
 .dash-message.is-success { color: var(--accent); font-weight: 700; }
+.dash-message.is-error { color: #b3261e; font-weight: 700; }
+.dash-note a, #loadingMsg a { color: var(--accent); border-bottom: 1px solid rgba(217,119,6,.35); }
 .dash-coming-soon { margin-top: 1.25rem; padding: 1rem 1.1rem; border-radius: var(--radius-sm); border: 1px dashed rgba(217,119,6,.35); background: rgba(217,119,6,.06); color: var(--muted); font-size: .92rem; line-height: 1.55; }
 .dash-coming-soon strong { color: var(--ink); }
 .compare { padding-top: var(--section); }

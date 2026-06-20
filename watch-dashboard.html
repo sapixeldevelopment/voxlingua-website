@@ -32,7 +32,7 @@
         <a href="#destinations">Destinations</a>
         <a href="#filters">Filters</a>
         <a href="#compare">Compare</a>
-        <button type="button" class="btn btn--ghost" id="signOutBtn" style="font:inherit">Sign out</button>
+        <button type="button" class="btn btn--ghost" id="signOutBtn" style="font:inherit" hidden>Sign out</button>
         <a href="watch.html">Public page</a>
       </nav>
     </div>
@@ -58,7 +58,15 @@
       </div>
     </section>
 
-    <section class="dash-auth" id="authPanel">
+    <section class="dash-auth" id="loadingPanel">
+      <div class="dash-card">
+        <p class="eyebrow">DexlyyWatch account</p>
+        <h2>Loading your dashboard.</h2>
+        <p id="loadingMsg">Checking your signed-in session and preparing your Watch profile...</p>
+      </div>
+    </section>
+
+    <section class="dash-auth" id="authPanel" hidden>
       <div class="dash-card">
         <p class="eyebrow">DexlyyWatch account</p>
         <h2>Sign in or claim a free Watch seat.</h2>
