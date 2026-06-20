@@ -318,11 +318,15 @@ function withTimeout(promise, ms, label) {
 }
 
 async function loadSignup() {
+  const { data: sess } = await supabase.auth.getSession();
+  const uid = sess.session?.user?.id;
+  if (!uid) throw new Error("Not signed in.");
+
   // Try to read the existing profile first. Only existing-user reads are on the
   // critical path; the watch_ensure_signup RPC (which can be slow / enforce the
   // free-seat cap) runs only when there is no row yet.
   let { data, error } = await withTimeout(
-    supabase.from("dexlyywatch_signups").select("*").maybeSingle(),
+    supabase.from("dexlyywatch_signups").select("*").eq("user_id", uid).maybeSingle(),
     10000,
     "Loading your profile",
   );
@@ -331,7 +335,7 @@ async function loadSignup() {
   if (!data) {
     await withTimeout(ensureSignup(), 12000, "Creating your profile");
     const res = await withTimeout(
-      supabase.from("dexlyywatch_signups").select("*").maybeSingle(),
+      supabase.from("dexlyywatch_signups").select("*").eq("user_id", uid).maybeSingle(),
       10000,
       "Loading your profile",
     );
