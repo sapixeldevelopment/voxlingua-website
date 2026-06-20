@@ -29,9 +29,7 @@ const MODELS = [
 
 const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  // detectSessionInUrl is disabled because we exchange the PKCE ?code= ourselves
-  // on init (see bottom of file). Letting both run races and can hang the page.
-  auth: { persistSession: true, detectSessionInUrl: false, flowType: "pkce" },
+  auth: { persistSession: true, detectSessionInUrl: true, flowType: "pkce" },
 });
 
 let signup = null;
@@ -620,25 +618,37 @@ if (params.get("signout") === "1") {
   history.replaceState({}, "", "watch-dashboard.html");
 }
 
-// OAuth / magic-link return with a PKCE ?code=. Exchange it for a session
-// explicitly so we don't race detectSessionInUrl (which can leave the page
-// stuck on "Loading" if getSession() runs before the exchange finishes).
-if (params.get("code")) {
+// OAuth / magic-link return with a PKCE ?code=. detectSessionInUrl handles the
+// exchange automatically, but it can lag behind our first getSession() call. If
+// a code is present, wait briefly for the session to materialise; if it never
+// does, exchange the code string ourselves as a fallback.
+async function settleAuthFromUrl() {
+  const code = params.get("code");
+  if (!code) return;
   showLoading("Finishing sign-in...");
+  for (let i = 0; i < 20; i++) {
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.user) {
+      history.replaceState({}, "", "watch-dashboard.html");
+      return;
+    }
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  // Still no session — try an explicit exchange with the code string.
   try {
-    await withTimeout(
-      supabase.auth.exchangeCodeForSession(window.location.href),
-      12000,
-      "Finishing sign-in",
-    );
+    await withTimeout(supabase.auth.exchangeCodeForSession(code), 12000, "Finishing sign-in");
   } catch (err) {
-    // If detectSessionInUrl already consumed the code, a second exchange fails
-    // harmlessly — refreshAuth() below will still find the session. Only surface
-    // a real error if no session ends up present.
-    console.warn("code exchange:", err);
+    console.warn("code exchange fallback:", err);
   }
   history.replaceState({}, "", "watch-dashboard.html");
 }
 
 supabase.auth.onAuthStateChange(() => refreshAuth());
-await refreshAuth();
+try {
+  await settleAuthFromUrl();
+  await refreshAuth();
+} catch (err) {
+  // Never leave the page blank: fall back to the sign-in view on any init error.
+  console.error("dashboard init failed:", err);
+  showAuth();
+}
