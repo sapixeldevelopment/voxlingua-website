@@ -145,12 +145,39 @@ function renderBilling() {
 // Show nav links only for sections the current user can actually use, so a
 // free user never clicks a link that scrolls to a hidden/locked section.
 function setDashLinks(visible, paid = false) {
-  $$(".js-dash-link").forEach((el) => {
-    const target = el.getAttribute("href") || "";
-    // Destinations (email) is available to everyone; Filters & Compare are paid.
-    const paidOnly = target === "#filters" || target === "#compare";
-    el.hidden = !visible || (paidOnly && !paid);
-  });
+  // The section anchor links only make sense for the full paid dashboard.
+  // Free users get a single focused view, so hide them entirely.
+  $$(".js-dash-link").forEach((el) => { el.hidden = !visible || !paid; });
+}
+
+function setFreeEmailMsg(text, kind = "") {
+  const el = $("#freeEmailMsg");
+  if (!el) return;
+  el.textContent = text;
+  el.className = `dash-message ${kind}`.trim();
+}
+
+function renderFreeView(signupRow) {
+  $("#freePlanName").textContent = "Watch (Free)";
+  const cancelled = signupRow.status === "cancelled";
+  $("#freePlanStatus").textContent = signupRow.pending_plan
+    ? `Checkout pending — ${planLabel(signupRow.pending_plan)}`
+    : cancelled
+      ? "Previous paid plan cancelled — now on free Watch"
+      : "Active";
+  $("#freePlanPill").textContent = "Free";
+
+  const email = signupRow.alert_email || signupRow.email || "";
+  $("#freeAlertEmail").value = email;
+  const verified = Boolean(signupRow.alert_email_verified_at);
+  $("#freeEmailState").textContent = verified ? "Email confirmed" : "Email pending";
+  $("#freeEmailState").classList.toggle("is-ok", verified);
+
+  $("#freeUpgradeActions").innerHTML = `
+    <a class="btn btn--solid" href="watch-checkout.html?plan=pro&interval=${billingInterval}">Upgrade to Pro</a>
+    <a class="btn btn--line" href="watch-checkout.html?plan=squadron&interval=${billingInterval}">Upgrade to Squadron</a>`;
+
+  setFreeEmailMsg("");
 }
 
 function renderSignup(signupRow) {
@@ -159,9 +186,14 @@ function renderSignup(signupRow) {
 
   $("#loadingPanel").hidden = true;
   $("#authPanel").hidden = true;
-  $("#dashboard").hidden = false;
   $("#signOutBtn").hidden = false;
   setDashLinks(true, paid);
+
+  // Free users get a focused plan + email view; paid users get the full dashboard.
+  $("#freeView").hidden = paid;
+  $("#dashboard").hidden = !paid;
+  $("#compare").hidden = !paid;
+
   $("#planName").textContent = `DexlyyWatch ${planLabel(signupRow.plan)}`;
   $("#planState").textContent = paid
     ? "Active paid plan"
@@ -170,6 +202,13 @@ function renderSignup(signupRow) {
       : signupRow.status === "cancelled"
         ? "Subscription cancelled"
         : "Free watch — weekly digest";
+
+  if (!paid) {
+    renderFreeView(signupRow);
+    renderBilling();
+    handleStatusParam();
+    return;
+  }
 
   $("#alertEmail").value = signupRow.alert_email || signupRow.email || "";
   $("#emailState").textContent = signupRow.alert_email_verified_at ? "Email confirmed" : "Email unconfirmed";
@@ -186,7 +225,10 @@ function renderSignup(signupRow) {
 
   setPaidFieldsEnabled(paid);
   renderBilling();
+  handleStatusParam();
+}
 
+function handleStatusParam() {
   if (params.get("status") === "success") {
     setMessage("Payment approved — your plan activates once PayPal confirms (usually within a minute).", "is-success");
     history.replaceState({}, "", "watch-dashboard.html");
@@ -275,6 +317,8 @@ function showAuth() {
   $("#loadingPanel").hidden = true;
   $("#authPanel").hidden = false;
   $("#dashboard").hidden = true;
+  $("#freeView").hidden = true;
+  $("#compare").hidden = true;
   $("#signOutBtn").hidden = true;
   setDashLinks(false);
   $("#planName").textContent = "Sign in required";
@@ -286,6 +330,8 @@ function showLoading(message = "Checking your signed-in session and preparing yo
   $("#loadingPanel").hidden = false;
   $("#authPanel").hidden = true;
   $("#dashboard").hidden = true;
+  $("#freeView").hidden = true;
+  $("#compare").hidden = true;
   $("#signOutBtn").hidden = true;
   setDashLinks(false);
   $("#loadingMsg").textContent = message;
@@ -300,6 +346,8 @@ function showSignedInError(err) {
   $("#loadingPanel").hidden = false;
   $("#authPanel").hidden = true;
   $("#dashboard").hidden = true;
+  $("#freeView").hidden = true;
+  $("#compare").hidden = true;
   $("#signOutBtn").hidden = false;
   const action = seatsFull
     ? `<a href="watch.html#pricing">View paid plans</a> or use Sign out above.`
@@ -403,6 +451,37 @@ $("#googleBtn")?.addEventListener("click", async () => {
 $("#signOutBtn")?.addEventListener("click", async () => {
   await supabase.auth.signOut();
   showAuth();
+});
+
+$("#saveFreeEmail")?.addEventListener("click", async () => {
+  const btn = $("#saveFreeEmail");
+  const email = $("#freeAlertEmail").value.trim().toLowerCase();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setFreeEmailMsg("Enter a valid email address.", "is-error");
+    return;
+  }
+  if (!signup?.user_id) {
+    setFreeEmailMsg("Could not load your account. Refresh and try again.", "is-error");
+    return;
+  }
+  btn.disabled = true;
+  setFreeEmailMsg("Saving…");
+  // Updating the stored alert_email is all that's needed: the alert sender reads
+  // this column fresh each run, so the old address stops receiving alerts and the
+  // new one starts immediately — no separate contact list to clean up.
+  const { data, error } = await supabase
+    .from("dexlyywatch_signups")
+    .update({ alert_email: email, updated_at: new Date().toISOString() })
+    .eq("user_id", signup.user_id)
+    .select()
+    .maybeSingle();
+  btn.disabled = false;
+  if (error) {
+    setFreeEmailMsg(error.message || "Could not save your email.", "is-error");
+    return;
+  }
+  renderSignup(data);
+  setFreeEmailMsg("Saved. Your digest now goes to this address; the old one was removed.", "is-success");
 });
 
 $("#saveSettings")?.addEventListener("click", async () => {

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="watch.css?v=20260620c" />
+  <link rel="stylesheet" href="watch.css?v=20260620d" />
 </head>
 <body class="dash-page">
   <a href="#main" class="skip-link">Skip to content</a>
@@ -112,6 +112,49 @@
       </div>
     </section>
 
+    <section class="dash-grid dash-grid--solo" id="freeView" hidden>
+      <article class="dash-card" id="freePlanCard">
+        <div class="dash-card__head">
+          <div>
+            <p class="eyebrow">Your plan</p>
+            <h2 id="freePlanTitle">DexlyyWatch Watch</h2>
+          </div>
+          <span class="dash-pill" id="freePlanPill">Free</span>
+        </div>
+
+        <dl class="dash-detail">
+          <div><dt>Plan</dt><dd id="freePlanName">Watch (Free)</dd></div>
+          <div><dt>Status</dt><dd id="freePlanStatus">Active</dd></div>
+          <div><dt>What you get</dt><dd id="freePlanIncludes">Weekly digest of major model drops by email.</dd></div>
+          <div><dt>Not included</dt><dd id="freePlanExcludes">First-in-line alerts, lab &amp; capability filters, model comparison, team routing.</dd></div>
+        </dl>
+
+        <div class="dash-upgrade">
+          <h3 class="dash-mini">Upgrade for real-time alerts</h3>
+          <p class="dash-mini-note">Get instant alerts the moment a model drops, plus filters and model comparison.</p>
+          <div class="dash-inline" id="freeUpgradeActions"></div>
+        </div>
+      </article>
+
+      <article class="dash-card" id="freeEmailCard">
+        <div class="dash-card__head">
+          <div>
+            <p class="eyebrow">Alert email</p>
+            <h2>Where your digest is sent.</h2>
+          </div>
+          <span class="dash-pill" id="freeEmailState">Email pending</span>
+        </div>
+
+        <label class="dash-field">
+          <span>Alert email</span>
+          <input id="freeAlertEmail" type="email" autocomplete="email" placeholder="you@company.com" />
+        </label>
+        <p class="dash-mini-note">Changing this instantly stops alerts to your old address and sends future digests to the new one.</p>
+        <button class="btn btn--solid" id="saveFreeEmail" type="button">Save alert email</button>
+        <p class="dash-message" id="freeEmailMsg" role="status"></p>
+      </article>
+    </section>
+
     <section class="dash-grid" id="dashboard" hidden>
       <article class="dash-card" id="destinations">
         <div class="dash-card__head">
@@ -199,6 +242,6 @@
     </section>
   </main>
 
-  <script type="module" src="watch-dashboard.js?v=20260620d"></script>
+  <script type="module" src="watch-dashboard.js?v=20260620e"></script>
 </body>
 </html>
