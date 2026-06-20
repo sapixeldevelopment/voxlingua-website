@@ -612,9 +612,29 @@ async function loadSignup(sessionHint) {
   renderSignup(data);
 }
 
+const SIGNUP_SELECT = [
+  "user_id",
+  "email",
+  "plan",
+  "status",
+  "pending_plan",
+  "pending_interval",
+  "alert_email",
+  "alert_email_verified_at",
+  "phone_e164",
+  "phone_verified_at",
+  "labs",
+  "capabilities",
+  "sms_enabled",
+  "call_enabled",
+  "slack_webhook_url",
+  "webhook_url",
+  "seat_limit",
+].join(",");
+
 async function fetchSignupRow(uid, token) {
   const res = await withTimeout(
-    fetch(`${SUPABASE_URL}/rest/v1/dexlyywatch_signups?user_id=eq.${uid}&select=*`, {
+    fetch(`${SUPABASE_URL}/rest/v1/dexlyywatch_signups?user_id=eq.${uid}&select=${SIGNUP_SELECT}`, {
       headers: {
         apikey: SUPABASE_ANON_KEY,
         Authorization: `Bearer ${token}`,
@@ -1004,6 +1024,14 @@ $("#resendConfirmBtn")?.addEventListener("click", async () => {
   }
 });
 
+function isHttpsUrl(value) {
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 $("#saveSettings")?.addEventListener("click", async () => {
   const btn = $("#saveSettings");
   btn.disabled = true;
@@ -1025,6 +1053,18 @@ $("#saveSettings")?.addEventListener("click", async () => {
     }
 
     if (paid) {
+      const slackWebhook = $("#slackWebhook").value.trim();
+      const webhookUrl = $("#webhookUrl").value.trim();
+      if (slackWebhook && !isHttpsUrl(slackWebhook)) {
+        btn.disabled = false;
+        setMessage("Slack webhook must be an https:// URL.", "is-error");
+        return;
+      }
+      if (webhookUrl && !isHttpsUrl(webhookUrl)) {
+        btn.disabled = false;
+        setMessage("Webhook URL must be an https:// URL.", "is-error");
+        return;
+      }
       const payload = {
         updated_at: new Date().toISOString(),
         sms_enabled: false,
@@ -1032,8 +1072,8 @@ $("#saveSettings")?.addEventListener("click", async () => {
         labs: readChecked($("#labTags")),
         capabilities: readChecked($("#capabilityTags")),
         seat_limit: Number($("#seatLimit").value) || 10,
-        slack_webhook_url: $("#slackWebhook").value.trim() || null,
-        webhook_url: $("#webhookUrl").value.trim() || null,
+        slack_webhook_url: slackWebhook || null,
+        webhook_url: webhookUrl || null,
       };
       if (!needsConfirm) payload.alert_email = email;
       const { data, error } = await supabase.from("dexlyywatch_signups").update(payload).eq("user_id", signup.user_id).select().maybeSingle();
