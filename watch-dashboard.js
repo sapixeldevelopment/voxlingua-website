@@ -467,5 +467,11 @@ $("#modelB")?.addEventListener("change", renderCompare);
 fillModelSelects();
 renderCompare();
 loadLiveModels();
+
+if (params.get("signout") === "1") {
+  await supabase.auth.signOut();
+  history.replaceState({}, "", "watch-dashboard.html");
+}
+
 supabase.auth.onAuthStateChange(() => refreshAuth());
 await refreshAuth();

@@ -278,6 +278,8 @@
         : `Limited free seats · ${remaining.toLocaleString()} left · every major drop.`;
     }
     freeCtas.forEach((el) => {
+      // Skip CTAs that were repurposed for a signed-in visitor (e.g. Sign out).
+      if (!el.classList.contains("js-free-cta")) return;
       if (full) {
         el.textContent = "See paid plans";
         el.href = "#pricing";
@@ -370,10 +372,43 @@
     }
   }
 
+  /* ---------------- Auth-aware nav ----------------
+     The marketing page has no Supabase client, but supabase-js persists the
+     session in localStorage under sb-<project-ref>-auth-token. Read it directly
+     (no network) so the nav reflects whether the visitor is already signed in. */
+  function isSignedIn() {
+    try {
+      const ref = SUPABASE_URL.replace(/^https?:\/\//, "").split(".")[0];
+      const raw = localStorage.getItem(`sb-${ref}-auth-token`);
+      if (!raw) return false;
+      const parsed = JSON.parse(raw);
+      const session = parsed?.currentSession || parsed;
+      if (!session?.access_token) return false;
+      if (session.expires_at && Number(session.expires_at) * 1000 <= Date.now()) return false;
+      return true;
+    } catch (_e) {
+      return false;
+    }
+  }
+
+  function updateAuthNav() {
+    const signIn = $("#navSignIn");
+    const signUp = $("#navSignUp");
+    if (!signIn || !signUp) return;
+    if (isSignedIn()) {
+      signIn.textContent = "Dashboard";
+      signIn.href = "watch-dashboard.html";
+      signUp.textContent = "Sign out";
+      signUp.href = "watch-dashboard.html?signout=1";
+      signUp.classList.remove("js-free-cta");
+    }
+  }
+
   /* ---------------- Init ---------------- */
   renderLabs();
   renderTimeline();
   observeReveals();
+  updateAuthNav();
   loadStats();
   loadLive();
 })();
