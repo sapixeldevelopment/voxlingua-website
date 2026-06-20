@@ -29,7 +29,10 @@ const MODELS = [
 
 const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: true, detectSessionInUrl: true, flowType: "pkce" },
+  // detectSessionInUrl is OFF: when it auto-processes a reused/invalid ?code= it
+  // can deadlock the client's internal lock so getSession() never resolves and
+  // the page hangs on "Loading". We exchange the code ourselves below instead.
+  auth: { persistSession: true, detectSessionInUrl: false, flowType: "pkce" },
 });
 
 let signup = null;
@@ -51,7 +54,8 @@ const PLAN_TIERS = [
     key: "pro",
     name: "Pro",
     short: "Pro",
-    price: "$5/mo",
+    price: "$5",
+    featured: true,
     features: [
       "Real-time alerts the moment a model drops",
       "Lab & capability filters",
@@ -63,7 +67,7 @@ const PLAN_TIERS = [
     key: "squadron",
     name: "Squadron",
     short: "Squadron",
-    price: "$15/mo",
+    price: "$15",
     features: [
       "Everything in Pro",
       "Team routing — up to 10 seats",
@@ -227,19 +231,28 @@ function renderFreeView(signupRow) {
   // Plan comparison so free users can see exactly what each tier adds.
   const plansEl = $("#freePlansCompare");
   if (plansEl) {
-    plansEl.innerHTML = PLAN_TIERS.map((t) => `
-      <div class="plan-tier${t.key === "watch" ? " plan-tier--current" : ""}">
-        <div class="plan-tier__head">
-          <h4>${escapeHtml(t.name)}</h4>
-          <span class="plan-tier__price">${escapeHtml(t.price)}</span>
-        </div>
-        <ul class="plan-tier__list">
-          ${t.features.map((f) => `<li>${escapeHtml(f)}</li>`).join("")}
-        </ul>
-        ${t.key === "watch"
-          ? `<span class="plan-tier__badge">Your plan</span>`
-          : `<a class="btn btn--solid btn--block" href="watch-checkout.html?plan=${t.key}&interval=${billingInterval}">Upgrade to ${escapeHtml(t.short)}</a>`}
-      </div>`).join("");
+    plansEl.innerHTML = PLAN_TIERS.map((t) => {
+      const classes = ["plan-tier"];
+      if (t.key === "watch") classes.push("plan-tier--current");
+      if (t.featured) classes.push("plan-tier--featured");
+      const price = t.key === "watch"
+        ? `<span class="plan-tier__price">Free</span>`
+        : `<span class="plan-tier__price">${escapeHtml(t.price)}<small>/mo</small></span>`;
+      const cta = t.key === "watch"
+        ? `<span class="plan-tier__badge">Your plan</span>`
+        : `<a class="btn ${t.featured ? "btn--solid" : "btn--line"} btn--block" href="watch-checkout.html?plan=${t.key}&interval=${billingInterval}">Choose ${escapeHtml(t.short)}</a>`;
+      return `
+        <div class="${classes.join(" ")}">
+          <div class="plan-tier__head">
+            <h4>${escapeHtml(t.name)}</h4>
+            ${price}
+          </div>
+          <ul class="plan-tier__list">
+            ${t.features.map((f) => `<li>${escapeHtml(f)}</li>`).join("")}
+          </ul>
+          ${cta}
+        </div>`;
+    }).join("");
   }
 
   setFreeEmailMsg("");
@@ -260,7 +273,7 @@ function renderSignup(signupRow) {
   $("#compare").hidden = !paid;
 
   const cancelledWithAccess = hasPaidPlan(signupRow) && signupRow.status === "cancelled";
-  $("#planName").textContent = `DexlyyWatch ${planLabel(signupRow.plan)}`;
+  $("#planName").textContent = planLabel(signupRow.plan);
   $("#planState").textContent = cancelledWithAccess
     ? "Cancelled — access until period ends"
     : paid
@@ -271,7 +284,9 @@ function renderSignup(signupRow) {
 
   if (!paid) {
     renderFreeView(signupRow);
-    renderBilling();
+    // The free view's plan card + comparison already cover upgrades, so keep the
+    // sidebar minimal (plan name + state) instead of duplicating the buttons.
+    $("#billingPanel").hidden = true;
     handleStatusParam();
     return;
   }
@@ -445,8 +460,18 @@ function showSignedInError(err) {
 
 async function refreshAuth() {
   showLoading();
-  const { data } = await supabase.auth.getSession();
-  if (data.session?.user) {
+  let session = null;
+  try {
+    const { data } = await withTimeout(supabase.auth.getSession(), 8000, "Checking your session");
+    session = data.session;
+  } catch (err) {
+    // getSession should never hang now (detectSessionInUrl is off), but if it
+    // does we must not get stuck on Loading — fall back to the sign-in view.
+    console.warn("getSession failed:", err);
+    showAuth();
+    return;
+  }
+  if (session?.user) {
     $("#signOutBtn").hidden = false;
     showLoading("Signed in. Loading your Watch profile...");
     try {
@@ -688,27 +713,23 @@ if (params.get("signout") === "1") {
   history.replaceState({}, "", "watch-dashboard.html");
 }
 
-// OAuth / magic-link return with a PKCE ?code=. detectSessionInUrl handles the
-// exchange automatically, but it can lag behind our first getSession() call. If
-// a code is present, wait briefly for the session to materialise; if it never
-// does, exchange the code string ourselves as a fallback.
+// OAuth / magic-link return with a PKCE ?code=. We do the exchange ourselves
+// (detectSessionInUrl is off) so a bad/reused code can't deadlock the client.
 async function settleAuthFromUrl() {
   const code = params.get("code");
   if (!code) return;
   showLoading("Finishing sign-in...");
-  for (let i = 0; i < 20; i++) {
-    const { data } = await supabase.auth.getSession();
-    if (data.session?.user) {
-      history.replaceState({}, "", "watch-dashboard.html");
-      return;
-    }
-    await new Promise((r) => setTimeout(r, 300));
-  }
-  // Still no session — try an explicit exchange with the code string.
   try {
-    await withTimeout(supabase.auth.exchangeCodeForSession(code), 12000, "Finishing sign-in");
+    const { error } = await withTimeout(
+      supabase.auth.exchangeCodeForSession(code),
+      12000,
+      "Finishing sign-in",
+    );
+    if (error) console.warn("code exchange error:", error.message);
   } catch (err) {
-    console.warn("code exchange fallback:", err);
+    // Reused/expired code or timeout — fall through; refreshAuth shows the right
+    // state (existing session loads the dashboard; none shows the sign-in form).
+    console.warn("code exchange failed:", err);
   }
   history.replaceState({}, "", "watch-dashboard.html");
 }

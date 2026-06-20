@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="canonical" href="https://dexlyy.com/watch-checkout.html" />
   <link rel="icon" type="image/png" href="logo-mark.png" />
-  <link rel="stylesheet" href="watch.css?v=20260620b" />
+  <link rel="stylesheet" href="watch.css?v=20260620f" />
   <style>
     .co { max-width: 480px; margin: 0 auto; padding: 8rem 1.5rem 5rem; }
     .co__card { background: var(--ink-2); border: 1px solid var(--line-2); border-radius: var(--radius); padding: 2rem 1.8rem; box-shadow: var(--sh-lg); position: relative; overflow: hidden; }
@@ -82,6 +82,12 @@
         <p class="co__msg" id="auth-msg"></p>
       </div>
 
+      <div id="checkout-redirect" hidden>
+        <p class="co__tag" style="margin-bottom:0">Signed in as <strong id="redirect-email"></strong></p>
+        <p class="co__msg is-success" id="redirect-msg">Opening PayPal secure checkout…</p>
+        <button type="button" class="btn btn--ghost btn--block" id="redirect-cancel" style="margin-top:.75rem">Cancel</button>
+      </div>
+
       <div id="checkout-form" hidden>
         <p>Signed in as <strong id="user-email"></strong></p>
         <button type="button" class="btn btn--solid btn--block" id="pay">Continue to PayPal</button>
@@ -122,15 +128,40 @@
 
     const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: true, detectSessionInUrl: true, flowType: "pkce" },
+      auth: { persistSession: true, detectSessionInUrl: false, flowType: "pkce" },
     });
+
+    function withTimeout(promise, ms, label) {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} timed out`)), ms)),
+      ]);
+    }
+
+    async function settleAuthFromUrl() {
+      const code = params.get("code");
+      if (!code) return;
+      try {
+        const { error } = await withTimeout(
+          supabase.auth.exchangeCodeForSession(code),
+          12000,
+          "Finishing sign-in",
+        );
+        if (error) console.warn("code exchange:", error.message);
+      } catch (err) {
+        console.warn("code exchange failed:", err);
+      }
+      history.replaceState({}, "", `${location.pathname}?plan=${plan}&interval=${cycle}`);
+    }
 
     const billing = document.getElementById("billing");
     const authForm = document.getElementById("auth-form");
     const checkoutForm = document.getElementById("checkout-form");
+    const checkoutRedirect = document.getElementById("checkout-redirect");
     const authMsg = document.getElementById("auth-msg");
     const msg = document.getElementById("msg");
     let authMode = "signin";
+    let payStarted = false;
 
     function render() {
       const p = PLANS[plan];
@@ -152,7 +183,7 @@
 
     billing.addEventListener("click", (e) => {
       const btn = e.target.closest(".toggle__btn");
-      if (!btn) return;
+      if (!btn || payStarted) return;
       cycle = btn.dataset.cycle;
       render();
     });
@@ -160,21 +191,122 @@
     function showAuth() {
       authForm.hidden = false;
       checkoutForm.hidden = true;
+      checkoutRedirect.hidden = true;
     }
 
     function showCheckout(email) {
       authForm.hidden = true;
       checkoutForm.hidden = false;
+      checkoutRedirect.hidden = true;
       document.getElementById("user-email").textContent = email;
     }
 
-    async function refreshSession() {
-      const { data } = await supabase.auth.getSession();
-      if (data.session?.user?.email) showCheckout(data.session.user.email);
-      else showAuth();
+    function showRedirect(email) {
+      authForm.hidden = true;
+      checkoutForm.hidden = true;
+      checkoutRedirect.hidden = false;
+      document.getElementById("redirect-email").textContent = email;
     }
 
-    supabase.auth.onAuthStateChange(() => refreshSession());
+    async function startPayPalCheckout() {
+      if (payStarted) return;
+      payStarted = true;
+      billing.querySelectorAll(".toggle__btn").forEach((b) => { b.disabled = true; });
+
+      const redirectMsg = document.getElementById("redirect-msg");
+      const payBtn = document.getElementById("pay");
+      if (payBtn) payBtn.disabled = true;
+      if (redirectMsg) redirectMsg.textContent = "Opening PayPal secure checkout…";
+      if (msg) {
+        msg.textContent = "Connecting to PayPal…";
+        msg.className = "co__msg";
+      }
+
+      try {
+        const { data } = await withTimeout(supabase.auth.getSession(), 8000, "Checking session");
+        const token = data.session?.access_token;
+        if (!token) throw new Error("Sign in to continue.");
+
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/dexlyywatch-checkout`, {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ plan, interval: cycle, origin: location.origin }),
+        });
+        const body = await res.json();
+        if (body.ok && body.url) {
+          location.href = body.url;
+          return;
+        }
+        if (body.code === "NOT_CONFIGURED") {
+          const note = "Checkout isn't live yet — we'll email you when billing opens.";
+          if (redirectMsg) redirectMsg.textContent = note;
+          if (msg) {
+            msg.textContent = note;
+            msg.className = "co__msg is-success";
+          }
+          payStarted = false;
+          return;
+        }
+        throw new Error(body.error || "Checkout failed");
+      } catch (err) {
+        payStarted = false;
+        billing.querySelectorAll(".toggle__btn").forEach((b) => { b.disabled = false; });
+        const message = err.message || "Something went wrong.";
+        if (redirectMsg) {
+          redirectMsg.textContent = message;
+          redirectMsg.className = "co__msg is-error";
+        }
+        if (msg) {
+          msg.textContent = message;
+          msg.className = "co__msg is-error";
+        }
+        if (payBtn) payBtn.disabled = false;
+        // Fall back to manual pay button if auto-redirect failed.
+        const { data } = await supabase.auth.getSession();
+        if (data.session?.user?.email) showCheckout(data.session.user.email);
+      }
+    }
+
+    async function refreshSession() {
+      let session = null;
+      try {
+        const { data } = await withTimeout(supabase.auth.getSession(), 8000, "Checking session");
+        session = data.session;
+      } catch (err) {
+        console.warn("getSession failed:", err);
+        showAuth();
+        return;
+      }
+
+      if (session?.user?.email) {
+        if (status === "cancel") {
+          // Came back from PayPal without paying — let them review before retrying.
+          showCheckout(session.user.email);
+        } else {
+          showRedirect(session.user.email);
+          await startPayPalCheckout();
+        }
+      } else {
+        showAuth();
+      }
+    }
+
+    document.getElementById("redirect-cancel")?.addEventListener("click", () => {
+      payStarted = false;
+      location.href = "watch-dashboard.html";
+    });
+
+    supabase.auth.onAuthStateChange(async (event) => {
+      if (event === "SIGNED_IN") await refreshSession();
+      else if (event === "SIGNED_OUT") showAuth();
+    });
+
+    render();
+    await settleAuthFromUrl();
     await refreshSession();
 
     document.getElementById("auth-btn").addEventListener("click", async () => {
@@ -241,48 +373,14 @@
     });
 
     document.getElementById("sign-out").addEventListener("click", async () => {
-      await supabase.auth.signOut();
+      try {
+        await withTimeout(supabase.auth.signOut({ scope: "local" }), 5000, "Sign out");
+      } catch (_e) { /* ignore */ }
+      payStarted = false;
       showAuth();
     });
 
-    document.getElementById("pay").addEventListener("click", async () => {
-      const btn = document.getElementById("pay");
-      btn.disabled = true;
-      msg.textContent = "Connecting to PayPal…";
-      msg.className = "co__msg";
-      try {
-        const { data } = await supabase.auth.getSession();
-        const token = data.session?.access_token;
-        if (!token) throw new Error("Sign in to continue.");
-
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/dexlyywatch-checkout`, {
-          method: "POST",
-          headers: {
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ plan, interval: cycle, origin: location.origin }),
-        });
-        const body = await res.json();
-        if (body.ok && body.url) {
-          location.href = body.url;
-          return;
-        }
-        if (body.code === "NOT_CONFIGURED") {
-          msg.textContent = "Checkout isn't live yet — we'll email you when billing opens.";
-          msg.className = "co__msg is-success";
-          return;
-        }
-        throw new Error(body.error || "Checkout failed");
-      } catch (err) {
-        msg.textContent = err.message || "Something went wrong.";
-        msg.className = "co__msg is-error";
-        btn.disabled = false;
-      }
-    });
-
-    render();
+    document.getElementById("pay").addEventListener("click", () => startPayPalCheckout());
   </script>
 </body>
 </html>
