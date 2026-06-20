@@ -262,6 +262,7 @@ svg { display: block; }
 .plan:hover { transform: translateY(-4px); box-shadow: var(--sh-lg); border-color: var(--line-2); }
 .plan--featured { border-color: transparent; background: linear-gradient(var(--ink-2),var(--ink-2)) padding-box, var(--grad) border-box; box-shadow: 0 30px 70px -36px var(--glow-warm), var(--sh-md); }
 .plan__ribbon { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--grad); color: #fff; font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: .35rem .9rem; border-radius: 100px; white-space: nowrap; box-shadow: 0 8px 20px -8px var(--glow-warm); }
+.plan__cap { align-self: flex-start; margin-bottom: .85rem; border: 1px solid rgba(217,119,6,.28); background: rgba(217,119,6,.08); color: var(--accent); font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: .28rem .65rem; border-radius: 100px; }
 .plan__name { font-family: var(--serif); font-size: 1.7rem; font-weight: 400; color: var(--paper); }
 .plan__tag { color: var(--muted); font-size: .88rem; margin-top: .15rem; }
 .plan__price { display: flex; align-items: baseline; gap: .15rem; margin: 1.3rem 0 .3rem; flex-wrap: wrap; }
@@ -274,6 +275,9 @@ svg { display: block; }
 .plan__list li strong { font-weight: 700; }
 .plan__cta { margin-top: auto; }
 .plan__note { font-size: .76rem; color: var(--muted-2); margin-top: .9rem; text-align: center; }
+.plan__note strong { color: var(--accent); }
+.plan__note.is-full { color: var(--paper); font-weight: 700; }
+.js-free-cta.is-disabled-free { border-color: rgba(217,119,6,.4); color: var(--accent); }
 .pricing__foot { text-align: center; color: var(--muted-2); font-size: .85rem; margin-top: 2rem; padding: 0 var(--gutter); }
 
 /* ============ FAQ ============ */

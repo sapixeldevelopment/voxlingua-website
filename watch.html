@@ -60,7 +60,7 @@
 
       <div class="nav__cta">
         <a href="watch-dashboard.html" class="btn btn--line">Sign in</a>
-        <a href="watch-dashboard.html?tab=signup" class="btn btn--solid">Sign up free</a>
+        <a href="watch-dashboard.html?tab=signup" class="btn btn--solid js-free-cta">Claim free seat</a>
       </div>
 
       <button class="nav__burger" id="burger" aria-label="Menu" aria-expanded="false">
@@ -83,12 +83,12 @@
             New AI models ship with almost no warning — a changelog line, an API id that quietly starts answering. <strong>DexlyyWatch</strong> keeps a constant eye on every major lab and tells you the instant something new lands, with a benchmark snapshot and a side-by-side comparison ready to read.
           </p>
 
-          <a href="watch-dashboard.html" class="btn btn--solid">Create free account</a>
-          <p class="join__note" id="heroNote">Free forever for the weekly watch. Sign in with email or Google — no card required.</p>
+          <a href="watch-dashboard.html" class="btn btn--solid js-free-cta">Claim free seat</a>
+          <p class="join__note" id="heroNote">First 200 Watch seats are free. After that, only paid plans are open.</p>
 
           <div class="hero__proof">
             <div class="hero__faces" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-            <p>Current signups: <strong id="watchCount">0</strong></p>
+            <p>Free seats claimed: <strong id="watchCount">0</strong> / <span id="freeSeatLimit">200</span></p>
           </div>
         </div>
 
@@ -236,7 +236,7 @@
       <div class="section-head">
         <p class="eyebrow">Pricing</p>
         <h2 class="section-title">Pick how ready <em>you want to be.</em></h2>
-        <p class="section-lead">Start free. Upgrade when being first actually matters to your work — the next big drop is always closer than you think.</p>
+        <p class="section-lead">The first 200 Watch seats are free. After that, new watchers choose Pro or Squadron — the next big drop is always closer than you think.</p>
         <div class="toggle" id="billing" role="tablist" aria-label="Billing period">
           <button class="toggle__btn is-active" data-cycle="monthly" role="tab" aria-selected="true">Monthly</button>
           <button class="toggle__btn" data-cycle="annual" role="tab" aria-selected="false">Annual <span class="toggle__save">2 months free</span></button>
@@ -246,8 +246,9 @@
       <div class="plans plans--3">
         <!-- Watch (free) -->
         <article class="plan reveal">
+          <span class="plan__cap">First 200 seats only</span>
           <h3 class="plan__name">Watch</h3>
-          <p class="plan__tag">For staying loosely in the loop</p>
+          <p class="plan__tag">For early watchers who claim a seat</p>
           <div class="plan__price">
             <span class="plan__cur">$</span><span class="plan__amt">0</span><span class="plan__per">forever</span>
           </div>
@@ -257,8 +258,8 @@
             <li>Full coverage &amp; recent-drops feed</li>
             <li>No card, unsubscribe anytime</li>
           </ul>
-          <button type="button" class="btn btn--line btn--block plan__cta" data-plan="watch">Join free</button>
-          <p class="plan__note">Sent in a batch after paid watchers are alerted.</p>
+          <button type="button" class="btn btn--line btn--block plan__cta js-free-cta" data-plan="watch">Claim free seat</button>
+          <p class="plan__note" id="freeSeatNote"><strong id="freeSeatsRemaining">200</strong> free seats left. Then Pro and Squadron only.</p>
         </article>
 
         <!-- Pro -->
@@ -315,7 +316,7 @@
           <p>The public model surface of every major lab — <em>OpenAI, Anthropic, Google, xAI, Meta, DeepSeek, Mistral and Alibaba (Qwen)</em>, plus emerging players like Moonshot, Zhipu and MiniMax. We check APIs, model registries and changelogs continuously and confirm a release before alerting.</p>
         </details>
         <details class="faq__item"><summary>How fast will I hear about a drop?<span class="faq__plus"></span></summary>
-          <p>Paid tiers get an instant email the same minute a model goes live. The free Watch tier hears in a batched digest shortly after. SMS and voice calls are on the roadmap and will land for paid users first.</p>
+          <p>Paid tiers get an instant email the same minute a model goes live. The free Watch tier is limited to the first 200 claimed seats and hears in a batched digest shortly after. SMS and voice calls are on the roadmap and will land for paid users first.</p>
         </details>
         <details class="faq__item"><summary>What's in the day-zero snapshot?<span class="faq__plus"></span></summary>
           <p>The launch numbers, pricing, context window and API id, pulled into one card the moment a model is detected — and slotted into a side-by-side against the current leaders so you can judge it quickly.</p>
@@ -324,7 +325,7 @@
           <p>Yes. After PayPal approval, Pro and Squadron buyers land in a private dashboard where they confirm the alert email, choose lab and capability filters, and compare AI models side by side. Squadron also gets team routing fields for Slack and webhooks. Phone/SMS settings will appear when those channels go live.</p>
         </details>
         <details class="faq__item"><summary>Is it a subscription?<span class="faq__plus"></span></summary>
-          <p>Pro and Squadron are simple monthly or annual plans — <em>cancel anytime.</em> The Watch tier is free forever, no card required.</p>
+          <p>Pro and Squadron are simple monthly or annual plans — <em>cancel anytime.</em> The Watch tier is free for the first 200 seats only; once they are claimed, new users choose a paid plan.</p>
         </details>
         <details class="faq__item"><summary>Are you affiliated with these AI labs?<span class="faq__plus"></span></summary>
           <p>No. DexlyyWatch is an <em>independent</em> monitor and is not affiliated with, endorsed by or operated by any AI lab. We simply track what they ship so you don't miss it.</p>
@@ -339,9 +340,9 @@
     <section class="final" id="join">
       <div class="final__glow" aria-hidden="true"></div>
       <h2 class="final__title">Never be the <em>last to know.</em></h2>
-      <p class="final__sub">Start with the free watch — no card. Let the radar stand the vigil so the next frontier model never slips past you.</p>
-      <a href="watch-dashboard.html" class="btn btn--solid btn--lg">Create free account</a>
-      <p class="join__note" id="ctaNote">Free · every major drop · sign in from your dashboard.</p>
+      <p class="final__sub">Claim one of the 200 free Watch seats while they are open. After that, DexlyyWatch moves to paid plans only.</p>
+      <a href="watch-dashboard.html" class="btn btn--solid btn--lg js-free-cta">Claim free seat</a>
+      <p class="join__note" id="ctaNote">Limited free seats · every major drop · sign in from your dashboard.</p>
     </section>
   </main>
 

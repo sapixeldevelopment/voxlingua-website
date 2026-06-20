@@ -75,6 +75,14 @@ function setAuthMessage(text, kind = "") {
   el.className = `dash-message ${kind}`.trim();
 }
 
+function friendlyAuthError(err) {
+  const message = err?.message || String(err || "");
+  if (message.includes("FREE_SEATS_FULL")) {
+    return "The 200 free Watch seats are full. Choose Pro or Squadron from the pricing page to join.";
+  }
+  return message || "Could not load dashboard.";
+}
+
 function renderTags(container, values, selected) {
   if (!container) return;
   container.innerHTML = values.map((entry) => {
@@ -252,7 +260,7 @@ async function refreshAuth() {
     try {
       await loadSignup();
     } catch (err) {
-      setAuthMessage(err.message || "Could not load dashboard.", "is-error");
+      setAuthMessage(friendlyAuthError(err), "is-error");
       showAuth();
     }
   } else {

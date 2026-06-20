@@ -10,6 +10,7 @@
   // ---- Supabase (publishable anon key — safe for the browser) ----
   const SUPABASE_URL = "https://mmgzuubrtyodhjtmjlvb.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_LYP_tofuZNutUaE-KfjT7Q_Uf5XcaIO";
+  const FREE_SEAT_LIMIT = 200;
 
   const $ = (s, c = document) => c.querySelector(s);
   const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
@@ -180,6 +181,10 @@
   /* ---------------- Plan CTAs ---------------- */
   $$(".plan__cta").forEach((btn) => {
     btn.addEventListener("click", () => {
+      if (btn.classList.contains("is-disabled-free")) {
+        $("#pricing")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
       const plan = btn.dataset.plan;
       if (plan === "watch") {
         location.href = "watch-dashboard.html";
@@ -241,6 +246,47 @@
 
   /* ---------------- Watch count ---------------- */
   const watchCount = $("#watchCount");
+  const freeSeatLimit = $("#freeSeatLimit");
+  const freeSeatsRemaining = $("#freeSeatsRemaining");
+  const freeSeatNote = $("#freeSeatNote");
+  const heroNote = $("#heroNote");
+  const ctaNote = $("#ctaNote");
+  const freeCtas = $$(".js-free-cta");
+
+  function updateFreeSeatUi(claimed) {
+    const used = Math.max(0, Math.min(FREE_SEAT_LIMIT, Number(claimed || 0)));
+    const remaining = Math.max(0, FREE_SEAT_LIMIT - used);
+    const full = remaining <= 0;
+
+    if (watchCount) watchCount.textContent = used.toLocaleString();
+    if (freeSeatLimit) freeSeatLimit.textContent = FREE_SEAT_LIMIT.toLocaleString();
+    if (freeSeatsRemaining) freeSeatsRemaining.textContent = remaining.toLocaleString();
+    if (freeSeatNote) {
+      freeSeatNote.innerHTML = full
+        ? "The 200 free Watch seats are full. Choose Pro or Squadron to join."
+        : `<strong>${remaining.toLocaleString()}</strong> free seats left. Then Pro and Squadron only.`;
+      freeSeatNote.classList.toggle("is-full", full);
+    }
+    if (heroNote) {
+      heroNote.textContent = full
+        ? "The free Watch tier is full. New users can join through Pro or Squadron."
+        : `First 200 Watch seats are free — ${remaining.toLocaleString()} left. After that, only paid plans are open.`;
+    }
+    if (ctaNote) {
+      ctaNote.textContent = full
+        ? "Free seats are full · Pro and Squadron are open now."
+        : `Limited free seats · ${remaining.toLocaleString()} left · every major drop.`;
+    }
+    freeCtas.forEach((el) => {
+      if (full) {
+        el.textContent = "See paid plans";
+        el.href = "#pricing";
+        el.classList.add("is-disabled-free");
+      } else {
+        el.classList.remove("is-disabled-free");
+      }
+    });
+  }
 
   /* ---------------- Reveal on scroll (re-observes injected nodes) ---------------- */
   let _io = null;
@@ -318,10 +364,9 @@
     try {
       const rows = await rpc("dexlyywatch_stats");
       const stats = Array.isArray(rows) ? rows[0] : rows;
-      const total = Number(stats?.total_signups ?? 0);
-      watchCount.textContent = total.toLocaleString();
+      updateFreeSeatUi(Number(stats?.watch_signups ?? 0));
     } catch (_e) {
-      watchCount.textContent = "0";
+      updateFreeSeatUi(0);
     }
   }
 
