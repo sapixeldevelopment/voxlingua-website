@@ -463,8 +463,23 @@ $("#googleBtn")?.addEventListener("click", async () => {
 });
 
 $("#signOutBtn")?.addEventListener("click", async () => {
-  await supabase.auth.signOut();
-  showAuth();
+  const btn = $("#signOutBtn");
+  btn.disabled = true;
+  try {
+    // local scope only signs out this tab and never needs a network round-trip,
+    // so it can't hang. Guard with a timeout anyway as a safety net.
+    await withTimeout(supabase.auth.signOut({ scope: "local" }), 5000, "Sign out");
+  } catch (_e) {
+    // Fall through: clear any persisted session manually so the UI is correct.
+    try {
+      const ref = SUPABASE_URL.replace(/^https?:\/\//, "").split(".")[0];
+      localStorage.removeItem(`sb-${ref}-auth-token`);
+    } catch (_err) { /* ignore */ }
+  } finally {
+    signup = null;
+    btn.disabled = false;
+    showAuth();
+  }
 });
 
 $("#saveFreeEmail")?.addEventListener("click", async () => {
@@ -592,7 +607,14 @@ renderCompare();
 loadLiveModels();
 
 if (params.get("signout") === "1") {
-  await supabase.auth.signOut();
+  try {
+    await withTimeout(supabase.auth.signOut({ scope: "local" }), 5000, "Sign out");
+  } catch (_e) {
+    try {
+      const ref = SUPABASE_URL.replace(/^https?:\/\//, "").split(".")[0];
+      localStorage.removeItem(`sb-${ref}-auth-token`);
+    } catch (_err) { /* ignore */ }
+  }
   history.replaceState({}, "", "watch-dashboard.html");
 }
 
