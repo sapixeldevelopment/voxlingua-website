@@ -240,7 +240,7 @@ function renderFreeView(signupRow) {
         : `<span class="plan-tier__price">${escapeHtml(t.price)}<small>/mo</small></span>`;
       const cta = t.key === "watch"
         ? `<span class="plan-tier__badge">Your plan</span>`
-        : `<a class="btn ${t.featured ? "btn--solid" : "btn--line"} btn--block" href="watch-checkout.html?plan=${t.key}&interval=${billingInterval}">Choose ${escapeHtml(t.short)}</a>`;
+        : `<button type="button" class="btn ${t.featured ? "btn--solid" : "btn--line"} btn--block js-upgrade-plan" data-plan="${t.key}">Choose ${escapeHtml(t.short)}</button>`;
       return `
         <div class="${classes.join(" ")}">
           <div class="plan-tier__head">
@@ -363,10 +363,81 @@ async function loadSignup() {
 }
 
 async function authHeaders() {
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
+  const token = await getAccessToken();
   if (!token) throw new Error("Not signed in.");
   return { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+}
+
+function readStoredSession() {
+  try {
+    const ref = SUPABASE_URL.replace(/^https?:\/\//, "").split(".")[0];
+    let raw = localStorage.getItem(`sb-${ref}-auth-token`);
+    if (!raw) {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
+          raw = localStorage.getItem(key);
+          if (raw) break;
+        }
+      }
+    }
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    const session = parsed?.currentSession || parsed;
+    if (!session?.access_token) return null;
+    if (session.expires_at && Number(session.expires_at) * 1000 <= Date.now()) return null;
+    return session;
+  } catch (_e) {
+    return null;
+  }
+}
+
+async function getAccessToken() {
+  const stored = readStoredSession();
+  if (stored?.access_token) return stored.access_token;
+  const { data } = await withTimeout(supabase.auth.getSession(), 5000, "Session check");
+  return data.session?.access_token ?? null;
+}
+
+async function startPayPalCheckout(plan, btn) {
+  const label = btn?.dataset?.defaultLabel || btn?.textContent || `Choose ${planLabel(plan)}`;
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Opening PayPal…";
+  }
+  try {
+    const token = await getAccessToken();
+    if (!token) {
+      location.href = `watch-checkout.html?plan=${plan}&interval=${billingInterval}`;
+      return;
+    }
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/dexlyywatch-checkout`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ plan, interval: billingInterval, origin: location.origin }),
+    });
+    const body = await res.json();
+    if (body.ok && body.url) {
+      location.href = body.url;
+      return;
+    }
+    if (body.code === "NOT_CONFIGURED") {
+      alert("Checkout isn't live yet — we'll email you when billing opens.");
+      return;
+    }
+    throw new Error(body.error || "Checkout failed");
+  } catch (err) {
+    alert(err.message || "Could not start checkout.");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+  }
 }
 
 async function cancelSubscription() {
@@ -700,6 +771,12 @@ $("#modelB")?.addEventListener("change", renderCompare);
 fillModelSelects();
 renderCompare();
 loadLiveModels();
+
+$("#freePlansCompare")?.addEventListener("click", (e) => {
+  const btn = e.target.closest(".js-upgrade-plan");
+  if (!btn?.dataset.plan) return;
+  startPayPalCheckout(btn.dataset.plan, btn);
+});
 
 if (params.get("signout") === "1") {
   try {

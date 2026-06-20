@@ -66,7 +66,11 @@
 
       <ul class="co__list" id="coList"></ul>
 
-      <div id="auth-form">
+      <div id="checkout-loading">
+        <p class="co__tag" style="margin-bottom:0">Checking your account…</p>
+      </div>
+
+      <div id="auth-form" hidden>
         <div class="co__field">
           <label for="email">Email</label>
           <input id="email" type="email" autocomplete="email" placeholder="you@company.com" />
@@ -138,6 +142,43 @@
       ]);
     }
 
+    function readStoredSession() {
+      try {
+        const ref = SUPABASE_URL.replace(/^https?:\/\//, "").split(".")[0];
+        let raw = localStorage.getItem(`sb-${ref}-auth-token`);
+        if (!raw) {
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
+              raw = localStorage.getItem(key);
+              if (raw) break;
+            }
+          }
+        }
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        const session = parsed?.currentSession || parsed;
+        if (!session?.access_token) return null;
+        if (session.expires_at && Number(session.expires_at) * 1000 <= Date.now()) return null;
+        return session;
+      } catch (_e) {
+        return null;
+      }
+    }
+
+    async function getAccessToken() {
+      const stored = readStoredSession();
+      if (stored?.access_token) return stored.access_token;
+      const { data } = await withTimeout(supabase.auth.getSession(), 5000, "Checking session");
+      return data.session?.access_token ?? null;
+    }
+
+    function getSessionEmail() {
+      const stored = readStoredSession();
+      if (stored?.user?.email) return stored.user.email;
+      return null;
+    }
+
     async function settleAuthFromUrl() {
       const code = params.get("code");
       if (!code) return;
@@ -158,6 +199,7 @@
     const authForm = document.getElementById("auth-form");
     const checkoutForm = document.getElementById("checkout-form");
     const checkoutRedirect = document.getElementById("checkout-redirect");
+    const checkoutLoading = document.getElementById("checkout-loading");
     const authMsg = document.getElementById("auth-msg");
     const msg = document.getElementById("msg");
     let authMode = "signin";
@@ -189,12 +231,14 @@
     });
 
     function showAuth() {
+      checkoutLoading.hidden = true;
       authForm.hidden = false;
       checkoutForm.hidden = true;
       checkoutRedirect.hidden = true;
     }
 
     function showCheckout(email) {
+      checkoutLoading.hidden = true;
       authForm.hidden = true;
       checkoutForm.hidden = false;
       checkoutRedirect.hidden = true;
@@ -202,10 +246,18 @@
     }
 
     function showRedirect(email) {
+      checkoutLoading.hidden = true;
       authForm.hidden = true;
       checkoutForm.hidden = true;
       checkoutRedirect.hidden = false;
       document.getElementById("redirect-email").textContent = email;
+    }
+
+    function showLoadingState() {
+      checkoutLoading.hidden = false;
+      authForm.hidden = true;
+      checkoutForm.hidden = true;
+      checkoutRedirect.hidden = true;
     }
 
     async function startPayPalCheckout() {
@@ -223,8 +275,7 @@
       }
 
       try {
-        const { data } = await withTimeout(supabase.auth.getSession(), 8000, "Checking session");
-        const token = data.session?.access_token;
+        const token = await getAccessToken();
         if (!token) throw new Error("Sign in to continue.");
 
         const res = await fetch(`${SUPABASE_URL}/functions/v1/dexlyywatch-checkout`, {
@@ -265,16 +316,32 @@
           msg.className = "co__msg is-error";
         }
         if (payBtn) payBtn.disabled = false;
-        // Fall back to manual pay button if auto-redirect failed.
-        const { data } = await supabase.auth.getSession();
-        if (data.session?.user?.email) showCheckout(data.session.user.email);
+        const email = getSessionEmail();
+        if (email) showCheckout(email);
+        else showAuth();
       }
     }
 
     async function refreshSession() {
+      showLoadingState();
+
+      // Read localStorage first — instant, same as the dashboard session.
+      const stored = readStoredSession();
+      const email = stored?.user?.email || null;
+
+      if (stored?.access_token && email) {
+        if (status === "cancel") {
+          showCheckout(email);
+        } else {
+          showRedirect(email);
+          await startPayPalCheckout();
+        }
+        return;
+      }
+
       let session = null;
       try {
-        const { data } = await withTimeout(supabase.auth.getSession(), 8000, "Checking session");
+        const { data } = await withTimeout(supabase.auth.getSession(), 5000, "Checking session");
         session = data.session;
       } catch (err) {
         console.warn("getSession failed:", err);
@@ -284,7 +351,6 @@
 
       if (session?.user?.email) {
         if (status === "cancel") {
-          // Came back from PayPal without paying — let them review before retrying.
           showCheckout(session.user.email);
         } else {
           showRedirect(session.user.email);
@@ -306,6 +372,7 @@
     });
 
     render();
+    showLoadingState();
     await settleAuthFromUrl();
     await refreshSession();
 
