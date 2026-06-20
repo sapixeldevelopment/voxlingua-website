@@ -250,6 +250,7 @@
   const freeSeatsRemaining = $("#freeSeatsRemaining");
   const freeSeatNote = $("#freeSeatNote");
   const heroNote = $("#heroNote");
+  const heroSeatBar = $("#heroSeatBar");
   const ctaNote = $("#ctaNote");
   const freeCtas = $$(".js-free-cta");
 
@@ -271,7 +272,9 @@
       heroNote.textContent = full
         ? "The free Watch tier is full. New users can join through Pro or Squadron."
         : `First 200 Watch seats are free — ${remaining.toLocaleString()} left. After that, only paid plans are open.`;
+      heroNote.classList.toggle("is-full", full);
     }
+    if (heroSeatBar) heroSeatBar.style.width = `${Math.min(100, (used / FREE_SEAT_LIMIT) * 100)}%`;
     if (ctaNote) {
       ctaNote.textContent = full
         ? "Free seats are full · Pro and Squadron are open now."

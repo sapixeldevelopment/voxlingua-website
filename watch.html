@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="watch.css?v=20260620f" />
+  <link rel="stylesheet" href="watch.css?v=20260620m" />
 </head>
 <body>
   <a href="#main" class="skip-link">Skip to content</a>
@@ -83,12 +83,16 @@
             New AI models ship with almost no warning — a changelog line, an API id that quietly starts answering. <strong>DexlyyWatch</strong> keeps a constant eye on every major lab and tells you the instant something new lands, with a benchmark snapshot and a side-by-side comparison ready to read.
           </p>
 
-          <a href="watch-dashboard.html" class="btn btn--solid js-free-cta">Claim free seat</a>
-          <p class="join__note" id="heroNote">First 200 Watch seats are free. After that, only paid plans are open.</p>
-
-          <div class="hero__proof">
-            <div class="hero__faces" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-            <p>Free seats claimed: <strong id="watchCount">0</strong> / <span id="freeSeatLimit">200</span></p>
+          <div class="hero__cta">
+            <a href="watch-dashboard.html" class="btn btn--solid btn--lg js-free-cta">Claim free seat</a>
+            <div class="hero__cta-foot">
+              <p class="hero__cta-note" id="heroNote">First 200 Watch seats are free. After that, only paid plans are open.</p>
+              <div class="hero__proof">
+                <div class="hero__faces" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+                <p><strong id="watchCount">0</strong> / <span id="freeSeatLimit">200</span> claimed</p>
+              </div>
+            </div>
+            <div class="hero__seat-bar" aria-hidden="true"><i id="heroSeatBar"></i></div>
           </div>
         </div>
 
@@ -400,6 +404,6 @@
     <a href="#drops" class="toast__cta">View →</a>
   </div>
 
-  <script src="watch.js?v=20260620d"></script>
+  <script src="watch.js?v=20260620e"></script>
 </body>
 </html>
