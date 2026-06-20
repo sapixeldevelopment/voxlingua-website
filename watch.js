@@ -396,9 +396,12 @@
     const signUp = $("#navSignUp");
     if (!signIn || !signUp) return;
     if (isSignedIn()) {
-      // "Dashboard" already exists in the nav links, so the signed-in CTA just
-      // becomes a Sign out action — no duplicate Dashboard button.
-      signIn.hidden = true;
+      // Signed in: the "Sign in" CTA becomes "Dashboard", and the second CTA
+      // becomes "Sign out". The redundant nav-links Dashboard entry is hidden.
+      const navDash = $("#navDashboardLink");
+      if (navDash) navDash.hidden = true;
+      signIn.textContent = "Dashboard";
+      signIn.href = "watch-dashboard.html";
       signUp.textContent = "Sign out";
       signUp.href = "watch-dashboard.html?signout=1";
       signUp.classList.remove("js-free-cta");
