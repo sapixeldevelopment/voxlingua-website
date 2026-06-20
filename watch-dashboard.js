@@ -29,7 +29,9 @@ const MODELS = [
 
 const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: true, detectSessionInUrl: true, flowType: "pkce" },
+  // detectSessionInUrl is disabled because we exchange the PKCE ?code= ourselves
+  // on init (see bottom of file). Letting both run races and can hang the page.
+  auth: { persistSession: true, detectSessionInUrl: false, flowType: "pkce" },
 });
 
 let signup = null;
@@ -614,6 +616,26 @@ if (params.get("signout") === "1") {
       const ref = SUPABASE_URL.replace(/^https?:\/\//, "").split(".")[0];
       localStorage.removeItem(`sb-${ref}-auth-token`);
     } catch (_err) { /* ignore */ }
+  }
+  history.replaceState({}, "", "watch-dashboard.html");
+}
+
+// OAuth / magic-link return with a PKCE ?code=. Exchange it for a session
+// explicitly so we don't race detectSessionInUrl (which can leave the page
+// stuck on "Loading" if getSession() runs before the exchange finishes).
+if (params.get("code")) {
+  showLoading("Finishing sign-in...");
+  try {
+    await withTimeout(
+      supabase.auth.exchangeCodeForSession(window.location.href),
+      12000,
+      "Finishing sign-in",
+    );
+  } catch (err) {
+    // If detectSessionInUrl already consumed the code, a second exchange fails
+    // harmlessly — refreshAuth() below will still find the session. Only surface
+    // a real error if no session ends up present.
+    console.warn("code exchange:", err);
   }
   history.replaceState({}, "", "watch-dashboard.html");
 }
