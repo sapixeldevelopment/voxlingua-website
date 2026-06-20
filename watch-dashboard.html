@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="watch.css?v=20260620k" />
+  <link rel="stylesheet" href="watch.css?v=20260620l" />
 </head>
 <body class="dash-page">
   <a href="#main" class="skip-link">Skip to content</a>
@@ -160,7 +160,7 @@
           <span>Alert email</span>
           <input id="freeAlertEmail" type="email" autocomplete="email" placeholder="you@company.com" />
         </label>
-        <p class="dash-mini-note">Changing this instantly stops alerts to your old address and sends future digests to the new one.</p>
+        <p class="dash-mini-note">Use any inbox you want. We send a confirmation link before alerts go to the new address.</p>
         <button class="btn btn--solid" id="saveFreeEmail" type="button">Save alert email</button>
         <p class="dash-message" id="freeEmailMsg" role="status"></p>
       </article>
@@ -180,8 +180,9 @@
           <label class="dash-field">
             <span>Alert email</span>
             <input id="alertEmail" type="email" autocomplete="email" placeholder="you@company.com" />
-            <small class="dash-field__hint" id="emailHint">Use the inbox that should receive drop alerts.</small>
+            <small class="dash-field__hint" id="emailHint">Use any inbox you want — work, personal, or team. We email a confirmation link before alerts go there.</small>
           </label>
+          <button type="button" class="btn btn--line btn--block dash-resend" id="resendConfirmBtn" hidden>Resend confirmation email</button>
 
           <div class="dash-coming-soon" id="phoneComingSoon">
             <p class="dash-coming-soon__label">SMS &amp; voice</p>
@@ -297,6 +298,6 @@
     </section>
   </main>
 
-  <script type="module" src="watch-dashboard.js?v=20260620p"></script>
+  <script type="module" src="watch-dashboard.js?v=20260620q"></script>
 </body>
 </html>

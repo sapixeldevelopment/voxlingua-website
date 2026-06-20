@@ -278,6 +278,67 @@ function isActivePaid(signupRow) {
   return hasPaidPlan(signupRow) && signupRow.status === "active";
 }
 
+function renderEmailState(signupRow) {
+  const verified = Boolean(signupRow.alert_email_verified_at);
+  const email = signupRow.alert_email || signupRow.email || "";
+  const stateEl = $("#emailState");
+  const hint = $("#emailHint");
+  const resend = $("#resendConfirmBtn");
+  if (stateEl) {
+    stateEl.textContent = verified ? "Confirmed" : "Needs confirmation";
+    stateEl.classList.toggle("is-ok", verified);
+    stateEl.classList.toggle("is-warn", !verified);
+  }
+  if (hint) {
+    hint.textContent = verified
+      ? `Alerts go to ${email}.`
+      : `We'll email a confirmation link to ${email}. Save settings or tap Resend below.`;
+  }
+  if (resend) resend.hidden = verified;
+  const freeState = $("#freeEmailState");
+  if (freeState) {
+    freeState.textContent = verified ? "Email confirmed" : "Needs confirmation";
+    freeState.classList.toggle("is-ok", verified);
+    freeState.classList.toggle("is-warn", !verified);
+  }
+}
+
+async function sendAlertEmailConfirmation(alertEmail) {
+  const token = await getAccessToken();
+  if (!token) throw new Error("Sign in to continue.");
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/dexlyywatch-alert-email`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ action: "send", alert_email: alertEmail }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok || !body.ok) throw new Error(body.error || "Could not send confirmation.");
+  return body;
+}
+
+async function confirmAlertFromUrl() {
+  const token = params.get("confirm_alert");
+  if (!token) return;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/dexlyywatch-alert-email`, {
+      method: "POST",
+      headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "confirm", token }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok || !body.ok) throw new Error(body.error || "Confirmation failed.");
+    setMessage(body.message || "Alert email confirmed.", "is-success");
+  } catch (err) {
+    setMessage(err.message || "Could not confirm alert email.", "is-error");
+  }
+  history.replaceState({}, "", "watch-dashboard.html");
+  if (signup) await loadSignup();
+}
+
 function setMessage(text, kind = "") {
   const el = $("#saveMsg");
   if (!el) return;
@@ -418,9 +479,7 @@ function renderFreeView(signupRow) {
 
   const email = signupRow.alert_email || signupRow.email || "";
   $("#freeAlertEmail").value = email;
-  const verified = Boolean(signupRow.alert_email_verified_at);
-  $("#freeEmailState").textContent = verified ? "Email confirmed" : "Email pending";
-  $("#freeEmailState").classList.toggle("is-ok", verified);
+  renderEmailState(signupRow);
 
   // Plan comparison so free users can see exactly what each tier adds.
   const plansEl = $("#freePlansCompare");
@@ -465,7 +524,6 @@ function renderSignup(signupRow) {
   $("#dashboard").hidden = !paid;
   $("#compare").hidden = !paid;
 
-  const cancelledWithAccess = hasPaidPlan(signupRow) && signupRow.status === "cancelled";
   updatePlanSidebar(signupRow);
 
   if (!paid) {
@@ -477,8 +535,7 @@ function renderSignup(signupRow) {
   }
 
   $("#alertEmail").value = signupRow.alert_email || signupRow.email || "";
-  $("#emailState").textContent = signupRow.alert_email_verified_at ? "Email confirmed" : "Email unconfirmed";
-  $("#emailState").classList.toggle("is-ok", Boolean(signupRow.alert_email_verified_at));
+  renderEmailState(signupRow);
 
   renderTags($("#labTags"), LABS, signupRow.labs?.length ? signupRow.labs : LABS.slice(0, 6));
   renderTags($("#capabilityTags"), CAPABILITIES, signupRow.capabilities || ["reasoning", "coding", "agents"]);
@@ -916,22 +973,35 @@ $("#saveFreeEmail")?.addEventListener("click", async () => {
   }
   btn.disabled = true;
   setFreeEmailMsg("Saving…");
-  // Updating the stored alert_email is all that's needed: the alert sender reads
-  // this column fresh each run, so the old address stops receiving alerts and the
-  // new one starts immediately — no separate contact list to clean up.
-  const { data, error } = await supabase
-    .from("dexlyywatch_signups")
-    .update({ alert_email: email, updated_at: new Date().toISOString() })
-    .eq("user_id", signup.user_id)
-    .select()
-    .maybeSingle();
-  btn.disabled = false;
-  if (error) {
-    setFreeEmailMsg(error.message || "Could not save your email.", "is-error");
+  try {
+    await sendAlertEmailConfirmation(email);
+    await loadSignup();
+    setFreeEmailMsg(`Confirmation sent to ${email}. Click the link in that inbox to start your digest.`, "is-success");
+  } catch (err) {
+    setFreeEmailMsg(err.message || "Could not save your email.", "is-error");
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+$("#resendConfirmBtn")?.addEventListener("click", async () => {
+  const btn = $("#resendConfirmBtn");
+  const email = $("#alertEmail").value.trim().toLowerCase();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setMessage("Enter a valid alert email first.", "is-error");
     return;
   }
-  renderSignup(data);
-  setFreeEmailMsg("Saved. Your digest now goes to this address; the old one was removed.", "is-success");
+  btn.disabled = true;
+  setMessage("Sending confirmation…");
+  try {
+    await sendAlertEmailConfirmation(email);
+    await loadSignup();
+    setMessage(`Confirmation resent to ${email}.`, "is-success");
+  } catch (err) {
+    setMessage(err.message || "Could not resend confirmation.", "is-error");
+  } finally {
+    btn.disabled = false;
+  }
 });
 
 $("#saveSettings")?.addEventListener("click", async () => {
@@ -939,30 +1009,50 @@ $("#saveSettings")?.addEventListener("click", async () => {
   btn.disabled = true;
   setMessage("Saving…");
   const paid = isPaid(signup);
-  const payload = {
-    alert_email: $("#alertEmail").value.trim().toLowerCase(),
-    updated_at: new Date().toISOString(),
-  };
-  if (paid) {
-    Object.assign(payload, {
-      sms_enabled: false,
-      call_enabled: false,
-      labs: readChecked($("#labTags")),
-      capabilities: readChecked($("#capabilityTags")),
-      seat_limit: Number($("#seatLimit").value) || 10,
-      slack_webhook_url: $("#slackWebhook").value.trim() || null,
-      webhook_url: $("#webhookUrl").value.trim() || null,
-    });
-  }
-
-  const { data, error } = await supabase.from("dexlyywatch_signups").update(payload).eq("user_id", signup.user_id).select().maybeSingle();
-  btn.disabled = false;
-  if (error) {
-    setMessage(error.message || "Could not save.", "is-error");
+  const email = $("#alertEmail").value.trim().toLowerCase();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    btn.disabled = false;
+    setMessage("Enter a valid alert email.", "is-error");
     return;
   }
-  renderSignup(data);
-  setMessage(paid ? "Settings saved." : "Alert email saved for your free weekly digest.", "is-success");
+
+  const currentEmail = (signup.alert_email || signup.email || "").toLowerCase();
+  const needsConfirm = email !== currentEmail || !signup.alert_email_verified_at;
+
+  try {
+    if (needsConfirm) {
+      await sendAlertEmailConfirmation(email);
+    }
+
+    if (paid) {
+      const payload = {
+        updated_at: new Date().toISOString(),
+        sms_enabled: false,
+        call_enabled: false,
+        labs: readChecked($("#labTags")),
+        capabilities: readChecked($("#capabilityTags")),
+        seat_limit: Number($("#seatLimit").value) || 10,
+        slack_webhook_url: $("#slackWebhook").value.trim() || null,
+        webhook_url: $("#webhookUrl").value.trim() || null,
+      };
+      if (!needsConfirm) payload.alert_email = email;
+      const { data, error } = await supabase.from("dexlyywatch_signups").update(payload).eq("user_id", signup.user_id).select().maybeSingle();
+      if (error) throw error;
+      renderSignup(data);
+    } else {
+      await loadSignup();
+    }
+
+    if (needsConfirm) {
+      setMessage(`Confirmation sent to ${email}. Alerts start after you confirm that inbox.`, "is-success");
+    } else {
+      setMessage("Settings saved.", "is-success");
+    }
+  } catch (err) {
+    setMessage(err.message || "Could not save.", "is-error");
+  } finally {
+    btn.disabled = false;
+  }
 });
 
 function modelLabel(model) {
@@ -1195,6 +1285,7 @@ supabase.auth.onAuthStateChange((event) => {
 });
 try {
   await settleAuthFromUrl();
+  await confirmAlertFromUrl();
   await refreshAuth();
 } catch (err) {
   // Never leave the page blank: fall back to the sign-in view on any init error.
