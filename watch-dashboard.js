@@ -35,6 +35,44 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 let signup = null;
 let billingInterval = "annual";
 
+const PLAN_TIERS = [
+  {
+    key: "watch",
+    name: "Watch",
+    short: "Watch",
+    price: "Free",
+    features: [
+      "Weekly digest of major model drops",
+      "Email delivery",
+      "Community coverage",
+    ],
+  },
+  {
+    key: "pro",
+    name: "Pro",
+    short: "Pro",
+    price: "$5/mo",
+    features: [
+      "Real-time alerts the moment a model drops",
+      "Lab & capability filters",
+      "Model comparison tool",
+      "SMS & voice alerts (coming soon)",
+    ],
+  },
+  {
+    key: "squadron",
+    name: "Squadron",
+    short: "Squadron",
+    price: "$15/mo",
+    features: [
+      "Everything in Pro",
+      "Team routing — up to 10 seats",
+      "Slack & generic webhooks",
+      "Priority delivery",
+    ],
+  },
+];
+
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
@@ -186,9 +224,23 @@ function renderFreeView(signupRow) {
   $("#freeEmailState").textContent = verified ? "Email confirmed" : "Email pending";
   $("#freeEmailState").classList.toggle("is-ok", verified);
 
-  $("#freeUpgradeActions").innerHTML = `
-    <a class="btn btn--solid" href="watch-checkout.html?plan=pro&interval=${billingInterval}">Upgrade to Pro</a>
-    <a class="btn btn--line" href="watch-checkout.html?plan=squadron&interval=${billingInterval}">Upgrade to Squadron</a>`;
+  // Plan comparison so free users can see exactly what each tier adds.
+  const plansEl = $("#freePlansCompare");
+  if (plansEl) {
+    plansEl.innerHTML = PLAN_TIERS.map((t) => `
+      <div class="plan-tier${t.key === "watch" ? " plan-tier--current" : ""}">
+        <div class="plan-tier__head">
+          <h4>${escapeHtml(t.name)}</h4>
+          <span class="plan-tier__price">${escapeHtml(t.price)}</span>
+        </div>
+        <ul class="plan-tier__list">
+          ${t.features.map((f) => `<li>${escapeHtml(f)}</li>`).join("")}
+        </ul>
+        ${t.key === "watch"
+          ? `<span class="plan-tier__badge">Your plan</span>`
+          : `<a class="btn btn--solid btn--block" href="watch-checkout.html?plan=${t.key}&interval=${billingInterval}">Upgrade to ${escapeHtml(t.short)}</a>`}
+      </div>`).join("");
+  }
 
   setFreeEmailMsg("");
 }
@@ -266,13 +318,27 @@ function withTimeout(promise, ms, label) {
 }
 
 async function loadSignup() {
-  await withTimeout(ensureSignup(), 12000, "Loading your profile");
-  const { data, error } = await withTimeout(
+  // Try to read the existing profile first. Only existing-user reads are on the
+  // critical path; the watch_ensure_signup RPC (which can be slow / enforce the
+  // free-seat cap) runs only when there is no row yet.
+  let { data, error } = await withTimeout(
     supabase.from("dexlyywatch_signups").select("*").maybeSingle(),
-    12000,
+    10000,
     "Loading your profile",
   );
   if (error) throw error;
+
+  if (!data) {
+    await withTimeout(ensureSignup(), 12000, "Creating your profile");
+    const res = await withTimeout(
+      supabase.from("dexlyywatch_signups").select("*").maybeSingle(),
+      10000,
+      "Loading your profile",
+    );
+    if (res.error) throw res.error;
+    data = res.data;
+  }
+
   if (!data) throw new Error("Could not load your watch profile.");
   renderSignup(data);
 }
