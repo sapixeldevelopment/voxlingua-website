@@ -196,6 +196,67 @@ function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+const PLAN_META = {
+  watch: {
+    tagline: "Free · weekly digest",
+    perks: ["Weekly model digest", "Community coverage"],
+  },
+  pro: {
+    tagline: "$5/mo · instant drop alerts",
+    perks: ["Real-time email alerts", "Lab & capability filters", "Model comparison"],
+    upgrade: { plan: "squadron", title: "Squadron", sub: "$15/mo · team routing & webhooks" },
+  },
+  squadron: {
+    tagline: "$15/mo · team routing",
+    perks: ["Everything in Pro", "Up to 10 seats", "Slack & generic webhooks"],
+    upgrade: { plan: "pro", title: "Pro", sub: "$5/mo · solo alerts & compare" },
+  },
+};
+
+function updatePlanSidebar(signupRow) {
+  const plan = signupRow?.plan || "watch";
+  const paid = signupRow ? isPaid(signupRow) : false;
+  const cancelled = signupRow?.status === "cancelled";
+  const pending = signupRow?.pending_plan;
+  const meta = PLAN_META[plan] || PLAN_META.watch;
+
+  $("#planName").textContent = planLabel(plan);
+
+  let state = meta.tagline;
+  if (cancelled && hasPaidPlan(signupRow)) state = "Access until billing period ends";
+  else if (pending) state = `${planLabel(pending)} checkout pending`;
+  else if (!paid && plan === "watch") state = PLAN_META.watch.tagline;
+  $("#planState").textContent = state;
+
+  const badge = $("#planBadge");
+  if (badge) {
+    if (cancelled && hasPaidPlan(signupRow)) {
+      badge.textContent = "Ending";
+      badge.className = "dash-status__badge is-ending";
+    } else if (pending) {
+      badge.textContent = "Pending";
+      badge.className = "dash-status__badge is-pending";
+    } else if (paid) {
+      badge.textContent = "Active";
+      badge.className = "dash-status__badge is-active";
+    } else {
+      badge.textContent = "Free";
+      badge.className = "dash-status__badge is-free";
+    }
+  }
+
+  const perks = $("#planPerks");
+  if (perks) {
+    if (paid || plan === "watch") {
+      perks.hidden = false;
+      perks.innerHTML = meta.perks.map((p) => `<li>${escapeHtml(p)}</li>`).join("");
+    } else {
+      perks.hidden = true;
+      perks.innerHTML = "";
+    }
+  }
+}
+
 function planLabel(plan) {
   return plan === "squadron" ? "Squadron" : plan === "pro" ? "Pro" : "Watch";
 }
@@ -288,35 +349,41 @@ function renderBilling() {
 
   if (plan === "watch" || status !== "active") {
     actions.innerHTML = `
-      <a class="btn btn--solid" href="watch-checkout.html?plan=pro&interval=${billingInterval}">Upgrade to Pro</a>
-      <a class="btn btn--line" href="watch-checkout.html?plan=squadron&interval=${billingInterval}">Upgrade to Squadron</a>`;
+      <a class="dash-billing__upgrade dash-billing__upgrade--primary" href="watch-checkout.html?plan=pro&interval=${billingInterval}">
+        <span class="dash-billing__upgrade-title">Pro</span>
+        <span class="dash-billing__upgrade-sub">$5/mo · real-time alerts &amp; compare</span>
+      </a>
+      <a class="dash-billing__upgrade" href="watch-checkout.html?plan=squadron&interval=${billingInterval}">
+        <span class="dash-billing__upgrade-title">Squadron</span>
+        <span class="dash-billing__upgrade-sub">$15/mo · team routing</span>
+      </a>`;
     note.textContent = plan === "watch"
-      ? "Free Watch includes the weekly digest. Upgrade for first-in-line alerts, filters, and model comparison."
+      ? "Upgrade for first-in-line alerts, filters, and model comparison."
       : status === "cancelled"
-        ? "Your paid access continues until the billing period ends. You can resume or start a new plan anytime."
-        : "Choose a paid plan to unlock Pro or Squadron features.";
+        ? "Paid access continues until the period ends. Resume or pick a new plan anytime."
+        : "Choose a paid plan to unlock Pro or Squadron.";
     return;
   }
 
-  if (plan === "pro") {
+  const meta = PLAN_META[plan];
+  const upgrade = meta?.upgrade;
+  if (upgrade) {
     actions.innerHTML = `
-      <button type="button" class="btn btn--line" data-change-plan="squadron">Upgrade to Squadron</button>
-      <button type="button" class="btn btn--ghost" data-cancel-sub>Cancel subscription</button>`;
+      <button type="button" class="dash-billing__upgrade" data-change-plan="${upgrade.plan}">
+        <span class="dash-billing__upgrade-title">${escapeHtml(upgrade.title)}</span>
+        <span class="dash-billing__upgrade-sub">${upgrade.sub}</span>
+      </button>
+      <button type="button" class="dash-billing__link" data-cancel-sub>Cancel subscription</button>`;
     note.textContent = signup.pending_plan
-      ? `Downgrade to ${planLabel(signup.pending_plan)} scheduled for your next billing date.`
-      : "Manage billing here — downgrade takes effect at renewal.";
-  } else if (plan === "squadron") {
-    actions.innerHTML = `
-      <button type="button" class="btn btn--line" data-change-plan="pro">Downgrade to Pro</button>
-      <button type="button" class="btn btn--ghost" data-cancel-sub>Cancel subscription</button>`;
-    note.textContent = signup.pending_plan
-      ? `Downgrade to ${planLabel(signup.pending_plan)} scheduled for your next billing date.`
-      : "Squadron includes team routing and up to 10 seats.";
+      ? `${planLabel(signup.pending_plan)} change scheduled for next billing date.`
+      : plan === "pro"
+        ? "Upgrade anytime. Downgrades apply at renewal."
+        : "Downgrade to Pro takes effect at renewal.";
   }
 
   actions.querySelector("[data-cancel-sub]")?.addEventListener("click", cancelSubscription);
   actions.querySelector("[data-change-plan]")?.addEventListener("click", (e) => {
-    changePlan(e.target.dataset.changePlan);
+    changePlan(e.currentTarget.dataset.changePlan);
   });
 }
 
@@ -399,14 +466,7 @@ function renderSignup(signupRow) {
   $("#compare").hidden = !paid;
 
   const cancelledWithAccess = hasPaidPlan(signupRow) && signupRow.status === "cancelled";
-  $("#planName").textContent = planLabel(signupRow.plan);
-  $("#planState").textContent = cancelledWithAccess
-    ? "Cancelled — access until period ends"
-    : paid
-      ? "Active paid plan"
-      : signupRow.pending_plan
-        ? `Checkout pending — ${planLabel(signupRow.pending_plan)}`
-        : "Free watch — weekly digest";
+  updatePlanSidebar(signupRow);
 
   if (!paid) {
     renderFreeView(signupRow);

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="watch.css?v=20260620j" />
+  <link rel="stylesheet" href="watch.css?v=20260620k" />
 </head>
 <body class="dash-page">
   <a href="#main" class="skip-link">Skip to content</a>
@@ -48,9 +48,15 @@
           <p class="dash-hero__sub">Confirm your alert inbox, tune lab filters, route team alerts, and compare frontier models — email alerts are live; SMS and calls are coming soon.</p>
         </div>
         <aside class="dash-status" aria-live="polite">
-          <span class="dash-status__label">Current plan</span>
-          <strong id="planName">Loading...</strong>
-          <span id="planState">Checking your account</span>
+          <div class="dash-status__top">
+            <span class="dash-status__label">Current plan</span>
+            <span class="dash-status__badge" id="planBadge">—</span>
+          </div>
+          <div class="dash-status__plan">
+            <strong id="planName">Loading...</strong>
+            <span class="dash-status__state" id="planState">Checking your account</span>
+          </div>
+          <ul class="dash-status__perks" id="planPerks" hidden></ul>
           <div class="dash-billing" id="billingPanel" hidden>
             <div class="dash-billing__actions" id="billingActions"></div>
             <p class="dash-billing__note" id="billingNote"></p>
@@ -291,6 +297,6 @@
     </section>
   </main>
 
-  <script type="module" src="watch-dashboard.js?v=20260620o"></script>
+  <script type="module" src="watch-dashboard.js?v=20260620p"></script>
 </body>
 </html>
