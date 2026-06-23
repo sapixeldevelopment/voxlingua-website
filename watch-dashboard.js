@@ -6,6 +6,9 @@ const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
 const params = new URLSearchParams(location.search);
 
 const LABS = ["OpenAI", "Anthropic", "Google", "xAI", "Meta", "DeepSeek", "Alibaba", "Mistral", "Moonshot", "Zhipu", "MiniMax", "NVIDIA"];
+const DEFAULT_LABS = [...LABS];
+const CAPABILITY_KEYS = ["reasoning", "coding", "vision", "voice", "agents", "long-context", "open-weights", "ai-news"];
+const DEFAULT_CAPABILITIES = [...CAPABILITY_KEYS];
 const CAPABILITIES = [
   ["reasoning", "Reasoning"],
   ["coding", "Coding"],
@@ -385,6 +388,37 @@ function friendlyAuthError(err) {
   return message || "Could not load dashboard.";
 }
 
+function selectedLabs(signupRow) {
+  return signupRow?.labs?.length ? signupRow.labs : DEFAULT_LABS;
+}
+
+function selectedCapabilities(signupRow) {
+  return signupRow?.capabilities?.length ? signupRow.capabilities : DEFAULT_CAPABILITIES;
+}
+
+async function applySignupDefaultsIfNeeded(signupRow) {
+  const needsLabs = !signupRow.labs?.length;
+  const needsCaps = !signupRow.capabilities?.length;
+  const accountEmail = (signupRow.email || "").toLowerCase();
+  const alertEmail = (signupRow.alert_email || "").toLowerCase();
+  const needsAlertEmail = !alertEmail;
+  if (!needsLabs && !needsCaps && !needsAlertEmail) return signupRow;
+
+  const payload = { updated_at: new Date().toISOString() };
+  if (needsLabs) payload.labs = DEFAULT_LABS;
+  if (needsCaps) payload.capabilities = DEFAULT_CAPABILITIES;
+  if (needsAlertEmail && accountEmail) payload.alert_email = accountEmail;
+
+  const { data, error } = await supabase
+    .from("dexlyywatch_signups")
+    .update(payload)
+    .eq("user_id", signupRow.user_id)
+    .select()
+    .maybeSingle();
+  if (error) throw error;
+  return data || signupRow;
+}
+
 function renderTags(container, values, selected) {
   if (!container) return;
   container.innerHTML = values.map((entry) => {
@@ -543,8 +577,8 @@ function renderSignup(signupRow) {
   $("#alertEmail").value = signupRow.alert_email || signupRow.email || "";
   renderEmailState(signupRow);
 
-  renderTags($("#labTags"), LABS, signupRow.labs?.length ? signupRow.labs : LABS.slice(0, 6));
-  renderTags($("#capabilityTags"), CAPABILITIES, signupRow.capabilities?.length ? signupRow.capabilities : ["reasoning", "coding", "agents", "ai-news"]);
+  renderTags($("#labTags"), LABS, selectedLabs(signupRow));
+  renderTags($("#capabilityTags"), CAPABILITIES, selectedCapabilities(signupRow));
 
   const squadron = signupRow.plan === "squadron" && paid;
   $("#squadronCard").hidden = !squadron;
@@ -609,12 +643,10 @@ async function loadSignup(sessionHint) {
     return loadSignup({ uid: resolvedUid, token: accessToken });
   }
 
+  await withTimeout(ensureSignupWithToken(token), 12000, "Loading your profile");
   let data = await fetchSignupRow(uid, token);
-  if (!data) {
-    await withTimeout(ensureSignupWithToken(token), 12000, "Creating your profile");
-    data = await fetchSignupRow(uid, token);
-  }
   if (!data) throw new Error("Could not load your watch profile.");
+  data = await applySignupDefaultsIfNeeded(data);
   renderSignup(data);
 }
 
