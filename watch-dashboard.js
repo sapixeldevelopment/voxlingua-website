@@ -14,6 +14,7 @@ const CAPABILITIES = [
   ["agents", "Agents"],
   ["long-context", "Long context"],
   ["open-weights", "Open weights"],
+  ["ai-news", "AI news"],
 ];
 
 const MODELS = [
@@ -138,9 +139,10 @@ const PLAN_TIERS = [
     annual: { amount: "4", total: "50", label: "$4 / mo · $50 billed yearly" },
     features: [
       "Real-time alerts the moment a model drops",
+      "AI news — Codex, ChatGPT & product releases",
       "Lab & capability filters",
       "Model comparison tool",
-      "SMS & voice alerts (coming soon)",
+      "SMS & voice alerts",
     ],
   },
   {
@@ -203,7 +205,7 @@ const PLAN_META = {
   },
   pro: {
     tagline: "$5/mo · instant drop alerts",
-    perks: ["Real-time email alerts", "Lab & capability filters", "Model comparison"],
+    perks: ["Real-time model alerts", "AI news (Codex & product releases)", "Lab & capability filters", "Model comparison", "SMS & voice"],
     upgrade: { plan: "squadron", title: "Squadron", sub: "$15/mo · team routing & webhooks" },
   },
   squadron: {
@@ -456,6 +458,10 @@ function setDashLinks(visible, paid = false) {
       el.hidden = !visible;
       return;
     }
+    if (el.classList.contains("js-ainews-link")) {
+      el.hidden = !visible || !paid;
+      return;
+    }
     el.hidden = !visible || !paid;
   });
 }
@@ -538,7 +544,7 @@ function renderSignup(signupRow) {
   renderEmailState(signupRow);
 
   renderTags($("#labTags"), LABS, signupRow.labs?.length ? signupRow.labs : LABS.slice(0, 6));
-  renderTags($("#capabilityTags"), CAPABILITIES, signupRow.capabilities || ["reasoning", "coding", "agents"]);
+  renderTags($("#capabilityTags"), CAPABILITIES, signupRow.capabilities?.length ? signupRow.capabilities : ["reasoning", "coding", "agents", "ai-news"]);
 
   const squadron = signupRow.plan === "squadron" && paid;
   $("#squadronCard").hidden = !squadron;
@@ -1067,8 +1073,8 @@ $("#saveSettings")?.addEventListener("click", async () => {
       }
       const payload = {
         updated_at: new Date().toISOString(),
-        sms_enabled: false,
-        call_enabled: false,
+        sms_enabled: Boolean(signup.sms_enabled),
+        call_enabled: Boolean(signup.call_enabled),
         labs: readChecked($("#labTags")),
         capabilities: readChecked($("#capabilityTags")),
         seat_limit: Number($("#seatLimit").value) || 10,

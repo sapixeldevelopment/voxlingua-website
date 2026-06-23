@@ -6,14 +6,20 @@
   <title>DexlyyWatch Dashboard</title>
   <meta name="description" content="Manage DexlyyWatch alert destinations and compare frontier AI models side by side." />
   <link rel="canonical" href="https://dexlyy.com/watch-dashboard.html" />
+  <meta name="theme-color" content="#120e0a" />
   <link rel="icon" type="image/png" href="logo-mark.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="watch.css?v=20260620l" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="watch.css?v=20260620q" />
 </head>
 <body class="dash-page">
   <a href="#main" class="skip-link">Skip to content</a>
+
+  <div class="watch-atmo" aria-hidden="true">
+    <div class="watch-atmo__grid"></div>
+    <div class="watch-atmo__beam"></div>
+  </div>
 
   <header class="nav is-scrolled" id="nav">
     <div class="nav__inner">
@@ -31,6 +37,7 @@
       <nav class="nav__links" aria-label="Dashboard">
         <a href="#destinations" class="js-dash-link" hidden>Destinations</a>
         <a href="#filters" class="js-dash-link" hidden>Filters</a>
+        <a href="#aiNews" class="js-dash-link js-ainews-link" hidden>AI news</a>
         <a href="#compare" class="js-dash-link" hidden>Compare</a>
         <a href="#feedback" class="js-dash-link js-feedback-link" hidden>Feedback</a>
         <button type="button" class="btn btn--ghost" id="signOutBtn" style="font:inherit" hidden>Sign out</button>
@@ -44,8 +51,8 @@
       <p class="eyebrow"><span class="live-dot"></span> Watch command room</p>
       <div class="dash-hero__grid">
         <div>
-          <h1 class="dash-hero__title">Control where the next model drop reaches you.</h1>
-          <p class="dash-hero__sub">Confirm your alert inbox, tune lab filters, route team alerts, and compare frontier models — email alerts are live; SMS and calls are coming soon.</p>
+          <h1 class="dash-hero__title">Your frontier alert console.</h1>
+          <p class="dash-hero__sub">Confirm where drops land, tune lab filters, get Pro <strong>AI news</strong> (Codex, ChatGPT, API updates), and compare models side by side — email, SMS, and voice alerts are live on paid plans.</p>
         </div>
         <aside class="dash-status" aria-live="polite">
           <div class="dash-status__top">
@@ -74,7 +81,7 @@
     </section>
 
     <section class="dash-auth" id="authPanel" hidden>
-      <div class="dash-card">
+      <div class="dash-card dash-card--auth">
         <p class="eyebrow">DexlyyWatch account</p>
         <h2>Sign in or claim a free Watch seat.</h2>
         <p>The free Watch tier is limited to the first 200 seats. Once those are claimed, new users can join through Pro or Squadron.</p>
@@ -137,7 +144,7 @@
 
         <div class="dash-upgrade">
           <h3 class="dash-mini">Compare plans</h3>
-          <p class="dash-mini-note">Upgrade for real-time alerts the moment a model drops, plus filters, comparison and team routing.</p>
+          <p class="dash-mini-note">Upgrade for real-time model alerts, <strong>AI news</strong> (Codex &amp; product releases), filters, comparison and team routing.</p>
           <div class="toggle dash-billing-toggle" id="dashBilling" role="tablist" aria-label="Billing period">
             <button type="button" class="toggle__btn is-active" data-cycle="monthly">Monthly</button>
             <button type="button" class="toggle__btn" data-cycle="annual">Annual <span class="toggle__save">2 months free</span></button>
@@ -184,10 +191,28 @@
           </label>
           <button type="button" class="btn btn--line btn--block dash-resend" id="resendConfirmBtn" hidden>Resend confirmation email</button>
 
-          <div class="dash-coming-soon" id="phoneComingSoon">
-            <p class="dash-coming-soon__label">SMS &amp; voice</p>
-            <p class="dash-coming-soon__text"><strong>Coming soon.</strong> Email is live on Pro and Squadron. SMS and calls unlock after carrier registration — same plan, no extra charge.</p>
+          <div class="dash-channel-note" id="phoneChannelNote">
+            <p class="dash-channel-note__label">SMS &amp; voice</p>
+            <p class="dash-channel-note__text">Live on Pro and Squadron. Configure phone alerts in a future dashboard update — email is fully active today.</p>
           </div>
+        </div>
+      </article>
+
+      <article class="dash-card dash-card--ainews" id="aiNews">
+        <div class="dash-card__head">
+          <div>
+            <p class="eyebrow">Pro · AI news</p>
+            <h2>Product releases, not just models.</h2>
+          </div>
+          <span class="dash-pill is-ok">Included</span>
+        </div>
+        <div class="dash-card__body">
+          <p class="dash-mini-note">When labs ship product updates — <strong>Codex</strong>, ChatGPT features, API changes, Claude Code, etc. — you get a separate <em>AI news</em> alert with the release headline and link. Model-weight drops still use <strong>New model</strong> alerts.</p>
+          <ul class="dash-ainews-examples">
+            <li><span class="dash-ainews-tag">AI news</span> OpenAI: Codex release notes</li>
+            <li><span class="dash-ainews-tag">New model</span> Anthropic: Claude Opus 4.8</li>
+          </ul>
+          <p class="dash-mini-note">Toggle <strong>AI news</strong> under capabilities below if you only want model drops.</p>
         </div>
       </article>
 
@@ -242,10 +267,10 @@
     </section>
 
     <section class="compare" id="compare">
-      <div class="section-head">
+      <div class="section-head section-head--center">
         <p class="eyebrow">Model comparison</p>
         <h2 class="section-title">Which model should you <em>actually ship with?</em></h2>
-        <p class="section-lead">API pricing, coding fit, latency, tools, and context — the stuff vibe coders care about when picking a default model. Prices are indicative; confirm on each lab's pricing page before you scale.</p>
+        <p class="section-lead">API pricing, coding fit, latency, tools, and context — confirm on each lab's pricing page before you scale.</p>
       </div>
       <div class="compare__shell">
         <div class="compare__pickers">
@@ -298,6 +323,6 @@
     </section>
   </main>
 
-  <script type="module" src="watch-dashboard.js?v=20260620r"></script>
+  <script type="module" src="watch-dashboard.js?v=20260620q"></script>
 </body>
 </html>

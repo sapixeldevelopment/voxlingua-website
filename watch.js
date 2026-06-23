@@ -281,7 +281,6 @@
         : `Limited free seats · ${remaining.toLocaleString()} left · every major drop.`;
     }
     freeCtas.forEach((el) => {
-      // Skip CTAs that were repurposed for a signed-in visitor (e.g. Sign out).
       if (!el.classList.contains("js-free-cta")) return;
       if (full) {
         el.textContent = "See paid plans";
@@ -397,10 +396,9 @@
   function updateAuthNav() {
     const signIn = $("#navSignIn");
     const signUp = $("#navSignUp");
+    const stickyCta = $("#stickyCta");
     if (!signIn || !signUp) return;
     if (isSignedIn()) {
-      // Signed in: the "Sign in" CTA becomes "Dashboard", and the second CTA
-      // becomes "Sign out". The redundant nav-links Dashboard entry is hidden.
       const navDash = $("#navDashboardLink");
       if (navDash) navDash.hidden = true;
       signIn.textContent = "Dashboard";
@@ -408,6 +406,7 @@
       signUp.textContent = "Sign out";
       signUp.href = "watch-dashboard.html?signout=1";
       signUp.classList.remove("js-free-cta");
+      if (stickyCta) stickyCta.hidden = true;
     }
   }
 
@@ -418,4 +417,15 @@
   updateAuthNav();
   loadStats();
   loadLive();
+
+  /* Sticky mobile CTA — show after scrolling past hero */
+  const stickyCta = $("#stickyCta");
+  if (stickyCta) {
+    const onSticky = () => {
+      const show = window.scrollY > window.innerHeight * 0.55;
+      stickyCta.classList.toggle("is-visible", show);
+    };
+    window.addEventListener("scroll", onSticky, { passive: true });
+    onSticky();
+  }
 })();
