@@ -271,10 +271,20 @@
       <div class="section-head section-head--center">
         <p class="eyebrow">Release radar</p>
         <h2 class="section-title">When might the <em>next model</em> land?</h2>
-        <p class="section-lead">Ultra estimates from Polymarket deadline markets — marginal odds between dates, not random guesses. Directional only; labs can slip.</p>
+        <p class="section-lead">Ultra tracks every active Polymarket “released by” market we can find — marginal odds between dates, not random guesses. Directional only; labs can slip.</p>
       </div>
+      <div class="forecasts__toolbar" id="forecastsToolbar" hidden>
+        <div class="forecasts__filters" id="forecastsFilters" role="tablist" aria-label="Filter by lab"></div>
+        <input class="forecasts__search" id="forecastsSearch" type="search" placeholder="Search models…" autocomplete="off" />
+      </div>
+      <p class="forecasts__meta" id="forecastsMeta" hidden></p>
       <div class="forecasts__shell" id="forecastsPanel">
         <p class="dash-message" id="forecastsLoading">Loading release estimates…</p>
+      </div>
+      <div class="forecasts__watchlist" id="forecastsWatchlist" hidden>
+        <h3 class="forecasts__watchlist-title">On the radar — no market yet</h3>
+        <p class="forecasts__watchlist-lead">Rumored models without an open Polymarket deadline series. DexlyyWatch sweep still alerts when they actually drop.</p>
+        <ul class="forecasts__watchlist-grid" id="forecastsWatchlistGrid"></ul>
       </div>
       <article class="dash-card dash-lock" id="forecastsLock" hidden>
         <div class="dash-card__head">
@@ -283,7 +293,7 @@
             <h2>Release window estimates</h2>
           </div>
         </div>
-        <p class="dash-mini-note">See when traders think GPT-5.6 (and future tracked models) might drop — built from Polymarket odds and lab cadence signals.</p>
+        <p class="dash-mini-note">See release windows for GPT-5.6, Grok 5, Gemini 4, Claude Opus-class drops, and every other tracked Polymarket market.</p>
         <a class="btn btn--solid" href="watch-checkout.html?plan=ultra">Upgrade to Ultra — $9/mo</a>
       </article>
     </section>

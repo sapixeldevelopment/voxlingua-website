@@ -605,38 +605,48 @@ function formatUsd(n) {
   return `$${Math.round(n)}`;
 }
 
-function renderForecasts(forecasts) {
-  const panel = $("#forecastsPanel");
-  const loading = $("#forecastsLoading");
-  if (!panel) return;
+let forecastBundle = null;
+let forecastLabFilter = "all";
+let forecastSearchQuery = "";
 
-  if (!forecasts?.length) {
-    if (loading) loading.textContent = "No tracked release markets right now — check back soon.";
-    return;
-  }
+function statusLabel(status) {
+  if (status === "released") return "Released";
+  if (status === "thin") return "Thin market";
+  return "Tracking";
+}
 
-  if (loading) loading.hidden = true;
-  panel.innerHTML = forecasts.map((f) => {
-    const windows = (f.estimate?.windows ?? []).slice(0, 4);
-    const bars = windows.map((w) => {
-      const pct = Math.round(w.probability * 100);
-      return `<li class="forecast-bar">
+function statusPillClass(status) {
+  if (status === "released") return "dash-pill--muted";
+  if (status === "thin") return "dash-pill--warn";
+  return "dash-pill--live";
+}
+
+function renderForecastCard(f) {
+  const windows = (f.estimate?.windows ?? []).slice(0, 4);
+  const bars = windows.length
+    ? windows.map((w) => {
+        const pct = Math.round(w.probability * 100);
+        return `<li class="forecast-bar">
         <div class="forecast-bar__head"><span>${escapeHtml(w.label)}</span><strong>${pct}%</strong></div>
         <div class="forecast-bar__track"><span style="width:${Math.max(4, pct)}%"></span></div>
       </li>`;
-    }).join("");
+      }).join("")
+    : `<li class="forecast-bar forecast-bar--empty"><span class="forecast-bar__head">No marginal window — see headline for cumulative odds.</span></li>`;
 
-    const context = f.context
-      ? `<p class="forecast-card__context">${escapeHtml(f.context.slice(0, 420))}${f.context.length > 420 ? "…" : ""}</p>`
-      : "";
+  const context = f.context
+    ? `<p class="forecast-card__context">${escapeHtml(f.context.slice(0, 320))}${f.context.length > 320 ? "…" : ""}</p>`
+    : "";
 
-    return `<article class="forecast-card">
+  return `<article class="forecast-card" data-lab="${escapeHtml(f.lab)}" data-model="${escapeHtml(f.model.toLowerCase())}">
       <header class="forecast-card__head">
         <div>
           <p class="eyebrow">${escapeHtml(f.lab)}</p>
           <h3>${escapeHtml(f.model)}</h3>
         </div>
-        <span class="dash-pill dash-pill--${escapeHtml(f.estimate?.confidence || "medium")}">${escapeHtml(f.estimate?.confidence || "medium")} confidence</span>
+        <div class="forecast-card__badges">
+          <span class="dash-pill ${statusPillClass(f.status)}">${escapeHtml(statusLabel(f.status))}</span>
+          <span class="dash-pill dash-pill--${escapeHtml(f.estimate?.confidence || "medium")}">${escapeHtml(f.estimate?.confidence || "medium")}</span>
+        </div>
       </header>
       <p class="forecast-card__headline">${escapeHtml(f.estimate?.headline || "")}</p>
       <p class="forecast-card__summary">${escapeHtml(f.estimate?.summary || "")}</p>
@@ -648,7 +658,120 @@ function renderForecasts(forecasts) {
       </footer>
       <p class="forecast-card__disclaimer">${escapeHtml(f.disclaimer || "")}</p>
     </article>`;
+}
+
+function filteredForecasts() {
+  if (!forecastBundle?.forecasts) return [];
+  const q = forecastSearchQuery.trim().toLowerCase();
+  return forecastBundle.forecasts.filter((f) => {
+    if (forecastLabFilter !== "all" && f.lab !== forecastLabFilter) return false;
+    if (!q) return true;
+    const hay = `${f.model} ${f.lab} ${f.event_title}`.toLowerCase();
+    return hay.includes(q);
+  });
+}
+
+function renderForecastFilters() {
+  const toolbar = $("#forecastsToolbar");
+  const filters = $("#forecastsFilters");
+  if (!toolbar || !filters || !forecastBundle) return;
+
+  const labs = ["all", ...(forecastBundle.meta?.labs ?? [])];
+  toolbar.hidden = false;
+  filters.innerHTML = labs.map((lab) => {
+    const active = lab === forecastLabFilter;
+    const label = lab === "all" ? "All labs" : lab;
+    return `<button type="button" class="forecasts__chip${active ? " is-active" : ""}" data-lab="${escapeHtml(lab)}" role="tab" aria-selected="${active}">${escapeHtml(label)}</button>`;
   }).join("");
+
+  filters.querySelectorAll(".forecasts__chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      forecastLabFilter = btn.dataset.lab || "all";
+      renderForecastFilters();
+      renderForecastCards();
+    });
+  });
+}
+
+function renderForecastMeta() {
+  const el = $("#forecastsMeta");
+  if (!el || !forecastBundle?.meta) return;
+  const m = forecastBundle.meta;
+  const parts = [
+    `${m.active_count} active market${m.active_count === 1 ? "" : "s"}`,
+    m.watchlist_count ? `${m.watchlist_count} on watchlist` : null,
+    m.accuracy?.label ? m.accuracy.label : null,
+  ].filter(Boolean);
+  el.hidden = false;
+  el.textContent = parts.join(" · ");
+  if (m.accuracy?.detail) el.title = m.accuracy.detail;
+}
+
+function renderWatchlist() {
+  const section = $("#forecastsWatchlist");
+  const grid = $("#forecastsWatchlistGrid");
+  const items = forecastBundle?.watchlist ?? [];
+  if (!section || !grid) return;
+  if (!items.length) {
+    section.hidden = true;
+    return;
+  }
+  section.hidden = false;
+  grid.innerHTML = items.map((w) => `
+    <li class="forecast-watch">
+      <p class="eyebrow">${escapeHtml(w.lab)}</p>
+      <h4>${escapeHtml(w.model)}</h4>
+      <p>${escapeHtml(w.note)}</p>
+    </li>
+  `).join("");
+}
+
+function renderForecastCards() {
+  const panel = $("#forecastsPanel");
+  const loading = $("#forecastsLoading");
+  if (!panel) return;
+
+  const list = filteredForecasts();
+  if (!list.length) {
+    if (loading) {
+      loading.hidden = false;
+      loading.textContent = forecastSearchQuery || forecastLabFilter !== "all"
+        ? "No models match that filter."
+        : "No tracked release markets right now — check back soon.";
+    }
+    panel.querySelectorAll(".forecast-card").forEach((n) => n.remove());
+    return;
+  }
+
+  if (loading) loading.hidden = true;
+  panel.innerHTML = `<div class="forecasts__grid">${list.map(renderForecastCard).join("")}</div>`;
+}
+
+function renderForecasts(bundle) {
+  forecastBundle = bundle;
+  forecastLabFilter = "all";
+  forecastSearchQuery = "";
+
+  const search = $("#forecastsSearch");
+  if (search && !search.dataset.bound) {
+    search.dataset.bound = "1";
+    search.addEventListener("input", () => {
+      forecastSearchQuery = search.value;
+      renderForecastCards();
+    });
+  }
+  if (search) search.value = "";
+
+  if (!bundle?.forecasts?.length && !bundle?.watchlist?.length) {
+    const loading = $("#forecastsLoading");
+    if (loading) loading.textContent = "No tracked release markets right now — check back soon.";
+    return;
+  }
+
+  renderForecastMeta();
+  renderForecastFilters();
+  renderForecastCards();
+  renderWatchlist();
 }
 
 function showForecastsSection(signupRow) {
@@ -683,7 +806,7 @@ async function loadForecasts() {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || "Could not load forecasts");
-    renderForecasts(data.forecasts);
+    renderForecasts(data);
   } catch (err) {
     if (loading) {
       loading.hidden = false;
