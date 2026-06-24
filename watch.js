@@ -248,9 +248,10 @@
 
   /* ---------------- Watch count ---------------- */
   const watchCount = $("#watchCount");
-  const freeSeatsRemaining = $("#freeSeatsRemaining");
+  const planWatchCount = $("#planWatchCount");
+  const freeSeatLive = $("#freeSeatLive");
+  const freeSeatFull = $("#freeSeatFull");
   const freeSeatNote = $("#freeSeatNote");
-  const heroNote = $("#heroNote");
   const ctaNote = $("#ctaNote");
   const freeCtas = $$(".js-free-cta");
 
@@ -266,23 +267,24 @@
     const full = remaining <= 0;
 
     if (watchCount) watchCount.textContent = watching.toLocaleString();
-    if (freeSeatsRemaining) freeSeatsRemaining.textContent = remaining.toLocaleString();
+    if (planWatchCount) planWatchCount.textContent = watching.toLocaleString();
     if (freeSeatNote) {
-      freeSeatNote.innerHTML = full
-        ? "The 200 free Watch seats are full. Choose Pro or Squadron to join."
-        : `<strong>${remaining.toLocaleString()}</strong> free seats left. Then Pro and Squadron only.`;
-      freeSeatNote.classList.toggle("is-full", full);
-    }
-    if (heroNote) {
-      heroNote.textContent = full
-        ? "The free Watch tier is full. New users can join through Pro or Squadron."
-        : `First 200 Watch seats are free — ${remaining.toLocaleString()} left. After that, only paid plans are open.`;
-      heroNote.classList.toggle("is-full", full);
+      if (full) {
+        freeSeatNote.classList.add("is-full");
+        freeSeatNote.classList.remove("plan__note--live");
+        if (freeSeatLive) freeSeatLive.hidden = true;
+        if (freeSeatFull) freeSeatFull.hidden = false;
+      } else {
+        freeSeatNote.classList.remove("is-full");
+        freeSeatNote.classList.add("plan__note--live");
+        if (freeSeatLive) freeSeatLive.hidden = false;
+        if (freeSeatFull) freeSeatFull.hidden = true;
+      }
     }
     if (ctaNote) {
       ctaNote.textContent = full
-        ? "Free seats are full · Pro and Squadron are open now."
-        : `Limited free seats · ${remaining.toLocaleString()} left · every major drop.`;
+        ? "Free tier full · Pro and Squadron are open now."
+        : "Join free · every major drop · sign in from your dashboard.";
     }
     freeCtas.forEach((el) => {
       if (!el.classList.contains("js-free-cta")) return;
