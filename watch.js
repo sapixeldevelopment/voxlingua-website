@@ -11,6 +11,8 @@
   const SUPABASE_URL = "https://mmgzuubrtyodhjtmjlvb.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_LYP_tofuZNutUaE-KfjT7Q_Uf5XcaIO";
   const FREE_SEAT_LIMIT = 200;
+  /** Social-proof audience counter (“currently watching”). Real signups add on top. */
+  const FAKE_WATCHING_BASE = 6185;
 
   const $ = (s, c = document) => c.querySelector(s);
   const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
@@ -246,21 +248,24 @@
 
   /* ---------------- Watch count ---------------- */
   const watchCount = $("#watchCount");
-  const freeSeatLimit = $("#freeSeatLimit");
   const freeSeatsRemaining = $("#freeSeatsRemaining");
   const freeSeatNote = $("#freeSeatNote");
   const heroNote = $("#heroNote");
-  const heroSeatBar = $("#heroSeatBar");
   const ctaNote = $("#ctaNote");
   const freeCtas = $$(".js-free-cta");
 
-  function updateFreeSeatUi(claimed) {
-    const used = Math.max(0, Math.min(FREE_SEAT_LIMIT, Number(claimed || 0)));
-    const remaining = Math.max(0, FREE_SEAT_LIMIT - used);
+  function displayWatching(totalSignups) {
+    const n = Math.max(0, Number(totalSignups) || 0);
+    return FAKE_WATCHING_BASE + n;
+  }
+
+  function updateFreeSeatUi(realClaimed, totalSignups) {
+    const realUsed = Math.max(0, Math.min(FREE_SEAT_LIMIT, Number(realClaimed) || 0));
+    const remaining = Math.max(0, FREE_SEAT_LIMIT - realUsed);
+    const watching = displayWatching(totalSignups ?? realUsed);
     const full = remaining <= 0;
 
-    if (watchCount) watchCount.textContent = used.toLocaleString();
-    if (freeSeatLimit) freeSeatLimit.textContent = FREE_SEAT_LIMIT.toLocaleString();
+    if (watchCount) watchCount.textContent = watching.toLocaleString();
     if (freeSeatsRemaining) freeSeatsRemaining.textContent = remaining.toLocaleString();
     if (freeSeatNote) {
       freeSeatNote.innerHTML = full
@@ -274,7 +279,6 @@
         : `First 200 Watch seats are free — ${remaining.toLocaleString()} left. After that, only paid plans are open.`;
       heroNote.classList.toggle("is-full", full);
     }
-    if (heroSeatBar) heroSeatBar.style.width = `${Math.min(100, (used / FREE_SEAT_LIMIT) * 100)}%`;
     if (ctaNote) {
       ctaNote.textContent = full
         ? "Free seats are full · Pro and Squadron are open now."
@@ -368,9 +372,11 @@
     try {
       const rows = await rpc("dexlyywatch_stats");
       const stats = Array.isArray(rows) ? rows[0] : rows;
-      updateFreeSeatUi(Number(stats?.watch_signups ?? 0));
+      const watch = Number(stats?.watch_signups ?? 0);
+      const total = Number(stats?.total_signups ?? watch);
+      updateFreeSeatUi(watch, total);
     } catch (_e) {
-      updateFreeSeatUi(0);
+      updateFreeSeatUi(0, 0);
     }
   }
 
