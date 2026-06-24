@@ -111,7 +111,8 @@
     const SUPABASE_ANON_KEY = "sb_publishable_LYP_tofuZNutUaE-KfjT7Q_Uf5XcaIO";
 
     const params = new URLSearchParams(location.search);
-    const plan = params.get("plan") === "squadron" ? "squadron" : "pro";
+    const rawPlan = params.get("plan") || "pro";
+    const plan = rawPlan === "squadron" ? "squadron" : rawPlan === "ultra" ? "ultra" : "pro";
     let cycle = params.get("interval") === "annual" ? "annual" : "monthly";
     const status = params.get("status");
 
@@ -122,7 +123,15 @@
         price: { monthly: "5", annual: "4" },
         per: { monthly: "/ month", annual: "/ mo · billed yearly ($50)" },
         checkout: { monthly: "$5/month", annual: "$50/year" },
-        feats: ["Instant email — alerted first", "Filter by lab & capability", "Day-zero benchmark snapshots", "Side-by-side comparison view", "Dashboard for alert email & filters", "SMS & calls — coming soon"],
+        feats: ["Instant email — alerted first", "Filter by lab & capability", "Day-zero benchmark snapshots", "Side-by-side comparison view", "Dashboard for alert email & filters", "SMS & calls — live"],
+      },
+      ultra: {
+        eyebrow: "DexlyyWatch Ultra", title: "See the drop coming.",
+        tag: "Everything in Pro, plus release-window estimates from Polymarket &amp; lab signals.",
+        price: { monthly: "9", annual: "8" },
+        per: { monthly: "/ month", annual: "/ mo · billed yearly ($90)" },
+        checkout: { monthly: "$9/month", annual: "$90/year" },
+        feats: ["Everything in Pro", "Release radar — GPT-5.6 & tracked models", "Marginal odds between deadline dates", "Methodology + confidence labels", "Estimates refresh on a schedule", "Directional only — not a guarantee"],
       },
       squadron: {
         eyebrow: "DexlyyWatch Squadron", title: "Arm the whole team.",
@@ -130,7 +139,7 @@
         price: { monthly: "15", annual: "13" },
         per: { monthly: "/ month", annual: "/ mo · billed yearly ($150)" },
         checkout: { monthly: "$15/month", annual: "$150/year" },
-        feats: ["Everything in Pro, up to 10 seats", "Shared watchlist & routing rules", "Slack & webhook delivery + alert API", "Priority queue — first in line, always", "Team dashboard with model comparison", "SMS & calls — coming soon"],
+        feats: ["Everything in Ultra, up to 10 seats", "Shared watchlist & routing rules", "Slack & webhook delivery + alert API", "Priority queue — first in line, always", "Team dashboard with model comparison", "SMS & calls — live"],
       },
     };
 

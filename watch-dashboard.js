@@ -149,13 +149,28 @@ const PLAN_TIERS = [
     ],
   },
   {
+    key: "ultra",
+    name: "Ultra",
+    short: "Ultra",
+    featured: true,
+    monthly: { amount: "9", label: "$9 / month" },
+    annual: { amount: "8", total: "90", label: "$8 / mo · $90 billed yearly" },
+    features: [
+      "Everything in Pro",
+      "Release radar — Polymarket-based drop windows",
+      "Tracked models (GPT-5.6 first)",
+      "Methodology + confidence labels",
+      "Estimates refresh on a schedule",
+    ],
+  },
+  {
     key: "squadron",
     name: "Squadron",
     short: "Squadron",
     monthly: { amount: "15", label: "$15 / month" },
     annual: { amount: "13", total: "150", label: "$13 / mo · $150 billed yearly" },
     features: [
-      "Everything in Pro",
+      "Everything in Ultra",
       "Team routing — up to 10 seats",
       "Slack & generic webhooks",
       "Priority delivery",
@@ -191,8 +206,8 @@ function setBillingInterval(interval) {
   const note = $("#dashBillingNote");
   if (note) {
     note.textContent = billingInterval === "annual"
-      ? "Annual billing: Pro $50/year · Squadron $150/year (2 months free vs monthly)."
-      : "Monthly billing: Pro $5/month · Squadron $15/month. Cancel anytime.";
+      ? "Annual billing: Pro $50/year · Ultra $90/year · Squadron $150/year (2 months free vs monthly)."
+      : "Monthly billing: Pro $5/month · Ultra $9/month · Squadron $15/month. Cancel anytime.";
   }
   if (signup && !isPaid(signup)) renderFreeView(signup);
 }
@@ -209,12 +224,18 @@ const PLAN_META = {
   pro: {
     tagline: "$5/mo · instant drop alerts",
     perks: ["Real-time model alerts", "AI news (Codex & product releases)", "Lab & capability filters", "Model comparison", "SMS & voice"],
+    upgrade: { plan: "ultra", title: "Ultra", sub: "$9/mo · release window estimates" },
+  },
+  ultra: {
+    tagline: "$9/mo · release radar",
+    perks: ["Everything in Pro", "Polymarket-based drop windows", "Marginal odds between dates", "Methodology in-dashboard"],
     upgrade: { plan: "squadron", title: "Squadron", sub: "$15/mo · team routing & webhooks" },
+    downgrade: { plan: "pro", title: "Pro", sub: "$5/mo · alerts without forecasts" },
   },
   squadron: {
     tagline: "$15/mo · team routing",
-    perks: ["Everything in Pro", "Up to 10 seats", "Slack & generic webhooks"],
-    upgrade: { plan: "pro", title: "Pro", sub: "$5/mo · solo alerts & compare" },
+    perks: ["Everything in Ultra", "Up to 10 seats", "Slack & generic webhooks"],
+    downgrade: { plan: "ultra", title: "Ultra", sub: "$9/mo · solo + release radar" },
   },
 };
 
@@ -263,11 +284,18 @@ function updatePlanSidebar(signupRow) {
 }
 
 function planLabel(plan) {
-  return plan === "squadron" ? "Squadron" : plan === "pro" ? "Pro" : "Watch";
+  if (plan === "squadron") return "Squadron";
+  if (plan === "ultra") return "Ultra";
+  if (plan === "pro") return "Pro";
+  return "Watch";
 }
 
 function hasPaidPlan(signupRow) {
-  return Boolean(signupRow) && (signupRow.plan === "pro" || signupRow.plan === "squadron");
+  return Boolean(signupRow) && (signupRow.plan === "pro" || signupRow.plan === "ultra" || signupRow.plan === "squadron");
+}
+
+function hasForecasts(signupRow) {
+  return hasPaidPlan(signupRow) && (signupRow.plan === "ultra" || signupRow.plan === "squadron");
 }
 
 // A user keeps paid access while their plan is pro/squadron and the subscription
@@ -383,7 +411,7 @@ function setAuthMessage(text, kind = "") {
 function friendlyAuthError(err) {
   const message = err?.message || String(err || "");
   if (message.includes("FREE_SEATS_FULL")) {
-    return "The 200 free Watch seats are full. Choose Pro or Squadron from the pricing page to join.";
+    return "The 200 free Watch seats are full. Choose Pro, Ultra, or Squadron from the pricing page to join.";
   }
   return message || "Could not load dashboard.";
 }
@@ -450,6 +478,10 @@ function renderBilling() {
         <span class="dash-billing__upgrade-title">Pro</span>
         <span class="dash-billing__upgrade-sub">$5/mo · real-time alerts &amp; compare</span>
       </a>
+      <a class="dash-billing__upgrade" href="watch-checkout.html?plan=ultra&interval=${billingInterval}">
+        <span class="dash-billing__upgrade-title">Ultra</span>
+        <span class="dash-billing__upgrade-sub">$9/mo · release window estimates</span>
+      </a>
       <a class="dash-billing__upgrade" href="watch-checkout.html?plan=squadron&interval=${billingInterval}">
         <span class="dash-billing__upgrade-title">Squadron</span>
         <span class="dash-billing__upgrade-sub">$15/mo · team routing</span>
@@ -458,29 +490,41 @@ function renderBilling() {
       ? "Upgrade for first-in-line alerts, filters, and model comparison."
       : status === "cancelled"
         ? "Paid access continues until the period ends. Resume or pick a new plan anytime."
-        : "Choose a paid plan to unlock Pro or Squadron.";
+        : "Choose a paid plan to unlock Pro, Ultra, or Squadron.";
     return;
   }
 
   const meta = PLAN_META[plan];
   const upgrade = meta?.upgrade;
-  if (upgrade) {
-    actions.innerHTML = `
-      <button type="button" class="dash-billing__upgrade" data-change-plan="${upgrade.plan}">
+  const downgrade = meta?.downgrade;
+  if (upgrade || downgrade) {
+    const buttons = [];
+    if (upgrade) {
+      buttons.push(`<button type="button" class="dash-billing__upgrade dash-billing__upgrade--primary" data-change-plan="${upgrade.plan}">
         <span class="dash-billing__upgrade-title">${escapeHtml(upgrade.title)}</span>
-        <span class="dash-billing__upgrade-sub">${upgrade.sub}</span>
-      </button>
-      <button type="button" class="dash-billing__link" data-cancel-sub>Cancel subscription</button>`;
+        <span class="dash-billing__upgrade-sub">${escapeHtml(upgrade.sub)}</span>
+      </button>`);
+    }
+    if (downgrade) {
+      buttons.push(`<button type="button" class="dash-billing__upgrade" data-change-plan="${downgrade.plan}">
+        <span class="dash-billing__upgrade-title">${escapeHtml(downgrade.title)}</span>
+        <span class="dash-billing__upgrade-sub">${escapeHtml(downgrade.sub)}</span>
+      </button>`);
+    }
+    buttons.push(`<button type="button" class="dash-billing__link" data-cancel-sub>Cancel subscription</button>`);
+    actions.innerHTML = buttons.join("");
     note.textContent = signup.pending_plan
       ? `${planLabel(signup.pending_plan)} change scheduled for next billing date.`
       : plan === "pro"
-        ? "Upgrade anytime. Downgrades apply at renewal."
-        : "Downgrade to Pro takes effect at renewal.";
+        ? "Upgrade to Ultra for release estimates, or Squadron for teams."
+        : plan === "ultra"
+          ? "Upgrade to Squadron for team routing. Downgrades apply at renewal."
+          : "Downgrade takes effect at renewal.";
   }
 
-  actions.querySelector("[data-cancel-sub]")?.addEventListener("click", cancelSubscription);
-  actions.querySelector("[data-change-plan]")?.addEventListener("click", (e) => {
-    changePlan(e.currentTarget.dataset.changePlan);
+  actions.querySelectorAll("[data-cancel-sub]").forEach((el) => el.addEventListener("click", cancelSubscription));
+  actions.querySelectorAll("[data-change-plan]").forEach((el) => {
+    el.addEventListener("click", (e) => changePlan(e.currentTarget.dataset.changePlan));
   });
 }
 
@@ -490,6 +534,10 @@ function setDashLinks(visible, paid = false) {
   $$(".js-dash-link").forEach((el) => {
     if (el.classList.contains("js-feedback-link")) {
       el.hidden = !visible;
+      return;
+    }
+    if (el.classList.contains("js-forecasts-link")) {
+      el.hidden = !visible || !paid;
       return;
     }
     if (el.classList.contains("js-ainews-link")) {
@@ -550,6 +598,100 @@ function renderFreeView(signupRow) {
   setFreeEmailMsg("");
 }
 
+function formatUsd(n) {
+  if (!Number.isFinite(n)) return "—";
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `$${Math.round(n / 1000)}k`;
+  return `$${Math.round(n)}`;
+}
+
+function renderForecasts(forecasts) {
+  const panel = $("#forecastsPanel");
+  const loading = $("#forecastsLoading");
+  if (!panel) return;
+
+  if (!forecasts?.length) {
+    if (loading) loading.textContent = "No tracked release markets right now — check back soon.";
+    return;
+  }
+
+  if (loading) loading.hidden = true;
+  panel.innerHTML = forecasts.map((f) => {
+    const windows = (f.estimate?.windows ?? []).slice(0, 4);
+    const bars = windows.map((w) => {
+      const pct = Math.round(w.probability * 100);
+      return `<li class="forecast-bar">
+        <div class="forecast-bar__head"><span>${escapeHtml(w.label)}</span><strong>${pct}%</strong></div>
+        <div class="forecast-bar__track"><span style="width:${Math.max(4, pct)}%"></span></div>
+      </li>`;
+    }).join("");
+
+    const context = f.context
+      ? `<p class="forecast-card__context">${escapeHtml(f.context.slice(0, 420))}${f.context.length > 420 ? "…" : ""}</p>`
+      : "";
+
+    return `<article class="forecast-card">
+      <header class="forecast-card__head">
+        <div>
+          <p class="eyebrow">${escapeHtml(f.lab)}</p>
+          <h3>${escapeHtml(f.model)}</h3>
+        </div>
+        <span class="dash-pill dash-pill--${escapeHtml(f.estimate?.confidence || "medium")}">${escapeHtml(f.estimate?.confidence || "medium")} confidence</span>
+      </header>
+      <p class="forecast-card__headline">${escapeHtml(f.estimate?.headline || "")}</p>
+      <p class="forecast-card__summary">${escapeHtml(f.estimate?.summary || "")}</p>
+      ${context}
+      <ul class="forecast-bars">${bars}</ul>
+      <footer class="forecast-card__foot">
+        <span>${formatUsd(f.total_volume)} market volume</span>
+        <a href="${escapeHtml(f.polymarket_url)}" target="_blank" rel="noopener noreferrer">View on Polymarket ↗</a>
+      </footer>
+      <p class="forecast-card__disclaimer">${escapeHtml(f.disclaimer || "")}</p>
+    </article>`;
+  }).join("");
+}
+
+function showForecastsSection(signupRow) {
+  const section = $("#forecasts");
+  const lock = $("#forecastsLock");
+  const panel = $("#forecastsPanel");
+  if (!section) return;
+
+  const paid = isPaid(signupRow);
+  section.hidden = !paid;
+  if (!paid) return;
+
+  const unlocked = hasForecasts(signupRow);
+  if (lock) lock.hidden = unlocked;
+  if (panel) {
+    panel.hidden = !unlocked;
+    if (!unlocked && $("#forecastsLoading")) $("#forecastsLoading").hidden = true;
+  }
+  if (unlocked) loadForecasts();
+}
+
+async function loadForecasts() {
+  const loading = $("#forecastsLoading");
+  if (loading) {
+    loading.hidden = false;
+    loading.textContent = "Loading release estimates…";
+  }
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/dexlyywatch-forecasts`, {
+      method: "GET",
+      headers: await authHeaders(),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Could not load forecasts");
+    renderForecasts(data.forecasts);
+  } catch (err) {
+    if (loading) {
+      loading.hidden = false;
+      loading.textContent = err.message || "Forecasts unavailable right now.";
+    }
+  }
+}
+
 function renderSignup(signupRow) {
   signup = signupRow;
   const paid = isPaid(signupRow);
@@ -588,6 +730,7 @@ function renderSignup(signupRow) {
 
   setPaidFieldsEnabled(paid);
   renderBilling();
+  showForecastsSection(signupRow);
   showFeedbackPanel(true, signupRow.alert_email || signupRow.email || "");
   handleStatusParam();
 }

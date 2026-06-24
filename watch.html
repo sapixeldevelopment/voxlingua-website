@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="watch.css?v=20260623mockup" />
+  <link rel="stylesheet" href="watch.css?v=20260623ultra" />
 </head>
 <body class="page-watch">
   <a href="#main" class="skip-link">Skip to content</a>
@@ -293,14 +293,14 @@
         <div class="section-head section-head--center">
           <p class="eyebrow">Pricing</p>
           <h2 class="section-title">Pick how ready <em>you want to be.</em></h2>
-          <p class="section-lead">The first 200 Watch seats are free. After that, new watchers choose Pro or Squadron — the next big drop is always closer than you think.</p>
+          <p class="section-lead">The first 200 Watch seats are free. After that, choose Pro, Ultra, or Squadron — the next big drop is always closer than you think.</p>
           <div class="toggle" id="billing" role="tablist" aria-label="Billing period">
             <button class="toggle__btn is-active" data-cycle="monthly" role="tab" aria-selected="true">Monthly</button>
             <button class="toggle__btn" data-cycle="annual" role="tab" aria-selected="false">Annual <span class="toggle__save">2 months free</span></button>
           </div>
         </div>
 
-        <div class="plans plans--3">
+        <div class="plans plans--4">
           <article class="plan reveal">
             <span class="plan__cap">First 200 seats only</span>
             <h3 class="plan__name">Watch</h3>
@@ -315,11 +315,10 @@
               <li>No card, unsubscribe anytime</li>
             </ul>
             <button type="button" class="btn btn--line btn--block plan__cta js-free-cta" data-plan="watch">Claim free seat</button>
-            <p class="plan__note" id="freeSeatNote"><strong id="freeSeatsRemaining">200</strong> free seats left. Then Pro and Squadron only.</p>
+            <p class="plan__note" id="freeSeatNote"><strong id="freeSeatsRemaining">200</strong> free seats left. Then Pro, Ultra, or Squadron.</p>
           </article>
 
-          <article class="plan plan--featured reveal">
-            <span class="plan__ribbon">Most popular</span>
+          <article class="plan reveal">
             <h3 class="plan__name">Pro</h3>
             <p class="plan__tag">For engineers who need to be first</p>
             <div class="plan__price">
@@ -334,8 +333,27 @@
               <li>Private dashboard for alert settings</li>
               <li>SMS &amp; automated calls — <em>live for Pro</em></li>
             </ul>
-            <button type="button" class="btn btn--solid btn--block plan__cta" data-plan="pro">Get Pro</button>
+            <button type="button" class="btn btn--line btn--block plan__cta" data-plan="pro">Get Pro</button>
             <p class="plan__note">Launch pricing · email alerts live now · cancel anytime.</p>
+          </article>
+
+          <article class="plan plan--featured reveal">
+            <span class="plan__ribbon">Data-driven</span>
+            <h3 class="plan__name">Ultra</h3>
+            <p class="plan__tag">For builders planning around the next drop</p>
+            <div class="plan__price">
+              <span class="plan__cur">$</span><span class="plan__amt" data-monthly="9" data-annual="8">9</span><span class="plan__per" data-monthly="/ month" data-annual="/ mo, billed yearly">/ month</span>
+            </div>
+            <ul class="plan__list">
+              <li><strong>Everything in Pro</strong></li>
+              <li><strong>Release radar</strong> — estimated drop windows (e.g. GPT-5.6)</li>
+              <li>Polymarket odds + lab cadence — not random guesses</li>
+              <li>Marginal probability bands with methodology</li>
+              <li>Updated on a schedule — estimates, not guarantees</li>
+              <li>Plan sprints before the frontier moves</li>
+            </ul>
+            <button type="button" class="btn btn--solid btn--block plan__cta" data-plan="ultra">Get Ultra</button>
+            <p class="plan__note">Forecasts are directional — always wait for official lab news.</p>
           </article>
 
           <article class="plan reveal">
@@ -345,7 +363,7 @@
               <span class="plan__cur">$</span><span class="plan__amt" data-monthly="15" data-annual="13">15</span><span class="plan__per" data-monthly="/ month" data-annual="/ mo, billed yearly">/ month</span>
             </div>
             <ul class="plan__list">
-              <li>Everything in Pro, up to <strong>10 seats</strong></li>
+              <li>Everything in Ultra, up to <strong>10 seats</strong></li>
               <li>Shared team watchlist &amp; routing rules</li>
               <li>Slack &amp; webhook delivery</li>
               <li>Alert API for your own tooling</li>
