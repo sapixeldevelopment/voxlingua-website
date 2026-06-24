@@ -608,87 +608,121 @@ function formatUsd(n) {
 let forecastBundle = null;
 let forecastLabFilter = "all";
 let forecastSearchQuery = "";
+let forecastActiveTab = "markets";
+let forecastExpandedSlug = null;
+let forecastSearchDebounce = null;
 
-function statusLabel(status) {
-  if (status === "released") return "Released";
-  if (status === "thin") return "Thin market";
-  return "Tracking";
+const LAB_ICON_CLASS = {
+  ChatGPT: "pm-icon--openai",
+  Claude: "pm-icon--anthropic",
+  Gemini: "pm-icon--google",
+  Grok: "pm-icon--xai",
+  Kimi: "pm-icon--moonshot",
+  Meta: "pm-icon--meta",
+  DeepSeek: "pm-icon--deepseek",
+  Qwen: "pm-icon--qwen",
+  NVIDIA: "pm-icon--nvidia",
+  GLM: "pm-icon--zhipu",
+  MiniMax: "pm-icon--minimax",
+  Cursor: "pm-icon--cursor",
+};
+
+function labIconClass(chip) {
+  return LAB_ICON_CLASS[chip] || "pm-icon--default";
 }
 
-function statusPillClass(status) {
-  if (status === "released") return "dash-pill--muted";
-  if (status === "thin") return "dash-pill--warn";
-  return "dash-pill--live";
+function formatPct(p) {
+  if (!Number.isFinite(p)) return "—";
+  return `${Math.round(p * 100)}%`;
 }
 
-function renderForecastCard(f) {
-  const windows = (f.estimate?.windows ?? []).slice(0, 4);
-  const bars = windows.length
-    ? windows.map((w) => {
-        const pct = Math.round(w.probability * 100);
-        return `<li class="forecast-bar">
-        <div class="forecast-bar__head"><span>${escapeHtml(w.label)}</span><strong>${pct}%</strong></div>
-        <div class="forecast-bar__track"><span style="width:${Math.max(4, pct)}%"></span></div>
-      </li>`;
-      }).join("")
-    : `<li class="forecast-bar forecast-bar--empty"><span class="forecast-bar__head">No marginal window — see headline for cumulative odds.</span></li>`;
-
-  const context = f.context
-    ? `<p class="forecast-card__context">${escapeHtml(f.context.slice(0, 320))}${f.context.length > 320 ? "…" : ""}</p>`
-    : "";
-
-  return `<article class="forecast-card" data-lab="${escapeHtml(f.lab)}" data-model="${escapeHtml(f.model.toLowerCase())}">
-      <header class="forecast-card__head">
-        <div>
-          <p class="eyebrow">${escapeHtml(f.lab)}</p>
-          <h3>${escapeHtml(f.model)}</h3>
-        </div>
-        <div class="forecast-card__badges">
-          <span class="dash-pill ${statusPillClass(f.status)}">${escapeHtml(statusLabel(f.status))}</span>
-          <span class="dash-pill dash-pill--${escapeHtml(f.estimate?.confidence || "medium")}">${escapeHtml(f.estimate?.confidence || "medium")}</span>
-        </div>
-      </header>
-      <p class="forecast-card__headline">${escapeHtml(f.estimate?.headline || "")}</p>
-      <p class="forecast-card__summary">${escapeHtml(f.estimate?.summary || "")}</p>
-      ${context}
-      <ul class="forecast-bars">${bars}</ul>
-      <footer class="forecast-card__foot">
-        <span>${formatUsd(f.total_volume)} market volume</span>
-        <a href="${escapeHtml(f.polymarket_url)}" target="_blank" rel="noopener noreferrer">View on Polymarket ↗</a>
-      </footer>
-      <p class="forecast-card__disclaimer">${escapeHtml(f.disclaimer || "")}</p>
-    </article>`;
-}
-
-function filteredForecasts() {
-  if (!forecastBundle?.forecasts) return [];
+function filteredMarkets() {
+  if (!forecastBundle?.markets) return [];
   const q = forecastSearchQuery.trim().toLowerCase();
-  return forecastBundle.forecasts.filter((f) => {
-    if (forecastLabFilter !== "all" && f.lab !== forecastLabFilter) return false;
+  return forecastBundle.markets.filter((m) => {
+    if (forecastLabFilter !== "all" && m.lab_chip !== forecastLabFilter) return false;
     if (!q) return true;
-    const hay = `${f.model} ${f.lab} ${f.event_title}`.toLowerCase();
+    const hay = `${m.title} ${m.model} ${m.lab} ${m.lab_chip} ${m.subtitle}`.toLowerCase();
     return hay.includes(q);
   });
 }
 
+function forecastBySlug(slug) {
+  return forecastBundle?.forecasts?.find((f) => f.slug === slug) ?? null;
+}
+
+function renderMarketDetail(f) {
+  if (!f) return "";
+  const windows = (f.estimate?.windows ?? []).slice(0, 4);
+  const bars = windows.map((w) => {
+    const pct = Math.round(w.probability * 100);
+    return `<li class="forecast-bar">
+      <div class="forecast-bar__head"><span>${escapeHtml(w.label)}</span><strong>${pct}%</strong></div>
+      <div class="forecast-bar__track"><span style="width:${Math.max(4, pct)}%"></span></div>
+    </li>`;
+  }).join("");
+  return `<div class="pm-detail">
+    <p class="pm-detail__summary">${escapeHtml(f.estimate?.summary || "")}</p>
+    ${bars ? `<ul class="forecast-bars">${bars}</ul>` : ""}
+    <p class="pm-detail__foot">${formatUsd(f.total_volume)} volume · <a href="${escapeHtml(f.polymarket_url)}" target="_blank" rel="noopener noreferrer">Open on Polymarket ↗</a></p>
+  </div>`;
+}
+
+function renderMarketRow(m) {
+  const expanded = forecastExpandedSlug === m.slug;
+  const detail = expanded ? renderMarketDetail(forecastBySlug(m.slug)) : "";
+  const iconClass = labIconClass(m.lab_chip);
+  const initial = m.lab_chip.slice(0, 1);
+
+  return `<li class="pm-market${expanded ? " is-expanded" : ""}" data-slug="${escapeHtml(m.slug)}">
+    <button type="button" class="pm-market__row" aria-expanded="${expanded}">
+      <span class="pm-icon ${iconClass}" aria-hidden="true">${escapeHtml(initial)}</span>
+      <span class="pm-market__title">${escapeHtml(m.title)}</span>
+      <span class="pm-market__odds">
+        <strong>${formatPct(m.probability)}</strong>
+        <span>${escapeHtml(m.subtitle)}</span>
+      </span>
+    </button>
+    ${detail}
+  </li>`;
+}
+
 function renderForecastFilters() {
   const toolbar = $("#forecastsToolbar");
+  const searchWrap = $("#forecastsSearchWrap");
   const filters = $("#forecastsFilters");
   if (!toolbar || !filters || !forecastBundle) return;
 
-  const labs = ["all", ...(forecastBundle.meta?.labs ?? [])];
+  if (searchWrap) searchWrap.hidden = false;
   toolbar.hidden = false;
-  filters.innerHTML = labs.map((lab) => {
-    const active = lab === forecastLabFilter;
-    const label = lab === "all" ? "All labs" : lab;
-    return `<button type="button" class="forecasts__chip${active ? " is-active" : ""}" data-lab="${escapeHtml(lab)}" role="tab" aria-selected="${active}">${escapeHtml(label)}</button>`;
+
+  const chips = ["all", ...(forecastBundle.meta?.lab_chips ?? forecastBundle.meta?.labs ?? [])];
+  filters.innerHTML = chips.map((chip) => {
+    const active = chip === forecastLabFilter;
+    const label = chip === "all" ? "All" : chip;
+    return `<button type="button" class="forecasts__chip${active ? " is-active" : ""}" data-lab="${escapeHtml(chip)}" role="tab" aria-selected="${active}">${escapeHtml(label)}</button>`;
   }).join("");
 
   filters.querySelectorAll(".forecasts__chip").forEach((btn) => {
     btn.addEventListener("click", () => {
       forecastLabFilter = btn.dataset.lab || "all";
       renderForecastFilters();
-      renderForecastCards();
+      renderMarketList();
+    });
+  });
+
+  toolbar.querySelectorAll(".forecasts__tab").forEach((btn) => {
+    if (btn.dataset.bound) return;
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", () => {
+      forecastActiveTab = btn.dataset.tab || "markets";
+      toolbar.querySelectorAll(".forecasts__tab").forEach((t) => {
+        const on = t.dataset.tab === forecastActiveTab;
+        t.classList.toggle("is-active", on);
+        t.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      renderMarketList();
+      renderWatchlist();
     });
   });
 }
@@ -698,8 +732,7 @@ function renderForecastMeta() {
   if (!el || !forecastBundle?.meta) return;
   const m = forecastBundle.meta;
   const parts = [
-    `${m.active_count} active market${m.active_count === 1 ? "" : "s"}`,
-    m.watchlist_count ? `${m.watchlist_count} on watchlist` : null,
+    m.query ? `Results for “${m.query}”` : `${m.market_count ?? m.active_count} markets`,
     m.accuracy?.label ? m.accuracy.label : null,
   ].filter(Boolean);
   el.hidden = false;
@@ -710,13 +743,20 @@ function renderForecastMeta() {
 function renderWatchlist() {
   const section = $("#forecastsWatchlist");
   const grid = $("#forecastsWatchlistGrid");
+  const panel = $("#forecastsPanel");
   const items = forecastBundle?.watchlist ?? [];
   if (!section || !grid) return;
-  if (!items.length) {
-    section.hidden = true;
+
+  const showWatchTab = forecastActiveTab === "watchlist";
+  section.hidden = !showWatchTab;
+  if (panel) panel.hidden = showWatchTab;
+
+  if (!showWatchTab || !items.length) {
+    if (showWatchTab && panel) panel.hidden = true;
+    if (!items.length) section.hidden = true;
     return;
   }
-  section.hidden = false;
+
   grid.innerHTML = items.map((w) => `
     <li class="forecast-watch">
       <p class="eyebrow">${escapeHtml(w.lab)}</p>
@@ -726,52 +766,62 @@ function renderWatchlist() {
   `).join("");
 }
 
-function renderForecastCards() {
+function renderMarketList() {
   const panel = $("#forecastsPanel");
   const loading = $("#forecastsLoading");
+  const section = $("#forecastsWatchlist");
   if (!panel) return;
 
-  const list = filteredForecasts();
-  if (!list.length) {
-    if (loading) {
-      loading.hidden = false;
-      loading.textContent = forecastSearchQuery || forecastLabFilter !== "all"
-        ? "No models match that filter."
-        : "No tracked release markets right now — check back soon.";
-    }
-    panel.querySelectorAll(".forecast-card").forEach((n) => n.remove());
+  if (forecastActiveTab === "watchlist") {
+    renderWatchlist();
     return;
   }
 
-  if (loading) loading.hidden = true;
-  panel.innerHTML = `<div class="forecasts__grid">${list.map(renderForecastCard).join("")}</div>`;
+  if (section) section.hidden = true;
+  panel.hidden = false;
+
+  const list = filteredMarkets();
+  if (!list.length) {
+    panel.innerHTML = `<p class="dash-message">${forecastSearchQuery || forecastLabFilter !== "all"
+      ? "No markets match — try another search or filter."
+      : "No tracked release markets right now."}</p>`;
+    return;
+  }
+  panel.innerHTML = `<ul class="pm-markets">${list.map(renderMarketRow).join("")}</ul>`;
+
+  panel.querySelectorAll(".pm-market__row").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const slug = btn.closest(".pm-market")?.dataset.slug;
+      forecastExpandedSlug = forecastExpandedSlug === slug ? null : slug;
+      renderMarketList();
+    });
+  });
 }
 
 function renderForecasts(bundle) {
   forecastBundle = bundle;
-  forecastLabFilter = "all";
-  forecastSearchQuery = "";
+  forecastExpandedSlug = null;
 
   const search = $("#forecastsSearch");
   if (search && !search.dataset.bound) {
     search.dataset.bound = "1";
     search.addEventListener("input", () => {
       forecastSearchQuery = search.value;
-      renderForecastCards();
+      clearTimeout(forecastSearchDebounce);
+      forecastSearchDebounce = setTimeout(() => loadForecasts(forecastSearchQuery), 350);
     });
   }
-  if (search) search.value = "";
 
-  if (!bundle?.forecasts?.length && !bundle?.watchlist?.length) {
+  if (!bundle?.markets?.length && !bundle?.watchlist?.length) {
     const loading = $("#forecastsLoading");
-    if (loading) loading.textContent = "No tracked release markets right now — check back soon.";
+    if (loading) loading.textContent = "No tracked release markets right now.";
     return;
   }
 
   renderForecastMeta();
   renderForecastFilters();
-  renderForecastCards();
-  renderWatchlist();
+  renderMarketList();
+  if (forecastActiveTab === "watchlist") renderWatchlist();
 }
 
 function showForecastsSection(signupRow) {
@@ -793,19 +843,24 @@ function showForecastsSection(signupRow) {
   if (unlocked) loadForecasts();
 }
 
-async function loadForecasts() {
+async function loadForecasts(searchOverride) {
   const loading = $("#forecastsLoading");
+  const q = (searchOverride ?? forecastSearchQuery ?? "").trim();
   if (loading) {
     loading.hidden = false;
-    loading.textContent = "Loading release estimates…";
+    loading.textContent = q ? "Searching Polymarket…" : "Loading release markets…";
   }
   try {
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/dexlyywatch-forecasts`, {
+    const url = q
+      ? `${SUPABASE_URL}/functions/v1/dexlyywatch-forecasts?q=${encodeURIComponent(q)}`
+      : `${SUPABASE_URL}/functions/v1/dexlyywatch-forecasts`;
+    const res = await fetch(url, {
       method: "GET",
       headers: await authHeaders(),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || "Could not load forecasts");
+    if (q) forecastSearchQuery = q;
     renderForecasts(data);
   } catch (err) {
     if (loading) {

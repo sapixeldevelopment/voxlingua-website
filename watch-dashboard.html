@@ -271,11 +271,17 @@
       <div class="section-head section-head--center">
         <p class="eyebrow">Release radar</p>
         <h2 class="section-title">When might the <em>next model</em> land?</h2>
-        <p class="section-lead">Ultra tracks every active Polymarket “released by” market we can find — marginal odds between dates, not random guesses. Directional only; labs can slip.</p>
+        <p class="section-lead">Search Polymarket release markets live — same odds traders see, plus DexlyyWatch window analysis when you expand a row.</p>
+      </div>
+      <div class="forecasts__search-wrap" id="forecastsSearchWrap" hidden>
+        <input class="forecasts__search forecasts__search--hero" id="forecastsSearch" type="search" placeholder="Search models (GPT-5.6, Opus, Grok…)" autocomplete="off" spellcheck="false" />
       </div>
       <div class="forecasts__toolbar" id="forecastsToolbar" hidden>
+        <div class="forecasts__tabs" role="tablist" aria-label="Release radar views">
+          <button type="button" class="forecasts__tab is-active" data-tab="markets" role="tab" aria-selected="true">Markets</button>
+          <button type="button" class="forecasts__tab" data-tab="watchlist" role="tab" aria-selected="false">On radar</button>
+        </div>
         <div class="forecasts__filters" id="forecastsFilters" role="tablist" aria-label="Filter by lab"></div>
-        <input class="forecasts__search" id="forecastsSearch" type="search" placeholder="Search models…" autocomplete="off" />
       </div>
       <p class="forecasts__meta" id="forecastsMeta" hidden></p>
       <div class="forecasts__shell" id="forecastsPanel">
