@@ -6,12 +6,13 @@
   <title>DexlyyWatch Dashboard</title>
   <meta name="description" content="Manage DexlyyWatch alert destinations and compare frontier AI models side by side." />
   <link rel="canonical" href="https://dexlyy.com/watch-dashboard.html" />
-  <meta name="theme-color" content="#120e0a" />
+  <meta name="theme-color" content="#070605" />
   <link rel="icon" type="image/png" href="logo-mark.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="watch.css?v=20260623ultra" />
+  <link rel="stylesheet" href="watch-app.css?v=20260625premium" />
 </head>
 <body class="dash-page">
   <a href="#main" class="skip-link">Skip to content</a>
@@ -49,11 +50,11 @@
 
   <main id="main" class="dash">
     <section class="dash-hero">
-      <p class="eyebrow"><span class="live-dot"></span> Watch command room</p>
+      <p class="eyebrow"><span class="live-dot"></span> Command room</p>
       <div class="dash-hero__grid">
         <div>
           <h1 class="dash-hero__title">Your frontier alert console.</h1>
-          <p class="dash-hero__sub">Confirm where drops land, tune lab filters, get Pro <strong>AI news</strong> (Codex, ChatGPT, API updates), and compare models side by side — email, SMS, and voice alerts are live on paid plans.</p>
+          <p class="dash-hero__sub">Set where drops land, tune lab filters, get Pro <strong>AI news</strong>, and compare models side by side — email, SMS, and voice on paid plans.</p>
         </div>
         <aside class="dash-status" aria-live="polite">
           <div class="dash-status__top">
@@ -75,21 +76,21 @@
 
     <section class="dash-auth" id="loadingPanel">
       <div class="dash-card">
-        <p class="eyebrow">DexlyyWatch account</p>
-        <h2>Loading your dashboard.</h2>
-        <p id="loadingMsg">Checking your signed-in session and preparing your Watch profile...</p>
+        <p class="eyebrow">DexlyyWatch</p>
+        <h2>Loading your console.</h2>
+        <p id="loadingMsg">Checking your session and preparing your alert profile…</p>
       </div>
     </section>
 
     <section class="dash-auth" id="authPanel" hidden>
       <div class="dash-card dash-card--auth">
-        <p class="eyebrow">DexlyyWatch account</p>
-        <h2>Sign in or claim a free Watch seat.</h2>
-        <p>The free Watch tier is limited to the first 200 seats. Once those are claimed, new users can join through Pro or Squadron.</p>
+        <p class="eyebrow">DexlyyWatch</p>
+        <h2>Sign in or start free.</h2>
+        <p>Free Watch includes every major drop by email. Upgrade anytime for instant alerts, AI news, and the full brief.</p>
 
         <div class="dash-auth__tabs" role="tablist">
           <button type="button" class="is-active" data-auth-tab="signin" role="tab">Sign in</button>
-          <button type="button" data-auth-tab="signup" role="tab">Sign up</button>
+          <button type="button" data-auth-tab="signup" role="tab">Create account</button>
         </div>
 
         <div id="authSignin">
@@ -116,14 +117,14 @@
             <span>Password</span>
             <input id="signupPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" />
           </label>
-          <button class="btn btn--solid btn--block" id="signUpBtn" type="button">Claim free seat</button>
+          <button class="btn btn--solid btn--block" id="signUpBtn" type="button">Start free</button>
         </div>
 
         <div class="dash-auth__divider">or</div>
         <button class="btn btn--line btn--block" id="googleBtn" type="button">Continue with Google</button>
 
         <p class="dash-message" id="authMsg" role="status"></p>
-        <p class="dash-note">Paid plans stay open after the 200 free Watch seats are gone. <a href="watch.html#pricing">View pricing</a>.</p>
+        <p class="dash-note">No card required. <a href="watch.html#pricing">Compare plans</a> when you need more speed.</p>
       </div>
     </section>
 
@@ -361,6 +362,6 @@
     </section>
   </main>
 
-  <script type="module" src="watch-dashboard.js?v=20260623ultra"></script>
+  <script type="module" src="watch-dashboard.js?v=20260625premium"></script>
 </body>
 </html>

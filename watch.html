@@ -4,23 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DexlyyWatch — know the moment the frontier moves</title>
-  <meta name="description" content="DexlyyWatch is a live radar for every major AI lab. The instant a new model ships — OpenAI, Anthropic, Google, xAI, Meta, DeepSeek, Mistral, Qwen and more — you get alerted first, with a day-zero benchmark snapshot and a side-by-side comparison." />
+  <meta name="description" content="DexlyyWatch monitors 12+ AI labs every 60 seconds. Get more than an alert — day-zero specs, benchmark snapshots, and side-by-side comparisons the minute a frontier model ships. Free to start." />
 
   <meta property="og:title" content="DexlyyWatch — one radar for every AI lab" />
-  <meta property="og:description" content="Get alerted the instant any frontier model drops, with day-zero benchmarks and side-by-side comparisons." />
+  <meta property="og:description" content="More than a model alert — day-zero specs, benchmarks, and side-by-side comparisons the minute a frontier model ships. Free to start." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://dexlyy.com/watch.html" />
   <link rel="canonical" href="https://dexlyy.com/watch.html" />
   <meta property="og:image" content="https://dexlyy.com/assets/watch-product-mockup.png" />
-  <meta name="theme-color" content="#120e0a" />
+  <meta name="theme-color" content="#070605" />
   <link rel="icon" type="image/png" href="logo-mark.png" />
   <link rel="apple-touch-icon" href="logo-mark.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="watch.css?v=20260623ultra" />
+  <link rel="stylesheet" href="watch-landing.css?v=20260625premium" />
 </head>
 <body class="page-watch">
   <a href="#main" class="skip-link">Skip to content</a>
@@ -54,19 +55,17 @@
       </a>
 
       <nav class="nav__links" aria-label="Primary">
-        <a href="index.html">DexlyyAI</a>
+        <a href="#edge">Why us</a>
         <a href="#how">How it works</a>
         <a href="#coverage">Coverage</a>
-        <a href="#request-lab">Request a source</a>
         <a href="#drops">Recent drops</a>
         <a href="#pricing">Pricing</a>
         <a href="watch-dashboard.html" id="navDashboardLink">Dashboard</a>
-        <a href="#faq">FAQ</a>
       </nav>
 
       <div class="nav__cta" id="navCta">
         <a href="watch-dashboard.html" class="btn btn--line" id="navSignIn">Sign in</a>
-        <a href="watch-dashboard.html?tab=signup" class="btn btn--solid js-free-cta" id="navSignUp">Claim free seat</a>
+        <a href="watch-dashboard.html?tab=signup" class="btn btn--solid js-free-cta" id="navSignUp">Start free</a>
       </div>
 
       <button class="nav__burger" id="burger" aria-label="Menu" aria-expanded="false">
@@ -83,42 +82,75 @@
 
       <div class="hero__inner">
         <div class="hero__copy">
-          <p class="eyebrow"><span class="live-dot"></span> Live model radar · 12+ labs</p>
+          <p class="eyebrow"><span class="live-dot"></span> Live frontier radar · 12+ labs</p>
           <h1 class="hero__title">
-            Be first when the <span class="hero__title-em">frontier</span> shifts.
+            The alert that comes with <span class="hero__title-em">answers.</span>
           </h1>
           <p class="hero__sub">
-            Models ship in silence — a changelog line, an API id that starts answering. <strong>DexlyyWatch</strong> monitors every major lab around the clock and fires the alert, benchmark snapshot, and side-by-side comparison the minute something new lands.
+            Basic model alerts tell you something shipped. DexlyyWatch tells you what it means — specs, pricing, context window, and how it stacks up against what you run today.
+            <span class="hero__lead-strong">One brief. Under three minutes. Ready to act on.</span>
           </p>
 
           <ul class="hero__stats" aria-label="Key metrics">
             <li><strong>60s</strong><span>poll cycle</span></li>
             <li><strong>12+</strong><span>labs tracked</span></li>
-            <li><strong>&lt;3 min</strong><span>typical alert</span></li>
+            <li><strong>&lt;3m</strong><span>Pro alert</span></li>
           </ul>
 
           <div class="hero__cta">
-            <a href="watch-dashboard.html" class="btn btn--solid btn--lg js-free-cta">Claim free seat</a>
-            <a href="#pricing" class="btn btn--ghost btn--lg">See Pro plans</a>
+            <a href="watch-dashboard.html" class="btn btn--solid btn--lg js-free-cta">Start watching free</a>
+            <a href="#edge" class="btn btn--ghost btn--lg">See the difference</a>
             <div class="hero__cta-foot">
               <div class="hero__proof" aria-live="polite">
                 <span class="hero__proof-live" aria-hidden="true"></span>
-                <div class="hero__faces" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-                <p class="hero__proof-text"><strong id="watchCount">6,200</strong> watching live</p>
+                <p class="hero__proof-text"><strong id="watchCount">6,200</strong> builders on the radar</p>
               </div>
             </div>
           </div>
         </div>
 
         <div class="hero__visual">
+          <div class="brief-preview" aria-hidden="true">
+            <div class="brief-preview__glow"></div>
+            <div class="brief-preview__chrome">
+              <div class="brief-preview__dots"><i></i><i></i><i></i></div>
+              <span class="brief-preview__title">dexlyywatch · drop brief</span>
+            </div>
+            <div class="brief-preview__body">
+              <div class="brief-preview__alert">
+                <div class="brief-preview__alert-top">
+                  <span class="brief-preview__badge">Breaking · confirmed</span>
+                  <span class="brief-preview__time">just now</span>
+                </div>
+                <p class="brief-preview__model">claude-opus-4-8</p>
+                <ul class="brief-preview__specs">
+                  <li><strong>1M</strong><span>context</span></li>
+                  <li><strong>128k</strong><span>max out</span></li>
+                  <li><strong>$15</strong><span>/ M in</span></li>
+                </ul>
+              </div>
+              <div class="brief-preview__compare">
+                <p class="brief-preview__compare-label">Side-by-side · day zero</p>
+                <div class="brief-preview__bars">
+                  <div class="brief-preview__bar brief-preview__bar--new">
+                    <span>Opus 4.8</span><i></i><em>94</em>
+                  </div>
+                  <div class="brief-preview__bar brief-preview__bar--old">
+                    <span>Opus 4.6</span><i></i><em>78</em>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <aside class="radar" aria-label="Frontier radar — labs currently monitored">
             <div class="radar__scan" aria-hidden="true"></div>
             <div class="radar__head">
               <div class="radar__title">
                 <span class="radar__pulse" aria-hidden="true"></span>
-                Frontier radar
+                Live sweep
               </div>
-              <span class="radar__poll">polling every 60s</span>
+              <span class="radar__poll">every 60s</span>
             </div>
 
             <ul class="radar__list" id="radarList"><!-- rows injected --></ul>
@@ -153,12 +185,62 @@
       </div>
     </section>
 
+    <!-- ===== Why DexlyyWatch ===== -->
+    <section class="edge" id="edge">
+      <div class="edge__shell">
+        <div class="section-head section-head--center">
+          <p class="eyebrow">Beyond basic alerts</p>
+          <h2 class="section-title">A ping is not a <em>brief.</em></h2>
+          <p class="section-lead">Email-only release alerts — like <a href="https://modelalert.ai/" rel="noopener noreferrer">ModelAlert</a> and similar digests — tell you something happened. DexlyyWatch is built for the three minutes after: specs, comparison, and whether to switch.</p>
+        </div>
+
+        <div class="edge-table reveal" role="table" aria-label="DexlyyWatch compared to basic email alerts">
+          <div class="edge-table__head" role="row">
+            <div role="columnheader"></div>
+            <div role="columnheader">Typical alert service</div>
+            <div class="edge-table__dexlyy" role="columnheader">DexlyyWatch</div>
+          </div>
+          <div class="edge-table__row" role="row">
+            <div class="edge-table__feature" role="rowheader">Speed to inbox</div>
+            <div class="edge-table__basic" role="cell">Hours · batched digest</div>
+            <div class="edge-table__dexlyy" role="cell"><strong>&lt;3 min</strong> on Pro</div>
+          </div>
+          <div class="edge-table__row" role="row">
+            <div class="edge-table__feature" role="rowheader">Labs monitored</div>
+            <div class="edge-table__basic" role="cell">Varies · often manual</div>
+            <div class="edge-table__dexlyy" role="cell"><strong>12+</strong> · 60s API sweep</div>
+          </div>
+          <div class="edge-table__row" role="row">
+            <div class="edge-table__feature" role="rowheader">What you receive</div>
+            <div class="edge-table__basic" role="cell">Subject line + link</div>
+            <div class="edge-table__dexlyy" role="cell"><strong>Day-zero brief</strong> · pricing &amp; specs</div>
+          </div>
+          <div class="edge-table__row" role="row">
+            <div class="edge-table__feature" role="rowheader">Decision support</div>
+            <div class="edge-table__basic" role="cell">Read the thread yourself</div>
+            <div class="edge-table__dexlyy" role="cell"><strong>Side-by-side</strong> model compare</div>
+          </div>
+          <div class="edge-table__row" role="row">
+            <div class="edge-table__feature" role="rowheader">Plan the next drop</div>
+            <div class="edge-table__basic" role="cell">—</div>
+            <div class="edge-table__dexlyy" role="cell"><strong>Release radar</strong> · Ultra tier</div>
+          </div>
+          <div class="edge-table__row" role="row">
+            <div class="edge-table__feature" role="rowheader">When you're away</div>
+            <div class="edge-table__basic" role="cell">Email only</div>
+            <div class="edge-table__dexlyy" role="cell"><strong>SMS &amp; voice</strong> · Pro+</div>
+          </div>
+        </div>
+        <p class="edge__note">Free to start · no card · upgrade only when speed matters.</p>
+      </div>
+    </section>
+
     <!-- ===== What you get ===== -->
     <section class="features" id="what">
       <div class="section-head section-head--center">
         <p class="eyebrow">What you get</p>
-        <h2 class="section-title">Not just a ping. <em>The whole brief.</em></h2>
-        <p class="section-lead">A model is only an advantage if you act before the thread fills up. Three deliverables land together the moment the radar trips.</p>
+          <h2 class="section-title">Not just a ping. <em>The whole brief.</em></h2>
+          <p class="section-lead">Three deliverables land together the moment we confirm a release — so you're not scrambling through changelogs while everyone else posts takes.</p>
       </div>
 
       <div class="feature-grid">
@@ -312,7 +394,7 @@
               <li>Full coverage &amp; recent-drops feed</li>
               <li>No card, unsubscribe anytime</li>
             </ul>
-            <button type="button" class="btn btn--line btn--block plan__cta js-free-cta" data-plan="watch">Join free</button>
+            <button type="button" class="btn btn--line btn--block plan__cta js-free-cta" data-plan="watch">Start free</button>
             <p class="plan__note plan__note--live" id="freeSeatNote">
               <span id="freeSeatLive"><strong id="planWatchCount">6,200</strong> watching live</span>
               <span id="freeSeatFull" hidden>Free tier full · paid plans open</span>
@@ -402,6 +484,9 @@
           <h2 class="section-title">The honest answers.</h2>
         </div>
         <div class="faq__list">
+          <details class="faq__item"><summary>How is this different from a basic model alert email?<span class="faq__plus"></span></summary>
+            <p>Services like email digests tell you <em>a model dropped</em>. DexlyyWatch sends a <em>brief</em>: confirmed release, launch specs, pricing, API id, and a side-by-side against models you care about — plus optional SMS, release radar on Ultra, and a full dashboard.</p>
+          </details>
           <details class="faq__item"><summary>What does DexlyyWatch actually watch?<span class="faq__plus"></span></summary>
             <p>The public model surface of every major lab — <em>OpenAI, Anthropic, Google, xAI, Meta, DeepSeek, Mistral and Alibaba (Qwen)</em>, plus emerging players like Moonshot, Zhipu and MiniMax. We check APIs, model registries and changelogs continuously and confirm a release before alerting.</p>
           </details>
@@ -435,10 +520,10 @@
         <h2 class="final__title">Never be the <em>last to know.</em></h2>
         <p class="final__sub">Join thousands of builders tracking every frontier model drop — free to start, upgrade when you need more speed.</p>
         <div class="final__actions">
-          <a href="watch-dashboard.html" class="btn btn--solid btn--lg js-free-cta">Claim free seat</a>
+          <a href="watch-dashboard.html" class="btn btn--solid btn--lg js-free-cta">Start watching free</a>
           <a href="#pricing" class="btn btn--line btn--lg btn--on-dark">Compare plans</a>
         </div>
-        <p class="join__note" id="ctaNote">Join free · every major drop · sign in from your dashboard.</p>
+        <p class="join__note" id="ctaNote">Free forever · every major drop · dashboard included.</p>
       </div>
     </section>
   </main>
@@ -463,6 +548,7 @@
       </div>
       <div class="footer__col">
         <h4>Product</h4>
+        <a href="#edge">Why us</a>
         <a href="#what">What you get</a>
         <a href="#coverage">Coverage</a>
         <a href="#drops">Recent drops</a>
@@ -487,7 +573,7 @@
     </div>
   </footer>
 
-  <a href="watch-dashboard.html" class="sticky-cta js-free-cta" id="stickyCta">Claim free seat</a>
+  <a href="watch-dashboard.html" class="sticky-cta js-free-cta" id="stickyCta">Start free</a>
 
   <!-- ===== Detected toast ===== -->
   <div class="toast" id="toast" role="status" aria-live="polite">
@@ -499,6 +585,6 @@
     <a href="#drops" class="toast__cta">View →</a>
   </div>
 
-  <script src="watch.js?v=20260620n"></script>
+  <script src="watch.js?v=20260625premium"></script>
 </body>
 </html>

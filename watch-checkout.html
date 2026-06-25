@@ -4,52 +4,45 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Checkout — DexlyyWatch</title>
-  <meta name="description" content="Upgrade to DexlyyWatch Pro or Squadron — be alerted first the moment any AI model drops." />
+  <meta name="description" content="Upgrade to DexlyyWatch Pro, Ultra, or Squadron — be alerted first the moment any AI model drops." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="canonical" href="https://dexlyy.com/watch-checkout.html" />
   <link rel="icon" type="image/png" href="logo-mark.png" />
-  <link rel="stylesheet" href="watch.css?v=20260620g" />
-  <style>
-    .co { max-width: 480px; margin: 0 auto; padding: 8rem 1.5rem 5rem; }
-    .co__card { background: var(--ink-2); border: 1px solid var(--line-2); border-radius: var(--radius); padding: 2rem 1.8rem; box-shadow: var(--sh-lg); position: relative; overflow: hidden; }
-    .co__card::before { content:""; position:absolute; inset:0 0 auto 0; height:3px; background:var(--grad); }
-    .co__eyebrow { font-size:.78rem; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); font-weight:700; }
-    .co__title { font-family:var(--serif); font-weight:400; font-size:2rem; letter-spacing:-.02em; margin:.4rem 0 .2rem; }
-    .co__tag { color:var(--muted); font-size:.95rem; margin-bottom:1.4rem; }
-    .co__price { display:flex; align-items:baseline; gap:.15rem; margin:1.2rem 0 .35rem; }
-    .co__cur { font-size:1.2rem; color:var(--muted); align-self:flex-start; margin-top:.4rem; font-weight:600; }
-    .co__amt { font-family:var(--serif); font-size:3rem; line-height:.9; letter-spacing:-.02em; }
-    .co__per { color:var(--muted); font-size:.9rem; margin-left:.3rem; }
-    .co__total { font-size:.92rem; font-weight:600; color:var(--paper); margin:0 0 1.2rem; }
-    .co__list { list-style:none; margin:0 0 1.6rem; display:flex; flex-direction:column; gap:.55rem; }
-    .co__list li { font-size:.92rem; padding-left:1.6rem; position:relative; color:var(--paper); }
-    .co__list li::before { content:''; position:absolute; left:0; top:.32em; width:13px; height:7px; border-left:2px solid var(--amber); border-bottom:2px solid var(--rust); transform:rotate(-45deg); }
-    .co__field { text-align:left; margin-bottom:1rem; }
-    .co__field label { display:block; font-size:.82rem; font-weight:600; margin-bottom:.4rem; color:var(--paper); }
-    .co__field input { width:100%; padding:.85rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--line-2); background:var(--ink-3); color:var(--paper); font:inherit; outline:none; }
-    .co__msg { margin-top:1rem; font-size:.9rem; min-height:1.3em; color:var(--muted); line-height:1.5; }
-    .co__msg.is-error { color:#c0392b; }
-    .co__msg.is-success { color:var(--accent); font-weight:600; }
-    .co__toggle { margin: 0 0 1.4rem; }
-    .co__back { display:inline-flex; align-items:center; gap:.4rem; margin-top:1.4rem; color:var(--muted); font-size:.9rem; }
-    .co__secure { display:flex; align-items:center; justify-content:center; gap:.5rem; margin-top:1.1rem; color:var(--muted-2); font-size:.8rem; }
-    .co__banner { border-radius:var(--radius-sm); padding:.8rem 1rem; font-size:.9rem; margin-bottom:1.2rem; }
-    .co__banner--ok { background:rgba(217,119,6,.1); border:1px solid rgba(217,119,6,.26); color:var(--accent); }
-    .co__banner--warn { background:rgba(60,45,25,.06); border:1px solid var(--line-2); color:var(--muted); }
-  </style>
+  <meta name="theme-color" content="#070605" />
+  <link rel="stylesheet" href="watch.css?v=20260623ultra" />
+  <link rel="stylesheet" href="watch-app.css?v=20260625premium" />
 </head>
-<body>
+<body class="co-page">
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <div class="watch-atmo" aria-hidden="true">
+    <div class="watch-atmo__grid"></div>
+    <div class="watch-atmo__beam"></div>
+  </div>
+
   <header class="nav is-scrolled">
     <div class="nav__inner">
-      <a href="watch.html" class="brand">
+      <a href="watch.html" class="brand" aria-label="DexlyyWatch home">
+        <span class="brand__logo" aria-hidden="true">
+          <svg viewBox="0 0 40 40" width="34" height="34">
+            <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8923a"/><stop offset="1" stop-color="#b4540a"/></linearGradient></defs>
+            <rect x="1.5" y="1.5" width="37" height="37" rx="11" fill="url(#bg)"/>
+            <path d="M20 20 a9 9 0 0 1 9 -9" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="20" cy="20" r="2.6" fill="#fff"/><circle cx="29" cy="11" r="1.9" fill="#fff"/>
+          </svg>
+        </span>
         <span class="brand__name">Dexlyy<span class="brand__name-em">Watch</span></span>
       </a>
+      <nav class="nav__links" aria-label="Checkout">
+        <a href="watch-dashboard.html">Dashboard</a>
+        <a href="watch.html#pricing">Plans</a>
+      </nav>
     </div>
   </header>
 
-  <main class="co">
+  <main class="co" id="main">
     <div class="co__card">
       <div id="banner"></div>
       <p class="co__eyebrow" id="coEyebrow">DexlyyWatch Pro</p>
@@ -342,7 +335,6 @@
     async function refreshSession() {
       showLoadingState();
 
-      // Read localStorage first — instant, same as the dashboard session.
       const stored = readStoredSession();
       const email = stored?.user?.email || null;
 

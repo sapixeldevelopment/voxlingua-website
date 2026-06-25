@@ -1,18 +1,9 @@
-/* =========================================================
-   DexlyyWatch — interactivity
-   - Live email signup -> Supabase (dexlyywatch_signups)
-   - Radar monitor, coverage grid, recent-drops timeline
-   - Pricing toggle, detected toast, nav, reveal-on-scroll
-   ========================================================= */
+/* DexlyyWatch marketing page — radar, timeline, pricing, live stats */
 (function () {
   "use strict";
 
-  // ---- Supabase (publishable anon key — safe for the browser) ----
   const SUPABASE_URL = "https://mmgzuubrtyodhjtmjlvb.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_LYP_tofuZNutUaE-KfjT7Q_Uf5XcaIO";
-  const FREE_SEAT_LIMIT = 200;
-  /** Social-proof audience counter (“currently watching”). Real signups add on top. */
-  const FAKE_WATCHING_BASE = 6185;
 
   const $ = (s, c = document) => c.querySelector(s);
   const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
@@ -232,7 +223,12 @@
           body: JSON.stringify(data),
         });
         const body = await res.json().catch(() => ({}));
-        if (!res.ok || !body.ok) throw new Error(body.error || "Could not send request.");
+        if (!res.ok || !body.ok) {
+          if (body.code === "RATE_LIMITED") {
+            throw new Error("Too many requests — try again in about an hour.");
+          }
+          throw new Error(body.error || "Could not send request.");
+        }
         requestForm.reset();
         requestNote.textContent = "Request sent. Dexlyy support has it.";
         requestNote.className = "request__note is-success";
@@ -255,16 +251,9 @@
   const ctaNote = $("#ctaNote");
   const freeCtas = $$(".js-free-cta");
 
-  function displayWatching(totalSignups) {
-    const n = Math.max(0, Number(totalSignups) || 0);
-    return FAKE_WATCHING_BASE + n;
-  }
-
-  function updateFreeSeatUi(realClaimed, totalSignups) {
-    const realUsed = Math.max(0, Math.min(FREE_SEAT_LIMIT, Number(realClaimed) || 0));
-    const remaining = Math.max(0, FREE_SEAT_LIMIT - realUsed);
-    const watching = displayWatching(totalSignups ?? realUsed);
-    const full = remaining <= 0;
+  function updateFreeSeatUi(stats) {
+    const watching = Math.max(0, Number(stats?.watching_count) || 0);
+    const full = Boolean(stats?.free_tier_full);
 
     if (watchCount) watchCount.textContent = watching.toLocaleString();
     if (planWatchCount) planWatchCount.textContent = watching.toLocaleString();
@@ -284,16 +273,21 @@
     if (ctaNote) {
       ctaNote.textContent = full
         ? "Free tier full · Pro and Squadron are open now."
-        : "Join free · every major drop · sign in from your dashboard.";
+        : "Free forever · every major drop · dashboard included.";
     }
     freeCtas.forEach((el) => {
-      if (!el.classList.contains("js-free-cta")) return;
+      if (!el.dataset.defaultLabel) {
+        el.dataset.defaultLabel = el.textContent.trim();
+        if (el.getAttribute("href")) el.dataset.defaultHref = el.getAttribute("href");
+      }
       if (full) {
         el.textContent = "See paid plans";
-        el.href = "#pricing";
         el.classList.add("is-disabled-free");
+        if (el.tagName === "A") el.setAttribute("href", "#pricing");
       } else {
+        el.textContent = el.dataset.defaultLabel;
         el.classList.remove("is-disabled-free");
+        if (el.tagName === "A" && el.dataset.defaultHref) el.setAttribute("href", el.dataset.defaultHref);
       }
     });
   }
@@ -372,13 +366,10 @@
   async function loadStats() {
     if (!watchCount) return;
     try {
-      const rows = await rpc("dexlyywatch_stats");
-      const stats = Array.isArray(rows) ? rows[0] : rows;
-      const watch = Number(stats?.watch_signups ?? 0);
-      const total = Number(stats?.total_signups ?? watch);
-      updateFreeSeatUi(watch, total);
+      const stats = await rpc("dexlyywatch_public_stats");
+      updateFreeSeatUi(stats);
     } catch (_e) {
-      updateFreeSeatUi(0, 0);
+      updateFreeSeatUi({ watching_count: 0, free_tier_full: false });
     }
   }
 
