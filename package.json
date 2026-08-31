@@ -1,0 +1,30 @@
+{
+  "name": "dexlyy",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "video:studio": "remotion studio remotion/index.ts",
+    "video:render": "remotion render remotion/index.ts DexlyyProductTour public/dexlyy-product-tour.mp4 --codec=h264 --crf=21",
+    "video:poster": "remotion still remotion/index.ts DexlyyProductTour public/dexlyy-product-tour-poster.png --frame=38"
+  },
+  "dependencies": {
+    "@supabase/ssr": "0.12.5",
+    "@supabase/supabase-js": "2.112.4",
+    "lucide-react": "1.35.0",
+    "next": "16.3.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.519",
+    "@types/node": "26.4.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "remotion": "^4.0.519",
+    "typescript": "5.9.3"
+  }
+}
