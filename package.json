@@ -9,7 +9,11 @@
     "typecheck": "tsc --noEmit",
     "video:studio": "remotion studio remotion/index.ts",
     "video:render": "remotion render remotion/index.ts DexlyyProductTour public/dexlyy-product-tour.mp4 --codec=h264 --crf=21",
-    "video:poster": "remotion still remotion/index.ts DexlyyProductTour public/dexlyy-product-tour-poster.png --frame=38"
+    "video:poster": "remotion still remotion/index.ts DexlyyProductTour public/dexlyy-product-tour-poster.png --frame=38",
+    "dev:vinext": "vinext dev --port 3001",
+    "build:vinext": "vinext build",
+    "start:vinext": "wrangler dev --config dist/server/wrangler.json",
+    "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.5",
@@ -20,11 +24,19 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.54.2",
     "@remotion/cli": "^4.0.519",
     "@types/node": "26.4.0",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
+    "@vinext/cloudflare": "^1.0.0-beta.6",
+    "@vitejs/plugin-react": "^6.1.1",
+    "@vitejs/plugin-rsc": "^0.5.34",
+    "react-server-dom-webpack": "^19.2.8",
     "remotion": "^4.0.519",
-    "typescript": "5.9.3"
-  }
+    "typescript": "5.9.3",
+    "vinext": "^1.0.0-beta.8",
+    "vite": "^8.2.2"
+  },
+  "type": "module"
 }

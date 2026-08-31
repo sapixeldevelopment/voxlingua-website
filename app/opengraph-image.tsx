@@ -1,16 +1,8 @@
 import { ImageResponse } from "next/og";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 
 export const alt = "Dexlyy — AI voice interviews for FiveM communities";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-
-const logoData = await readFile(
-  join(process.cwd(), "public", "dexlyy-logo.png"),
-  "base64",
-);
-const logoSrc = `data:image/png;base64,${logoData}`;
 
 export default function OpenGraphImage() {
   return new ImageResponse(
@@ -73,7 +65,22 @@ export default function OpenGraphImage() {
               background: "#e9f8ef",
             }}
           >
-            <img src={logoSrc} width={52} height={52} alt="" />
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 42,
+                height: 42,
+                borderRadius: 12,
+                background: "#071812",
+                color: "#5ed49a",
+                fontSize: 30,
+                fontWeight: 800,
+              }}
+            >
+              D
+            </span>
           </div>
           <span style={{ fontSize: 28, fontWeight: 700 }}>Dexlyy</span>
         </div>
