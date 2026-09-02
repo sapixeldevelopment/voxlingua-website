@@ -5,7 +5,7 @@ export default function ReferralCodeField() {
   async function apply() {
     setBusy(true); setMessage('');
     try {
-      const response = await fetch('/api/partners/referral', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, consent: true, attach: true }), signal: AbortSignal.timeout(15000) });
+      const response = await fetch('/api/partners/referral', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, attach: true }), signal: AbortSignal.timeout(15000) });
       const result = await response.json();
       setMessage(response.ok ? 'Your referral is linked. Future qualifying purchases will credit that partner.' : result.error || 'Referral could not be applied.');
     } catch { setMessage('Could not check the referral. Please try again.'); }

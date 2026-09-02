@@ -5,7 +5,7 @@
 - Free applications at `/partners`, manually approved by a Dexlyy **platform admin** at `/admin/partners`.
 - 15% of verified live USD product charges after discounts and excluding tax. No commission on sandbox payments, free grants, usage, or activation without payment.
 - One commission for each monthly renewal, annual charge, or extra-interview pack purchase. Annual prices are ten months' price; commissions are not multiplied by twelve.
-- Consented first-party referral cookie, valid for 30 days. Last accepted link before signup, then permanent billing-account attribution. New accounts only; pre-launch accounts and existing subscribers cannot be retroactively attributed. Code fallback is allowed within 30 days of signup, before first purchase.
+- A valid partner link automatically creates a first-party, HTTP-only referral cookie for 30 days. The last valid link before signup becomes permanent billing-account attribution. New accounts only; pre-launch accounts and existing subscribers cannot be retroactively attributed. Code fallback is allowed within 30 days of signup, before first purchase.
 - At least 30 days' hold from payment verification; $25 minimum; monthly manual payout review. The pilot **does not execute PayPal Payouts API transfers**.
 - Payout address changes require administrator re-verification and a 48-hour hold.
 
@@ -63,7 +63,7 @@ npx --no-install next typegen
 npm run typecheck
 ```
 
-Database tests run in isolated in-memory Postgres, with no auth.users access for service_role. Browser QA was run against synthetic API responses at 1440px and 390px, covering scroll limits, horizontal overflow, admin confirmation and referral consent. Local browser harness files are intentionally untracked; no customer credentials or real financial data were used. Before real payouts, provider sandbox and merchant-account eligibility checks remain necessary.
+Database tests run in isolated in-memory Postgres, with no auth.users access for service_role. Browser QA was run against synthetic API responses at 1440px and 390px, covering scroll limits, horizontal overflow, admin confirmation and automatic referral attribution. Local browser harness files are intentionally untracked; no customer credentials or real financial data were used. Before real payouts, provider sandbox and merchant-account eligibility checks remain necessary.
 
 The built Worker also passed public-page, anonymous/admin denial, cross-origin rejection, unsigned-webhook rejection and scheduled-event checks locally. Wrangler 4.127.1 has a reported [local proxy crash on early rejection of unread request bodies](https://github.com/cloudflare/workers-sdk/issues/15203); local CSRF smoke requests omit the body to avoid this tooling failure. Production smoke requests retain their bodies. Application origin and authentication checks are not weakened.
 

@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     if (request.headers.get("origin") !== new URL(request.url).origin || request.headers.get("sec-fetch-site") === "cross-site") return noStoreJson({ error: "Same-origin request required." }, { status: 403 });
     const body = await readJsonBody<Record<string, unknown>>(request, 1024);
     const code = referralCode(body?.code);
-    if (!code || body?.consent !== true) return noStoreJson({ error: "A valid referral code and your consent are required." }, { status: 400 });
+    if (!code) return noStoreJson({ error: "A valid referral code is required." }, { status: 400 });
     if (body?.attach === true) {
       const access = await affiliateAccess(request);
       if (access.response) return access.response;
