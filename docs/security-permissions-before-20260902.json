@@ -1,0 +1,813 @@
+{
+  "table_grants": [
+    {
+      "grantee": "anon",
+      "table_name": "application_fields",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "application_fields",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "application_fields",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "application_fields",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "application_fields",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "application_fields",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "applications",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "applications",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "applications",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "applications",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "applications",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "applications",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "applications",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "audit_logs",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "audit_logs",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "audit_logs",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "audit_logs",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "audit_logs",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "audit_logs",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "audit_logs",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "interview_sessions",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "interview_sessions",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "interview_sessions",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "interview_sessions",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "interview_sessions",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "interview_sessions",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "interview_sessions",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "owner_billing",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "owner_billing",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "owner_billing",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "owner_billing",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "owner_billing",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "owner_billing",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "owner_billing",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "owner_feedback",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "owner_feedback",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "owner_feedback",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "owner_feedback",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "owner_feedback",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "owner_feedback",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "paypal_orders",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "paypal_orders",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "paypal_orders",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "paypal_orders",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "paypal_orders",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "paypal_orders",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "paypal_orders",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "question_bank",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "question_bank",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "question_bank",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "question_bank",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "question_bank",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "question_bank",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "question_bank",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_additional_roles",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_additional_roles",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_additional_roles",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_additional_roles",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_additional_roles",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_additional_roles",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_additional_roles",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_members",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_members",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_members",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_members",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_members",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_members",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "server_members",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "servers",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "servers",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "servers",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "servers",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "servers",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "servers",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "application_fields",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "application_fields",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "application_fields",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "application_fields",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "application_fields",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "application_fields",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "application_fields",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "applications",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "applications",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "applications",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "applications",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "applications",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "audit_logs",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "audit_logs",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "audit_logs",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "audit_logs",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "audit_logs",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "audit_logs",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "discord_moderation_events",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "interview_sessions",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "interview_sessions",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "interview_sessions",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "interview_sessions",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "interview_sessions",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "owner_billing",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "owner_billing",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "owner_billing",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "owner_billing",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "owner_billing",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "owner_billing",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "owner_billing",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "owner_feedback",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "owner_feedback",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "owner_feedback",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "owner_feedback",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "owner_feedback",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "owner_feedback",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "paypal_orders",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "paypal_orders",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "paypal_orders",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "paypal_orders",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "paypal_orders",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "paypal_orders",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "paypal_orders",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "question_bank",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "question_bank",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "question_bank",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "question_bank",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "question_bank",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "question_bank",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "question_bank",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "server_additional_roles",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "server_additional_roles",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "server_additional_roles",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "server_additional_roles",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "server_additional_roles",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "server_additional_roles",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "server_additional_roles",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "server_members",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "server_members",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "server_members",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "server_members",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "server_members",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "server_members",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "servers",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "servers",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "servers",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "servers",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "servers",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "servers",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "servers",
+      "privilege_type": "UPDATE"
+    }
+  ],
+  "storage_update": [
+    {
+      "cmd": "UPDATE",
+      "qual": "((bucket_id = 'interview-recordings'::text) AND (EXISTS ( SELECT 1\n   FROM (interview_sessions i\n     JOIN applications a ON ((a.id = i.application_id)))\n  WHERE (((i.server_id)::text = (storage.foldername(objects.name))[1]) AND ((i.id)::text = (storage.foldername(objects.name))[2]) AND (a.applicant_user_id = ( SELECT auth.uid() AS uid))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "permissive": "PERMISSIVE",
+      "policyname": "participants update interview recordings",
+      "schemaname": "storage",
+      "with_check": "(bucket_id = 'interview-recordings'::text)"
+    }
+  ]
+}

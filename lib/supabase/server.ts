@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { REMEMBER_ME_COOKIE, REMEMBER_ME_MAX_AGE, rememberMeEnabled } from "@/lib/supabase/session";
+import { REMEMBER_ME_COOKIE, authCookieOptions, rememberMeEnabled } from "@/lib/supabase/session";
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -10,7 +10,6 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
-      cookieOptions: { maxAge: rememberMe ? REMEMBER_ME_MAX_AGE : undefined },
       cookies: {
         getAll() {
           return cookieStore.getAll();
@@ -18,7 +17,7 @@ export async function createClient() {
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
+              cookieStore.set(name, value, authCookieOptions(options, rememberMe))
             );
           } catch {
             // Server Components cannot always write cookies. Proxy/session refresh

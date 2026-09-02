@@ -12,7 +12,9 @@
     "video:poster": "remotion still remotion/index.ts DexlyyProductTour public/dexlyy-product-tour-poster.png --frame=38",
     "dev:vinext": "vinext dev --port 3001",
     "build:vinext": "vinext build",
+    "postbuild:vinext": "node scripts/sanitize-cloudflare-build.mjs",
     "start:vinext": "wrangler dev --config dist/server/wrangler.json",
+    "predeploy:vinext": "node scripts/sanitize-cloudflare-build.mjs",
     "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json"
   },
   "dependencies": {

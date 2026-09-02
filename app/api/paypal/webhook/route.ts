@@ -3,6 +3,7 @@ import { planForPayPalId, planLimits } from "@/lib/paypal-subscriptions";
 import { verifyPayPalWebhook } from "@/lib/paypal";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ingestAffiliateEvent } from "@/lib/affiliate-payments";
+import { consumeRateLimit, requestClientIp } from "@/lib/security";
 
 const statusMap: Record<string, string> = {
   "BILLING.SUBSCRIPTION.ACTIVATED": "active",
@@ -17,6 +18,20 @@ const statusMap: Record<string, string> = {
 };
 
 export async function POST(request: Request) {
+  try {
+    const clientIp = requestClientIp(request);
+    const [withinClientLimit, withinGlobalLimit] = await Promise.all([
+      consumeRateLimit(`paypal-webhook-ip:${clientIp}`, 120, 60),
+      consumeRateLimit("paypal-webhook-global", 600, 60),
+    ]);
+    if (!withinClientLimit || !withinGlobalLimit) {
+      return NextResponse.json({ error: "Too many webhook requests." }, { status: 429 });
+    }
+  } catch {
+    // Payment processing must fail closed if distributed rate limiting is down.
+    return NextResponse.json({ error: "Webhook processing is temporarily unavailable." }, { status: 503 });
+  }
+
   const declaredLength = Number(request.headers.get("content-length") || 0);
   if (Number.isFinite(declaredLength) && declaredLength > 262_144) return NextResponse.json({ error: "Webhook body is too large." }, { status: 413 });
   const raw = await request.text();
@@ -70,10 +85,11 @@ export async function POST(request: Request) {
     }
     if (plan) Object.assign(patch, { paypal_plan_id: resource?.plan_id as string, billing_interval: plan.billingInterval, ...planLimits(plan.planKey) });
     const { error } = await admin.from("owner_billing").update(patch).eq("id", currentBilling.id);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: "Webhook processing failed." }, { status: 500 });
     await admin.from("paypal_webhook_events").update({ processed_at: new Date().toISOString() }).eq("event_id", eventId);
     return NextResponse.json({ received: true });
-  } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Webhook processing failed." }, { status: 500 });
+  } catch {
+    // Do not expose PayPal, database, or configuration details to an unauthenticated caller.
+    return NextResponse.json({ error: "Webhook processing failed." }, { status: 500 });
   }
 }

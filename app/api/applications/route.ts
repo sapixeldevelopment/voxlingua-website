@@ -2,7 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getVerifiedDiscordConnection } from "@/lib/discord-connection";
 import { discordGuildMemberRoles, discordIdentity, getDiscordGuildMember, isDiscordSnowflake } from "@/lib/discord";
-import { consumeRateLimit, isSafeSlug, noStoreJson, readJsonBody, rejectCrossOrigin } from "@/lib/security";
+import { consumeRateLimit, isSafeSlug, noStoreJson, readJsonBody, rejectCrossOrigin, requestClientIp } from "@/lib/security";
 
 type SubmissionBody = { slug?: string; form?: unknown };
 type PublicField = {
@@ -104,8 +104,8 @@ export async function POST(request: Request) {
   if (!(await consumeRateLimit(`application:${auth.user.id}`, 6, 3600))) {
     return noStoreJson({ error: "Too many application attempts. Please wait before trying again." }, { status: 429 });
   }
-  const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (!(await consumeRateLimit(`application-ip:${forwardedFor}`, 20, 3600))) {
+  const clientIp = requestClientIp(request);
+  if (!(await consumeRateLimit(`application-ip:${clientIp}`, 20, 3600))) {
     return noStoreJson({ error: "Too many applications are being submitted from this connection. Please try again later." }, { status: 429 });
   }
 

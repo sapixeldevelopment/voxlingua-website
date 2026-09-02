@@ -42,6 +42,27 @@ export function isSafeSlug(value: unknown): value is string {
   return typeof value === "string" && value.length <= 100 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
 }
 
+export function requestClientIp(request: Request) {
+  // Cloudflare replaces this header at the edge. Do not trust a caller-supplied
+  // X-Forwarded-For value in production because its left-most entry is
+  // spoofable when a proxy appends rather than replaces the header.
+  const cloudflareIp = request.headers.get("cf-connecting-ip")?.trim();
+  if (cloudflareIp && cloudflareIp.length <= 64 && /^[0-9a-f:.]+$/i.test(cloudflareIp)) {
+    return cloudflareIp;
+  }
+
+  // Keep local Next.js development usable where Cloudflare headers are absent.
+  if (process.env.NODE_ENV !== "production") {
+    const forwardedIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+    if (forwardedIp && forwardedIp.length <= 64 && /^[0-9a-f:.]+$/i.test(forwardedIp)) return forwardedIp;
+    const realIp = request.headers.get("x-real-ip")?.trim();
+    if (realIp && realIp.length <= 64 && /^[0-9a-f:.]+$/i.test(realIp)) return realIp;
+  }
+
+  // An unknown production address intentionally shares one conservative bucket.
+  return "unknown";
+}
+
 export function applicationOrigin(request: Request) {
   const configured = process.env.NEXT_PUBLIC_SITE_URL;
   if (configured) return new URL(configured).origin;

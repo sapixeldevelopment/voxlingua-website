@@ -418,7 +418,7 @@ export default function PortalApp({ slug }: { slug: string }) {
                 </button>
               </form>
             )}
-            {!alreadyApproved && <p className="portal-consent"><LockKeyhole size={13} /> By continuing, you agree that the interview may be recorded and privately reviewed by the community owner team.</p>}
+            {!alreadyApproved && <p className="portal-consent"><LockKeyhole size={13} /> By continuing, you consent to Dexlyy recording your interview and sending interview audio, your application, and transcript to OpenAI to conduct the interview and generate review assistance. A short audio sample may also be analysed for signs of voice alteration. These automated indicators can be wrong and do not make the admission decision; the community&apos;s human reviewers do. Recordings follow the community&apos;s retention setting; application and transcript history remain until the community owner deletes them. Please avoid unnecessary sensitive personal information. For privacy or deletion enquiries, contact the community owner or support@dexlyy.com.</p>}
           </section>
         </div>
       </section>

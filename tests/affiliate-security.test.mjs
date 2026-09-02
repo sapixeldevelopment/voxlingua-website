@@ -37,7 +37,7 @@ test('all admin financial access rejects anonymous, support-role and forged cros
 });
 test('unsigned PayPal messages cannot reach commission processing',async()=>{
   let called=0;
-  const mod=load('app/api/paypal/webhook/route.ts',{'next/server':{NextResponse:{json}},'@/lib/paypal-subscriptions':{},'@/lib/paypal':{verifyPayPalWebhook:async()=>false},'@/lib/supabase/admin':{},'@/lib/affiliate-payments':{ingestAffiliateEvent:async()=>called++}});
+  const mod=load('app/api/paypal/webhook/route.ts',{'next/server':{NextResponse:{json}},'@/lib/paypal-subscriptions':{},'@/lib/paypal':{verifyPayPalWebhook:async()=>false},'@/lib/supabase/admin':{},'@/lib/affiliate-payments':{ingestAffiliateEvent:async()=>called++},'@/lib/security':{consumeRateLimit:async()=>true,requestClientIp:()=>"127.0.0.1"}});
   const response=await mod.POST(new Request('https://dexlyy.com/api/paypal/webhook',{method:'POST',body:JSON.stringify({id:'FAKE',event_type:'PAYMENT.SALE.COMPLETED'})}));assert.equal(response.status,401);assert.equal(called,0);
 });
 test('payment processing uses provider amount/ownership, not webhook or browser assertions',async()=>{

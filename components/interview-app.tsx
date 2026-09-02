@@ -992,7 +992,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
                 <p>Nothing to prepare. The first question begins after you enter the room.</p>
               </div>}
           </div>
-          <div className="transcript-privacy"><LockKeyhole size={13} /> Only you and the server’s review team can access this interview.</div>
+          <div className="transcript-privacy"><LockKeyhole size={13} /> Private to you and the review team, with AI processing by OpenAI as explained before the interview.</div>
         </section>
       </div>
       {error && <div className="form-error interview-error">{error}</div>}

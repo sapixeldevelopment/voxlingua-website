@@ -41,6 +41,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
+      // vinext currently omits the wildcard headers on the root document.
+      { source: "/", headers: securityHeaders },
       { source: "/api/:path*", headers: [{ key: "Cache-Control", value: "private, no-store, max-age=0" }] },
     ];
   },

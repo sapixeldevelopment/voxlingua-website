@@ -2,6 +2,7 @@ node_modules
 .next
 out
 .env*
+.dev.vars*
 !.env.example
 npm-debug.log*
 /dist/

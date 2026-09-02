@@ -1,14 +1,13 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { cleanupServerApplicationHistory } from "@/lib/application-retention";
 import { getVerifiedDiscordConnection } from "@/lib/discord-connection";
-import { consumeRateLimit, isSafeSlug, noStoreJson } from "@/lib/security";
+import { consumeRateLimit, isSafeSlug, noStoreJson, requestClientIp } from "@/lib/security";
 
 export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   if (!isSafeSlug(slug)) return noStoreJson({ error: "Portal not found." }, { status: 404 });
 
-  const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (!(await consumeRateLimit(`portal:${forwardedFor}`, 180, 60))) {
+  const clientIp = requestClientIp(request);
+  if (!(await consumeRateLimit(`portal:${clientIp}`, 180, 60))) {
     return noStoreJson({ error: "Too many portal requests. Please try again shortly." }, { status: 429 });
   }
 
@@ -31,14 +30,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
   const paidThrough = billing?.subscription_period_end ? new Date(`${billing.subscription_period_end}T00:00:00Z`) : null;
   const accessible = billing?.status === "active" || (billing?.status === "suspended" && paidThrough !== null && paidThrough > new Date());
   if (!accessible) return noStoreJson({ error: "This portal is unavailable." }, { status: 404 });
-
-  if (await consumeRateLimit(`application-retention:${server.id}`, 1, 86_400)) {
-    try {
-      await cleanupServerApplicationHistory(server.id);
-    } catch (error) {
-      console.error("Automatic application retention cleanup failed", { serverId: server.id, error });
-    }
-  }
 
   const { data: fields, error: fieldsError } = await admin
     .from("application_fields")

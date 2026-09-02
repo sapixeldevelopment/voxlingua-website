@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, Headphones, LockKeyhole, MessageCircle, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { discordAuthEnabled, friendlyAuthError } from "@/lib/auth";
-import { REMEMBER_ME_COOKIE, REMEMBER_ME_MAX_AGE } from "@/lib/supabase/session";
+import { REMEMBER_ME_COOKIE } from "@/lib/supabase/session";
 
 export default function AdminLoginPage() {
   const supabase = createClient();
@@ -15,7 +15,9 @@ export default function AdminLoginPage() {
   async function signIn() {
     setBusy(true);
     setError("");
-    document.cookie = `${REMEMBER_ME_COOKIE}=1; Path=/; Max-Age=${REMEMBER_ME_MAX_AGE}; SameSite=Lax`;
+    // Session cookies avoid persistent login; Lax permits Discord's callback.
+    // This is not a substitute for server-enforced session expiry or MFA.
+    document.cookie = `${REMEMBER_ME_COOKIE}=0; Path=/; SameSite=Lax${window.location.protocol === "https:" ? "; Secure" : ""}`;
     const { error: authError } = await supabase.auth.signInWithOAuth({
       provider: "discord",
       options: { redirectTo: `${window.location.origin}/auth/callback?next=/admin` },
@@ -43,4 +45,3 @@ export default function AdminLoginPage() {
     </section>
   </main>;
 }
-
