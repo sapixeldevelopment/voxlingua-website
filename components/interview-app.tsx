@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, Headphones, LockKeyhole, MessagesSquare, Mic, MicOff, RefreshCw, RotateCcw, ShieldCheck, Volume2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { createApplicantVoiceSample } from "@/lib/client-audio";
+import { fetchJsonWithTimeout, withTimeout } from "@/lib/client-request";
 import { assessInterviewTranscript, calculateInterviewTimeLimitSeconds, formatInterviewTime, normalizeInterviewQuestionCount } from "@/lib/interview-policy";
 import type { InterviewSession } from "@/lib/types";
 import ConfirmModal from "@/components/confirm-modal";
@@ -22,6 +23,11 @@ type RealtimeEvent = {
   response?: { status?: string; status_details?: { error?: { message?: string } } };
 };
 
+const RECORDING_UPLOAD_TIMEOUT_MS = 45_000;
+const API_REQUEST_TIMEOUT_MS = 20_000;
+const VOICE_SAMPLE_PROCESSING_TIMEOUT_MS = 5_000;
+const VOICE_SAMPLE_UPLOAD_TIMEOUT_MS = 8_000;
+
 export default function InterviewApp({ sessionId }: { sessionId: string }) {
   const supabase = useMemo(() => createClient(), []);
   const [session, setSession] = useState<InterviewSession | null>(null);
@@ -38,6 +44,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
   const [recordingState, setRecordingState] = useState<RecordingState>("unavailable");
   const [muted, setMuted] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [submissionStep, setSubmissionStep] = useState("");
   const [needsAudioActivation, setNeedsAudioActivation] = useState(false);
   const [restartOpen, setRestartOpen] = useState(false);
   const [questionCount, setQuestionCount] = useState(3);
@@ -67,6 +74,8 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
   const recordingMicSource = useRef<MediaStreamAudioSourceNode | null>(null);
   const recordingStopPromise = useRef<Promise<Blob | null> | null>(null);
   const recordingUploadPromise = useRef<Promise<string | null> | null>(null);
+  const uploadedRecordingPath = useRef<string | null>(null);
+  const submitting = useRef(false);
   const pendingRecordingBlob = useRef<Blob | null>(null);
   const pendingApplicantRecordingBlob = useRef<Blob | null>(null);
   const linesRef = useRef<Line[]>([]);
@@ -235,11 +244,17 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
     const stopOne = (active: MediaRecorder | null, chunks: Blob[]) => new Promise<Blob | null>((resolve) => {
       if (!active) return resolve(null);
       let completed = false;
+      let stopTimeout: ReturnType<typeof setTimeout>;
       const complete = () => {
         if (completed) return;
         completed = true;
+        clearTimeout(stopTimeout);
+        active.removeEventListener("stop", complete);
         resolve(chunks.length ? new Blob(chunks, { type: active.mimeType || "audio/webm" }) : null);
       };
+      // Some browsers fail to emit the final stop event after a connection
+      // loss. Preserve the chunks already captured instead of waiting forever.
+      stopTimeout = setTimeout(complete, 5_000);
       active.addEventListener("stop", complete, { once: true });
       if (active.state === "recording" || active.state === "paused") active.stop();
       else complete();
@@ -280,45 +295,34 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
         setError("The interview finished, but no audio recording was captured. Please start over and allow microphone access.");
         return null;
       }
+      pendingRecordingBlob.current = blob;
       // Storage policies scope recordings to server_id/session_id folders.
       const path = `${session.server_id}/${session.id}/recording.webm`;
-      const { error: uploadError } = await supabase.storage.from("interview-recordings").upload(path, blob, { contentType: blob.type || "audio/webm", upsert: true, cacheControl: "3600" });
-      if (uploadError) {
-        setRecordingState("failed");
-        setError(`The interview finished, but its recording could not be saved: ${uploadError.message}`);
-        return null;
+      if (uploadedRecordingPath.current !== path) {
+        const { error: uploadError } = await withTimeout(
+          supabase.storage.from("interview-recordings").upload(path, blob, { contentType: blob.type || "audio/webm", upsert: true, cacheControl: "3600" }),
+          RECORDING_UPLOAD_TIMEOUT_MS,
+          "The recording upload timed out. Check your connection and try submitting again.",
+        );
+        if (uploadError) {
+          setRecordingState("ready");
+          setError(`The interview finished, but its recording could not be saved: ${uploadError.message}`);
+          return null;
+        }
+        uploadedRecordingPath.current = path;
       }
-      const linkResponse = await fetch(`/api/interviews/${encodeURIComponent(session.id)}/recording`, {
+      const linkResponse = await fetchJsonWithTimeout<{ error?: string; ok?: boolean }>(`/api/interviews/${encodeURIComponent(session.id)}/recording`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ path }),
-      });
-      const linkResult = await linkResponse.json().catch(() => null) as { error?: string } | null;
-      if (!linkResponse.ok) {
-        setRecordingState("failed");
-        setError(`The recording uploaded, but could not be linked to the interview: ${linkResult?.error || "Unknown error"}`);
+      }, API_REQUEST_TIMEOUT_MS, "The recording was uploaded, but linking it timed out. Please try submitting again.");
+      if (!linkResponse.ok || !linkResponse.data?.ok) {
+        setRecordingState("ready");
+        setError(`The recording uploaded, but could not be linked to the interview: ${linkResponse.data?.error || "Please try submitting again."}`);
         return null;
-      }
-      const applicantBlob = pendingApplicantRecordingBlob.current;
-      if (applicantBlob) {
-        try {
-          const voiceSample = await createApplicantVoiceSample(applicantBlob);
-          if (voiceSample) {
-            const voiceSamplePath = `${session.server_id}/${session.id}/voice-sample.wav`;
-            const { error: voiceUploadError } = await supabase.storage.from("interview-recordings").upload(voiceSamplePath, voiceSample, {
-              contentType: "audio/wav",
-              upsert: true,
-              cacheControl: "no-store",
-            });
-            if (voiceUploadError) console.warn("Temporary voice sample upload failed", voiceUploadError.message);
-          }
-        } catch (voiceSampleError) {
-          console.warn("Temporary voice sample could not be prepared", voiceSampleError);
-        }
       }
       setRecordingState("saved");
       pendingRecordingBlob.current = null;
-      pendingApplicantRecordingBlob.current = null;
       setSession((current) => current ? { ...current, recording_path: path } : current);
       return path;
     })();
@@ -327,6 +331,37 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
       return await operation;
     } finally {
       if (recordingUploadPromise.current === operation) recordingUploadPromise.current = null;
+    }
+  }
+
+  async function uploadApplicantVoiceSample() {
+    const applicantBlob = pendingApplicantRecordingBlob.current;
+    pendingApplicantRecordingBlob.current = null;
+    if (!applicantBlob || !session) return;
+
+    const controller = new AbortController();
+    try {
+      const voiceSample = await withTimeout(
+        createApplicantVoiceSample(applicantBlob, controller.signal),
+        VOICE_SAMPLE_PROCESSING_TIMEOUT_MS,
+        "Temporary voice sample processing timed out.",
+      );
+      if (!voiceSample) return;
+      const voiceSamplePath = `${session.server_id}/${session.id}/voice-sample.wav`;
+      const { error: voiceUploadError } = await withTimeout(
+        supabase.storage.from("interview-recordings").upload(voiceSamplePath, voiceSample, {
+          contentType: "audio/wav",
+          upsert: true,
+          cacheControl: "no-store",
+        }),
+        VOICE_SAMPLE_UPLOAD_TIMEOUT_MS,
+        "Temporary voice sample upload timed out.",
+      );
+      if (voiceUploadError) console.warn("Temporary voice sample upload failed", voiceUploadError.message);
+    } catch (voiceSampleError) {
+      console.warn("Temporary voice sample could not be prepared", voiceSampleError);
+    } finally {
+      controller.abort();
     }
   }
 
@@ -453,7 +488,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
       const payload = JSON.parse(event.data) as RealtimeEvent;
 
       if (payload.type === "input_audio_buffer.speech_started") {
-        setSpeechState("hearing");
+        if (!outputAudioActive.current) setSpeechState("hearing");
         setError("");
       }
       if (payload.type === "input_audio_buffer.speech_stopped" || payload.type === "input_audio_buffer.timeout_triggered") {
@@ -461,6 +496,8 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
       }
       if (payload.type === "response.created") {
         responseActive.current = true;
+        lastAssistantTranscript.current = "";
+        completionRequested.current = false;
         setModelSpeaking(true);
       }
       if (payload.type === "output_audio_buffer.started") {
@@ -470,7 +507,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
       if (payload.type === "output_audio_buffer.stopped") {
         outputAudioActive.current = false;
         setModelSpeaking(false);
-        if (completionRequested.current) void prepareCompletedInterview();
+        if (completionRequested.current && !responseActive.current) void prepareCompletedInterview();
         else setSpeechState("listening");
       }
       if (payload.type === "response.output_audio_transcript.done" && payload.transcript) {
@@ -497,16 +534,30 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
         completionRequested.current = true;
         setSpeechState("processing");
       }
+      if (payload.type === "response.function_call_arguments.done" && payload.name === "wait_for_applicant" && payload.call_id) {
+        // Acknowledge the silent tool, but do not create another response:
+        // the next real applicant turn resumes the conversation through VAD.
+        if (channel.current?.readyState === "open") channel.current.send(JSON.stringify({
+          type: "conversation.item.create",
+          item: { type: "function_call_output", call_id: payload.call_id, output: JSON.stringify({ waiting: true }) },
+        }));
+        setSpeechState("listening");
+      }
       if (payload.type === "response.done") {
         responseActive.current = false;
-        if (isFinalSignoff(lastAssistantTranscript.current)) {
-          completionRequested.current = true;
-        }
-        if (payload.response?.status === "failed" || payload.response?.status === "incomplete") {
-          setModelSpeaking(false);
-          setError(payload.response.status_details?.error?.message || "The interviewer could not finish its response. Please try again.");
+        const status = payload.response?.status;
+        if (status !== "completed") {
+          completionRequested.current = false;
+          setModelSpeaking(outputAudioActive.current);
+          setSpeechState("listening");
+          if (status === "failed") setError("The interviewer had a connection problem. Your answers are still here; please try speaking again.");
+          // A cancelled/truncated response is not a failed interview, and must
+          // never finish it using an old or partially spoken sign-off.
         } else if (completionRequested.current && !outputAudioActive.current) {
           void prepareCompletedInterview();
+        } else if (!outputAudioActive.current) {
+          setModelSpeaking(false);
+          setSpeechState("listening");
         }
       }
       if (payload.type === "error") {
@@ -646,42 +697,55 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
       setNeedsAudioActivation(false);
       setError("");
     } catch {
-      setError("Audio is still blocked. Allow sound for localhost in your browser, then try again.");
+      setError("Audio is still blocked. Allow sound for dexlyy.com in your browser, then try again.");
     }
   }
 
   async function finish() {
+    if (submitting.current || session?.status === "completed") return;
+    submitting.current = true;
     setBusy(true);
     setError("");
-    const assessment = assessInterviewTranscript(linesRef.current, questionCountRef.current);
-    if (!assessment.eligible) {
-      setError(assessment.message);
-      setBusy(false);
-      return;
-    }
-    const recordingPath = await uploadRecording();
-    if (!recordingPath) {
-      setBusy(false);
-      return;
-    }
-    const submitResponse = await fetch("/api/interviews/submit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId, transcript: lines }),
-    });
-    const submitResult = await submitResponse.json().catch(() => ({})) as { error?: string };
-    if (!submitResponse.ok) {
-      setError(submitResult.error || "The interview could not be submitted.");
-      setBusy(false);
-      return;
-    }
+    try {
+      const transcript = linesRef.current;
+      const assessment = assessInterviewTranscript(transcript, questionCountRef.current);
+      if (!assessment.eligible) {
+        setError(assessment.message);
+        return;
+      }
+      setSubmissionStep("Saving recording…");
+      const recordingPath = await uploadRecording();
+      if (!recordingPath) return;
 
-    setConnected(false);
-    closeRealtime();
-    setSpeechState("idle");
-    setInterviewComplete(true);
-    setSession((current) => current ? { ...current, status: "completed" } : current);
-    setBusy(false);
+      // This integrity signal is optional. It has a strict time budget and can
+      // never prevent the interview itself from reaching the owner.
+      setSubmissionStep("Preparing submission…");
+      await uploadApplicantVoiceSample();
+
+      setSubmissionStep("Submitting interview…");
+      const submitResponse = await fetchJsonWithTimeout<{ error?: string; ok?: boolean }>("/api/interviews/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, transcript }),
+      }, API_REQUEST_TIMEOUT_MS, "Submitting the interview timed out. Please try again; your recording is already saved.");
+      if (!submitResponse.ok || !submitResponse.data?.ok) {
+        setError(submitResponse.data?.error || "Submission was not confirmed. Keep this page open and try Submit interview again.");
+        return;
+      }
+
+      setConnected(false);
+      closeRealtime();
+      setSpeechState("idle");
+      setInterviewComplete(true);
+      setSession((current) => current ? { ...current, status: "completed" } : current);
+    } catch (caught) {
+      setRecordingState((current) => current === "saving" ? "ready" : current);
+      setError(caught instanceof Error ? caught.message : "The interview could not be submitted. Please try again.");
+    } finally {
+      submitting.current = false;
+      setSubmissionStep("");
+      setBusy(false);
+    }
   }
 
   async function startOver() {
@@ -700,6 +764,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
       setBusy(false);
       return;
     }
+    uploadedRecordingPath.current = null;
     setLines([]);
     linesRef.current = [];
     setInterviewComplete(false);
@@ -729,8 +794,11 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
   }
 
   const submissionAssessment = assessInterviewTranscript(lines, questionCount);
-  const canRestart = (session?.restart_count ?? 0) < 1;
-  const roomStatus = interviewComplete
+  const submitted = session?.status === "completed";
+  const canRestart = !submitted && (session?.restart_count ?? 0) < 1;
+  const roomStatus = submitted
+    ? "Interview submitted successfully"
+    : interviewComplete
     ? "Your interview is complete"
     : timeLimitReached
       ? "This attempt has ended"
@@ -743,7 +811,9 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
           : connected
             ? "Your turn — answer naturally"
             : "Your private room is ready";
-  const roomHint = interviewComplete
+  const roomHint = submitted
+    ? "Your recording and transcript have been sent to the server’s review team. You can safely leave this page."
+    : interviewComplete
     ? timeLimitReached
       ? "The time limit was reached after enough spoken answers. Review the transcript, then submit when you’re happy."
       : "Review the transcript, then submit when you’re happy. Nothing has been sent to the owner yet."
@@ -760,7 +830,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
           : connected
             ? `You have ${formatInterviewTime(timeRemainingSeconds)} remaining. Natural pauses are fine, but make sure you answer each question aloud.`
             : `Choose your microphone, get comfortable, and begin when you’re ready. This interview allows up to ${Math.floor(timeLimitSeconds / 60)} minutes.`;
-  const voiceState = interviewComplete
+  const voiceState = (submitted || interviewComplete)
     ? "complete"
     : timeLimitReached
       ? "ready"
@@ -773,7 +843,9 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
           : connected
             ? "listening"
             : "ready";
-  const recordingMessage = recordingState === "saved"
+  const recordingMessage = submitted
+    ? "Recording submitted securely."
+    : recordingState === "saved"
     ? "Recording saved and ready for the owner team."
     : recordingState === "ready"
       ? "Ready to submit — the recording has not been uploaded yet."
@@ -875,9 +947,11 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
           </div>
 
           <div className="interview-controls">
-            {interviewComplete
+            {submitted
+              ? <Link className="btn btn-primary" href="/dashboard"><CheckCircle2 size={16} /> Return to dashboard</Link>
+              : interviewComplete
               ? <>
-                <button className="btn btn-primary" onClick={finish} disabled={busy || !submissionAssessment.eligible || !["ready", "saved"].includes(recordingState)} title={submissionAssessment.eligible ? undefined : submissionAssessment.message}><CheckCircle2 size={16} /> {busy ? "Submitting…" : recordingState === "saving" ? "Saving recording…" : "Submit interview"}</button>
+                <button className="btn btn-primary" onClick={finish} disabled={busy || !submissionAssessment.eligible || !["ready", "saved"].includes(recordingState)} title={submissionAssessment.eligible ? undefined : submissionAssessment.message}><CheckCircle2 size={16} /> {busy ? submissionStep || "Submitting…" : recordingState === "saving" ? "Saving recording…" : "Submit interview"}</button>
                 {canRestart && <button className="btn interview-secondary" onClick={() => setRestartOpen(true)} disabled={busy}><RotateCcw size={16} /> Start over</button>}
               </>
               : timeLimitReached
@@ -892,7 +966,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
                 </>}
             {needsAudioActivation && <button className="btn interview-secondary" onClick={enableSound}>Enable sound</button>}
           </div>
-          {interviewComplete && !submissionAssessment.eligible && <p className="interview-submit-requirement">{submissionAssessment.message}</p>}
+          {interviewComplete && !submitted && !submissionAssessment.eligible && <p className="interview-submit-requirement">{submissionAssessment.message}</p>}
         </section>
 
         <section className="transcript-card">
