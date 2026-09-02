@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bug, CheckCircle2, HelpCircle, Lightbulb, MessageSquarePlus, Send } from "lucide-react";
+import { Bug, Check, CheckCircle2, HelpCircle, Lightbulb, MessageSquarePlus, RotateCcw, Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 type FeedbackCategory = "bug" | "suggestion" | "question" | "other";
@@ -39,6 +39,7 @@ export default function FeedbackPanel({ userId, supabase }: { userId: string; su
   const [feedback, setFeedback] = useState<FeedbackRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [statusBusy, setStatusBusy] = useState("");
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -51,7 +52,7 @@ export default function FeedbackPanel({ userId, supabase }: { userId: string; su
         .select("id,category,subject,message,status,created_at")
         .eq("owner_id", userId)
         .order("created_at", { ascending: false })
-        .limit(4);
+        .limit(20);
       if (mounted) {
         setFeedback((data || []) as FeedbackRow[]);
         setLoading(false);
@@ -78,8 +79,28 @@ export default function FeedbackPanel({ userId, supabase }: { userId: string; su
       setBusy(false);
       return;
     }
-    if (result.feedback) setFeedback(current => [result.feedback as FeedbackRow, ...current].slice(0, 4));
+    if (result.feedback) setFeedback(current => [result.feedback as FeedbackRow, ...current].slice(0, 20));
     setSubject(""); setMessage(""); setSubmitted(true); setError(result.warning || ""); setBusy(false);
+  }
+
+  async function updateStatus(item: FeedbackRow) {
+    const nextStatus = item.status === "closed" ? "open" : "closed";
+    setStatusBusy(item.id);
+    setError("");
+    const { data, error: updateError } = await supabase
+      .from("owner_feedback")
+      .update({ status: nextStatus })
+      .eq("id", item.id)
+      .eq("owner_id", userId)
+      .select("id,category,subject,message,status,created_at")
+      .single();
+    if (updateError || !data) {
+      setError(updateError?.message || "Could not update this ticket.");
+      setStatusBusy("");
+      return;
+    }
+    setFeedback(current => current.map(row => row.id === item.id ? data as FeedbackRow : row));
+    setStatusBusy("");
   }
 
   return <section className="panel feedback-panel">
@@ -98,7 +119,8 @@ export default function FeedbackPanel({ userId, supabase }: { userId: string; su
         {error && <div className="form-error feedback-error">{error}</div>}
         {submitted && <div className="form-success feedback-success"><CheckCircle2 size={15} /> Thanks—we’ve received your feedback.</div>}
       </form>
-      <aside className="feedback-history"><div className="feedback-history-head"><div><span className="eyebrow">your notes</span><h3>Recent feedback</h3></div><span>{feedback.length ? `${feedback.length} shown` : "No notes yet"}</span></div>{loading ? <p className="feedback-history-empty">Loading your feedback…</p> : feedback.length ? <div className="feedback-history-list">{feedback.map(item => <div className="feedback-history-item" key={item.id}><div className="feedback-history-item-head"><span>{categoryIcon(item.category)} {item.category}</span><time>{formatFeedbackDate(item.created_at)}</time></div><strong>{item.subject}</strong><p>{item.message}</p><span className={`feedback-status feedback-status-${item.status}`}>{item.status.replace("_", " ")}</span></div>)}</div> : <div className="feedback-history-empty"><MessageSquarePlus size={18} /><p>Your feedback history will appear here.</p></div>}</aside>
+      <aside className="feedback-history"><div className="feedback-history-head"><div><span className="eyebrow">your notes</span><h3>Recent feedback</h3></div><span>{feedback.length ? `${feedback.length} shown` : "No notes yet"}</span></div>{loading ? <p className="feedback-history-empty">Loading your feedback…</p> : feedback.length ? <div className="feedback-history-list">{feedback.map(item => { const closed = item.status === "closed"; const changing = statusBusy === item.id; return <div className={`feedback-history-item ${closed ? "is-closed" : ""}`} key={item.id}><div className="feedback-history-item-head"><span>{categoryIcon(item.category)} {item.category}</span><time>{formatFeedbackDate(item.created_at)}</time></div><strong>{item.subject}</strong><p>{item.message}</p><div className="feedback-history-item-footer"><span className={`feedback-status feedback-status-${item.status}`}>{item.status.replace("_", " ")}</span><button type="button" className="feedback-status-action" onClick={() => void updateStatus(item)} disabled={Boolean(statusBusy)} aria-label={`${closed ? "Reopen" : "Close"} ${item.subject}`}>{changing ? <span className="button-spinner button-spinner-dark" /> : closed ? <RotateCcw size={12} /> : <Check size={13} />}{changing ? "Saving" : closed ? "Reopen" : "Close ticket"}</button></div></div>; })}</div> : <div className="feedback-history-empty"><MessageSquarePlus size={18} /><p>Your feedback history will appear here.</p></div>}</aside>
     </div>
   </section>;
 }
+
