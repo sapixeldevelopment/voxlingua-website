@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ReferralNotice from "@/components/referral-notice";
+import "./affiliates.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+    process.env.NEXT_PUBLIC_SITE_URL || "https://dexlyy.com",
   ),
   title: {
     default: "Dexlyy — AI Voice Interviews for FiveM Servers",
@@ -57,7 +59,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>{children}<ReferralNotice /></body>
     </html>
   );
 }

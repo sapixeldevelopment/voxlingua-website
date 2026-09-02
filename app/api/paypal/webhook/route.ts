@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { planForPayPalId, planLimits } from "@/lib/paypal-subscriptions";
 import { verifyPayPalWebhook } from "@/lib/paypal";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { ingestAffiliateEvent } from "@/lib/affiliate-payments";
 
 const statusMap: Record<string, string> = {
   "BILLING.SUBSCRIPTION.ACTIVATED": "active",
@@ -24,6 +25,9 @@ export async function POST(request: Request) {
   try { event = JSON.parse(raw) as Record<string, unknown>; } catch { return NextResponse.json({ error: "Invalid webhook body." }, { status: 400 }); }
   try {
     if (!(await verifyPayPalWebhook(request.headers, event))) return NextResponse.json({ error: "Invalid webhook signature." }, { status: 401 });
+    // Financial events must not be discarded by the subscription status timestamp
+    // filter below: older payments and refunds still belong in the ledger.
+    await ingestAffiliateEvent(event);
     const eventId = typeof event.id === "string" ? event.id : null;
     const eventType = typeof event.event_type === "string" ? event.event_type : "";
     const occurredAt = typeof event.create_time === "string" && !Number.isNaN(Date.parse(event.create_time)) ? new Date(event.create_time).toISOString() : null;

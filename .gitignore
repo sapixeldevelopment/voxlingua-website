@@ -7,3 +7,5 @@ npm-debug.log*
 /dist/
 .vinext/
 .wrangler/
+/.affiliate-tools/
+/.affiliate-preview/

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, CreditCard, ShieldCheck } from "lucide-react";
 import { BILLING_INTERVALS, BILLING_PLANS, PREPAID_PACKS, getPlanPrice, type BillingInterval, type OwnerBilling, type PlanKey, type PrepaidPackKey } from "@/lib/billing";
 import ConfirmModal from "@/components/confirm-modal";
+import ReferralCodeField from "@/components/referral-code-field";
 
 type BillingResponse = {
   billing: OwnerBilling | null;
@@ -57,7 +58,11 @@ function PayPalButton({ mode, clientId, customId, planId, planKey, billingInterv
         const buttons = mode === "subscription"
           ? window.paypal.Buttons({
               style: { layout: "vertical", shape: "rect", label: "subscribe", height: 42 },
-              createSubscription: (_data: unknown, actions: { subscription: { create: (details: { plan_id: string; custom_id: string }) => Promise<string> } }) => actions.subscription.create({ plan_id: planId!, custom_id: customId }),
+              createSubscription: async (_data: unknown, actions: { subscription: { create: (details: { plan_id: string; custom_id: string }) => Promise<string> } }) => {
+                const prepared = await fetch("/api/partners/referral", { method: "PUT", signal: AbortSignal.timeout(15_000) });
+                if (!prepared.ok) throw new Error("Referral check could not complete. Please retry checkout.");
+                return actions.subscription.create({ plan_id: planId!, custom_id: customId });
+              },
               onApprove: async (data: { subscriptionID?: string }) => {
                 const response = await fetch("/api/paypal/subscription/activate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subscriptionId: data.subscriptionID, planKey, billingInterval }) });
                 const result = await response.json().catch(() => ({})) as { error?: string };
@@ -188,6 +193,7 @@ export default function BillingPanel({ onActivated, suppressCheckout = false }: 
   if (!data?.paypal.clientId) return <section className="billing-panel billing-setup"><div className="billing-heading"><div><span className="eyebrow">billing setup</span><h2>Connect PayPal before taking payments</h2><p className="subtle">Add the PayPal client ID to the environment before opening checkout.</p></div><ShieldCheck size={26} /></div><p className="billing-hint">Use sandbox while testing. Keep PayPal secrets server-only and never place them in browser code.</p></section>;
 
   return <section className="billing-panel">
+    {!billing?.paypal_subscription_id && <ReferralCodeField />}
     <div className="billing-heading"><div><span className="eyebrow">owner billing</span><h2>{active ? "Your Dexlyy plan" : paused ? "Your paused Dexlyy plan" : "Choose a plan to unlock your portal"}</h2><p className="subtle">Interview credits are counted only when an applicant submits. Abandoned or disconnected interviews cost nothing.</p></div><CreditCard size={26} /></div>
     {available ? <>
       <div className={`billing-current ${paused ? "billing-paused" : ""}`}><div><strong>{BILLING_PLANS[billing.plan_key].name} plan</strong><span>{paused ? `Paused · portal access until ${formatDate(billing.subscription_period_end)}` : `Active subscription · renews ${formatDate(billing.subscription_period_end)}`} · billed {currentBillingInterval === "year" ? "yearly" : "monthly"}</span>{paused && <button type="button" className="btn btn-primary btn-small billing-resume" onClick={() => void resumePlan()} disabled={manageBusy}>{manageBusy ? "Resuming…" : "Resume subscription"}</button>}</div><div className="billing-credit-count">{billing.prepaid_interviews}<small> prepaid credits</small></div></div>

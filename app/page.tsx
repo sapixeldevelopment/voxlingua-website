@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BILLING_PLANS } from "@/lib/billing";
 import {
   ArrowRight,
   AudioWaveform,
@@ -21,7 +22,7 @@ import {
 const plans = [
   {
     name: "Starter",
-    price: 15,
+    price: Number(BILLING_PLANS.starter.price),
     description: "For new communities with a lighter application flow.",
     interviews: "15 interviews / month",
     servers: "1 server portal",
@@ -30,7 +31,7 @@ const plans = [
   },
   {
     name: "Small",
-    price: 29,
+    price: Number(BILLING_PLANS.small.price),
     description: "For a growing community building a reliable intake flow.",
     interviews: "50 interviews / month",
     servers: "1 server portal",
@@ -39,7 +40,7 @@ const plans = [
   },
   {
     name: "Medium",
-    price: 59,
+    price: Number(BILLING_PLANS.medium.price),
     description: "For busy servers with a steady stream of new players.",
     interviews: "150 interviews / month",
     servers: "1 server portal",
@@ -49,7 +50,7 @@ const plans = [
   },
   {
     name: "Pro",
-    price: 99,
+    price: Number(BILLING_PLANS.pro.price),
     description: "For established communities managing multiple teams.",
     interviews: "300 interviews / month",
     servers: "Up to 3 server portals",
@@ -58,7 +59,7 @@ const plans = [
   },
   {
     name: "Ultra",
-    price: 199,
+    price: Number(BILLING_PLANS.ultra.price),
     description: "For networks that operate communities at serious scale.",
     interviews: "750 interviews / month",
     servers: "Up to 15 server portals",
@@ -138,6 +139,7 @@ export default function Home() {
             <Link href="#how-it-works">How it works</Link>
             <Link href="#pricing">Pricing</Link>
             <Link href="#faq">FAQ</Link>
+            <Link href="/partners">Partners</Link>
           </div>
           <Link
             href="/login"
@@ -656,6 +658,7 @@ export default function Home() {
           <Link href="#pricing">Pricing</Link>
           <Link href="#faq">FAQ</Link>
           <Link href="/login">Owner sign in</Link>
+          <Link href="/partners">Partner programme</Link>
         </nav>
         <span>© {new Date().getFullYear()} Dexlyy</span>
       </footer>

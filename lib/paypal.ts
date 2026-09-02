@@ -24,6 +24,7 @@ async function getPayPalAccessToken() {
     },
     body: "grant_type=client_credentials",
     cache: "no-store",
+    signal: AbortSignal.timeout(15_000),
   });
   if (!response.ok) throw new Error(`PayPal authentication failed (${response.status}).`);
   const body = await response.json() as { access_token?: string };
@@ -37,7 +38,7 @@ export async function paypalRequest<T extends PayPalResponse = PayPalResponse>(p
   headers.set("Authorization", `Bearer ${token}`);
   headers.set("Accept", "application/json");
   if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
-  const response = await fetch(`${paypalBaseUrl()}${path}`, { ...init, headers, cache: "no-store" });
+  const response = await fetch(`${paypalBaseUrl()}${path}`, { ...init, headers, cache: "no-store", signal: init.signal || AbortSignal.timeout(20_000) });
   const text = await response.text();
   let body: T | null = null;
   try { body = text ? JSON.parse(text) as T : null; } catch { body = null; }

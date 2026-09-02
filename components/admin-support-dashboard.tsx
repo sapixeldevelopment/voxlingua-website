@@ -139,6 +139,7 @@ export default function AdminSupportDashboard({ email, role, displayName }: { em
   return <main className="admin-support-page">
     <header className="admin-support-header"><Link href="/" className="brand"><span className="brand-mark" />Dexlyy</Link><div className="admin-support-identity"><span><ShieldCheck size={14} /> {role}</span><strong>{displayName || email}</strong><button onClick={() => void signOut()}><LogOut size={14} /> Sign out</button></div></header>
     <div className="admin-support-shell">
+      {role === "admin" && <Link href="/admin/partners" className="btn btn-ghost btn-small">Partner operations & payouts</Link>}
       <section className="admin-support-hero"><div><span className="eyebrow">Platform operations</span><h1>Support inbox.</h1><p>Review every customer ticket, record internal context, and keep its progress accurate.</p></div><button className="btn btn-ghost btn-small" onClick={() => void loadTickets()} disabled={loading}><RefreshCw size={14} className={loading ? "spin" : ""} /> Refresh</button></section>
       <section className="admin-support-stats">
         <div><span className="admin-stat-icon open"><AlertCircle size={17} /></span><strong>{counts.open}</strong><small>Open</small></div>
@@ -154,4 +155,3 @@ export default function AdminSupportDashboard({ email, role, displayName }: { em
     </div>
   </main>;
 }
-

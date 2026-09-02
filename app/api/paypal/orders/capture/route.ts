@@ -21,6 +21,13 @@ export async function POST(request: Request) {
     const { body: capture } = await paypalRequest<{ status?: string; purchase_units?: Array<{ payments?: { captures?: Array<{ id?: string }> } }> }>(`/v2/checkout/orders/${encodeURIComponent(body.orderId)}/capture`, { method: "POST", body: JSON.stringify({}) });
     if (capture?.status !== "COMPLETED") return NextResponse.json({ error: "PayPal did not complete the payment." }, { status: 400 });
     const captureId = capture.purchase_units?.[0]?.payments?.captures?.[0]?.id || null;
+    // Durable recovery even if the browser closes or PayPal's webhook is delayed.
+    // Queue before granting credits; processing re-verifies the capture with PayPal.
+    if (captureId) {
+      const env = process.env.PAYPAL_ENVIRONMENT === "live" ? "live" : "sandbox";
+      const queued = await admin.from("affiliate_events").upsert({ event_id: `${env}:server-capture-${captureId}`, payload: { id: `server-capture-${captureId}`, event_type: "PAYMENT.CAPTURE.COMPLETED", resource: { id: captureId } } }, { onConflict: "event_id", ignoreDuplicates: true });
+      if (queued.error) console.error("Capture affiliate recovery queue unavailable");
+    }
     const { data: completion, error: completionError } = await admin.rpc("complete_prepaid_order", { p_order_id: order.id, p_capture_id: captureId });
     if (completionError) return NextResponse.json({ error: completionError.message }, { status: 500 });
     return NextResponse.json(completion || { ok: true, credits: order.interview_credits });

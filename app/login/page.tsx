@@ -6,6 +6,7 @@ import { ArrowRight, Check, LockKeyhole, MessageCircle, ShieldCheck } from "luci
 import { createClient } from "@/lib/supabase/client";
 import { discordAuthEnabled, friendlyAuthError } from "@/lib/auth";
 import { REMEMBER_ME_COOKIE, REMEMBER_ME_MAX_AGE } from "@/lib/supabase/session";
+import { safeNext } from "@/lib/affiliate-policy";
 
 export default function LoginPage() {
   const supabase = createClient();
@@ -27,7 +28,8 @@ export default function LoginPage() {
       setError("Discord sign-in is not enabled for this Dexlyy project yet. Enable Discord under Supabase → Authentication → Providers, then reload this page.");
       return;
     }
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({ provider: "discord", options: { redirectTo: `${window.location.origin}/auth/callback?next=/dashboard` } });
+    const next = safeNext(new URL(window.location.href).searchParams.get("next"));
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({ provider: "discord", options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` } });
     if (oauthError) { setBusy(false); setError(friendlyAuthError(oauthError.message)); }
   }
 
