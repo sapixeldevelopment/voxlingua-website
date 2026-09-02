@@ -135,7 +135,7 @@ export async function POST(request: Request) {
 
   const { data: feedback, error: insertError } = await supabase
     .from("owner_feedback")
-    .insert({ owner_id: auth.user.id, category, subject, message, page_path: pagePath })
+    .insert({ owner_id: auth.user.id, submitter_email: auth.user.email || null, category, subject, message, page_path: pagePath })
     .select("id,category,subject,message,status,created_at")
     .single();
   if (insertError || !feedback) return noStoreJson({ error: "Your feedback could not be saved." }, { status: 500 });
