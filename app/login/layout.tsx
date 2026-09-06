@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "./premium.css";
 
 export const metadata: Metadata = {
   title: "Owner Sign In",
