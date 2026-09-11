@@ -14,7 +14,9 @@ export default {
       ? '/api/maintenance/application-retention'
       : '/api/maintenance/affiliate-events';
     const request = new Request(`https://dexlyy.com${maintenancePath}`, { headers: { Authorization: `Bearer ${env.CRON_SECRET}` } });
-    const response = await app.fetch(request, env, ctx);
-    if (!response.ok) throw new Error('Scheduled maintenance failed');
+    const jobs = [app.fetch(request, env, ctx)];
+    if (controller.cron !== '17 3 * * *') jobs.push(app.fetch(new Request('https://dexlyy.com/api/maintenance/service-notifications', {headers: {Authorization: `Bearer ${env.CRON_SECRET}`}}), env, ctx));
+    const results = await Promise.allSettled(jobs);
+    if (results.some(result => result.status === 'rejected' || !result.value.ok)) throw new Error('Scheduled maintenance failed');
   },
 };

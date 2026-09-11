@@ -9179,3 +9179,14 @@ h1 {
     padding: 16px;
   }
 }
+.guided-room { max-width: 860px; margin: 0 auto; padding: 64px 24px; color: #18392d; }
+.guided-room header { margin-bottom: 32px; }
+.guided-room h1 { font-size: clamp(38px,6vw,64px); letter-spacing: -.045em; line-height: 1.08; margin: 18px 0; }
+.guided-room p { line-height: 1.7; }
+.guided-card { padding: clamp(24px,4vw,48px); background: #fff; border: 1px solid #d9e7df; border-radius: 24px; box-shadow: 0 20px 70px #153d2510; display: grid; gap: 20px; }
+.guided-card h2 { font-size: clamp(24px,4vw,34px); line-height: 1.4; margin: 0; }
+.guided-topline,.guided-topline>span,.guided-status,.guided-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.guided-topline { justify-content: space-between; border-bottom: 1px solid #e5ece8; padding-bottom: 20px; font-size: 13px; }
+.guided-status { background: #edf7f1; border-radius: 12px; padding: 18px; }
+.guided-privacy { text-align: center; font-size: 13px; color: #567465; }
+.plan-feature-disclosure { font-size: 13px; line-height: 1.65; padding: 14px; border-radius: 12px; background: #edf6f0; color: #264c39; }

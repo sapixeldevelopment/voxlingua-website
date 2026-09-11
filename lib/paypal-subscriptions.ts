@@ -1,8 +1,9 @@
 import "server-only";
 
-import { BILLING_INTERVALS, BILLING_PLANS, PLAN_KEYS, type BillingInterval, type PlanKey } from "@/lib/billing";
+import { BILLING_INTERVALS, BILLING_PLANS, PLAN_KEYS, REALTIME_PLAN_KEYS, isGuidedPlan, getPublicPayPalPlanId, type BillingInterval, type PlanKey } from "@/lib/billing";
 
 export function serverPlanId(planKey: PlanKey, interval: BillingInterval = "month") {
+  if (isGuidedPlan(planKey)) return planKey === "free" ? "" : process.env[`PAYPAL_PLAN_${planKey.toUpperCase()}${interval === "year" ? "_YEARLY" : ""}`] || getPublicPayPalPlanId(planKey, interval);
   const ids = interval === "year"
     ? {
         starter: process.env.PAYPAL_PLAN_STARTER_YEARLY || process.env.NEXT_PUBLIC_PAYPAL_PLAN_STARTER_YEARLY || "",
@@ -18,7 +19,7 @@ export function serverPlanId(planKey: PlanKey, interval: BillingInterval = "mont
         pro: process.env.PAYPAL_PLAN_PRO || process.env.NEXT_PUBLIC_PAYPAL_PLAN_PRO || "",
         ultra: process.env.PAYPAL_PLAN_ULTRA || process.env.NEXT_PUBLIC_PAYPAL_PLAN_ULTRA || "",
       };
-  return ids[planKey];
+  return ids[planKey as typeof REALTIME_PLAN_KEYS[number]];
 }
 
 export function planForPayPalId(planId?: string | null): { planKey: PlanKey; billingInterval: BillingInterval } | null {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { BILLING_INTERVALS, BILLING_PLANS, PREPAID_PACKS, getPublicPayPalPlanId, type BillingInterval, type PlanKey } from "@/lib/billing";
 import { createClient } from "@/lib/supabase/server";
+import {serverPlanId} from "@/lib/paypal-subscriptions";
 
 export async function GET() {
   const supabase = await createClient();
@@ -14,7 +15,7 @@ export async function GET() {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   const planIds = Object.fromEntries(BILLING_INTERVALS.map((interval: BillingInterval) => [
     interval,
-    Object.fromEntries((Object.keys(BILLING_PLANS) as PlanKey[]).map((key) => [key, getPublicPayPalPlanId(key, interval)])),
+    Object.fromEntries((Object.keys(BILLING_PLANS) as PlanKey[]).map((key) => [key, serverPlanId(key, interval)])),
   ]));
   return NextResponse.json({
     billing: data || null,

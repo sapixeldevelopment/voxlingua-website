@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import ReferralNotice from "@/components/referral-notice";
 import "./affiliates.css";
+import "./workspace.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(

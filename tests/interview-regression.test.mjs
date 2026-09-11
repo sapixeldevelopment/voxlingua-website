@@ -133,6 +133,8 @@ function componentHarness(fetcher, session = savedSession) {
     '@/lib/client-audio': { createApplicantVoiceSample: async () => null },
     '@/lib/client-request': requests, '@/lib/interview-policy': policy,
     '@/components/confirm-modal': {},
+    '@/components/interview-recovery': {useInterviewRecovery: () => ({save:async()=>{},clear:async()=>{},prime(){}})},
+    '@/lib/recording-upload': {uploadInterviewRecording:async()=>{uploads++;return {error:null};}},
   }, { window: { setTimeout, clearTimeout, clearInterval() {} }, fetch: fetcher }, (source) => source
     .replace('const API_REQUEST_TIMEOUT_MS = 20_000;', 'const API_REQUEST_TIMEOUT_MS = 10;')
     .replace('  return <main className="interview-page">', `  return {
@@ -272,6 +274,7 @@ test('Realtime request preserves patient turn detection and provides the silent 
     return query({ data: values[table] });
   } };
   const route = load('app/api/realtime/session/route.ts', {
+    '@/lib/billing': load('lib/billing.ts'),
     'next/server': {}, 'node:crypto': { createHash },
     '@/lib/supabase/admin': { createAdminClient: () => admin },
     '@/lib/supabase/server': { createClient: async () => ({ auth: {

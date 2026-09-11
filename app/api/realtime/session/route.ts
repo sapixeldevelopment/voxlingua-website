@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import {isGuidedPlan} from "@/lib/billing";
 import { createHash } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -19,13 +20,15 @@ export async function POST(request: Request) {
     return noStoreJson({ error: "Missing or invalid interview session details." }, { status: 400 });
   }
   const admin = createAdminClient();
-  const { data: interview } = await admin.from("interview_sessions").select("id,application_id,server_id,status,started_at,restart_count").eq("id", body.sessionId).maybeSingle();
+  const { data: interview } = await admin.from("interview_sessions").select("id,application_id,server_id,status,started_at,restart_count,interview_mode").eq("id", body.sessionId).maybeSingle();
+  if(interview?.interview_mode==="guided") return noStoreJson({error:"This is a Guided Voice interview. GPT Realtime is not included."},{status:403});
   if (!interview || !["created", "in_progress"].includes(interview.status)) return noStoreJson({ error: "Interview session not found or already completed." }, { status: 404 });
   const { data: application } = await admin.from("applications").select("applicant_user_id").eq("id", interview.application_id).maybeSingle();
   if (application?.applicant_user_id !== auth.user.id) return noStoreJson({ error: "Interview session not found." }, { status: 404 });
   const { data: server } = await admin.from("servers").select("owner_id,is_active").eq("id", interview.server_id).maybeSingle();
   if (!server?.is_active) return noStoreJson({ error: "This interview portal is closed." }, { status: 403 });
-  const { data: billing } = await admin.from("owner_billing").select("status,subscription_period_end,monthly_interview_limit,monthly_interviews_used,prepaid_interviews,daily_interview_limit,daily_interviews_used,daily_period_start").eq("user_id", server.owner_id).maybeSingle();
+  const { data: billing } = await admin.from("owner_billing").select("plan_key,status,subscription_period_end,monthly_interview_limit,monthly_interviews_used,prepaid_interviews,daily_interview_limit,daily_interviews_used,daily_period_start").eq("user_id", server.owner_id).maybeSingle();
+  if(billing && isGuidedPlan(billing.plan_key)) return noStoreJson({error:"GPT Realtime requires a Conversational AI package."},{status:403});
   const paidThrough = billing?.subscription_period_end ? new Date(`${billing.subscription_period_end}T00:00:00Z`) : null;
   const subscribed = billing?.status === "active" || (billing?.status === "suspended" && paidThrough !== null && paidThrough > new Date());
   const today = new Date().toISOString().slice(0, 10);
@@ -174,6 +177,7 @@ ${questionGuide}`;
     headers: {
       "Content-Type": "application/sdp",
       "X-Dexlyy-Question-Count": String(questionCount),
+      "X-Dexlyy-Started-At": startedAt.toISOString(),
       "X-Dexlyy-Interview-Limit-Seconds": String(remainingTimeLimitSeconds),
     },
   });

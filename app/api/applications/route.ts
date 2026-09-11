@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import {isGuidedPlan} from "@/lib/billing";
 import { createClient } from "@/lib/supabase/server";
 import { getVerifiedDiscordConnection } from "@/lib/discord-connection";
 import { discordGuildMemberRoles, discordIdentity, getDiscordGuildMember, isDiscordSnowflake } from "@/lib/discord";
@@ -48,18 +49,21 @@ export async function GET(request: Request) {
     .maybeSingle();
   if (existing) {
     let resumeSessionId: string | null = null;
-    if (existing.status === "interviewing") {
+    let statusSessionId: string | null = null;
+    {
       const { data: session } = await admin
         .from("interview_sessions")
         .select("id")
         .eq("application_id", existing.id)
         .maybeSingle();
-      resumeSessionId = session?.id || null;
+      statusSessionId = session?.id || null;
+      if(existing.status === "interviewing") resumeSessionId = statusSessionId;
     }
     return noStoreJson({
       eligible: false,
       reason: "application_in_progress",
       resumeSessionId,
+      statusSessionId,
       error: existing.status === "interviewing"
         ? "You already started an application for this server. Continue that interview instead of creating another one."
         : "You already have an application awaiting this server's review.",
@@ -129,7 +133,7 @@ export async function POST(request: Request) {
 
   const { data: billing } = await admin
     .from("owner_billing")
-    .select("status,subscription_period_end")
+    .select("status,subscription_period_end,plan_key")
     .eq("user_id", server.owner_id)
     .maybeSingle();
   const paidThrough = billing?.subscription_period_end ? new Date(`${billing.subscription_period_end}T00:00:00Z`) : null;
@@ -243,7 +247,7 @@ export async function POST(request: Request) {
 
   const { data: session, error: sessionError } = await admin
     .from("interview_sessions")
-    .insert({ application_id: application.id, server_id: server.id, status: "created" })
+    .insert({ application_id: application.id, server_id: server.id, status: "created", interview_mode:isGuidedPlan(billing!.plan_key)?"guided":"realtime" })
     .select("id")
     .single();
   if (sessionError || !session) {

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { MAX_INTERVIEW_QUESTIONS } from "@/lib/interview-policy";
+import { QUESTION_TEMPLATES, APPLICATION_TEMPLATES } from "@/lib/question-templates";
 import { getDiscordBotInstallUrl } from "@/lib/discord-install";
 import type { ApplicationField, Question, Server, ServerAdditionalRole } from "@/lib/types";
 
@@ -1155,6 +1156,7 @@ export default function ServerSettingsForm({
         </section>
       ) : activeTab === "fields" ? (
         <section className="settings-tab-content settings-fields-panel" role="tabpanel">
+          <details className="service-details"><summary>Start with an application template</summary><p>Add optional fields without replacing existing questions or saved application data. Review and save your settings to publish.</p><div className="question-templates">{APPLICATION_TEMPLATES.map(template=><article key={template.id}><strong>{template.name}</strong><p>{template.fields.length} optional questions</p><button type="button" className="btn btn-ghost btn-small" disabled={fields.length+template.fields.length>50||template.fields.every(f=>fields.some(existing=>existing.field_key===`template_${f.key}`))} onClick={()=>setFields(current=>[...current,...template.fields.filter(f=>!current.some(existing=>existing.field_key===`template_${f.key}`)).map((f,index)=>({id:'',server_id:server.id,field_key:`template_${f.key}`,label:f.label,description:f.description,field_type:'textarea' as const,placeholder:'In your own words',options:[],is_required:false,is_active:true,order_index:current.length+index}))])}>Add fields</button></article>)}</div></details>
           <div className="settings-content-heading">
             <div>
               <span className="settings-kicker">PLAYER APPLICATION</span>
@@ -1315,9 +1317,10 @@ export default function ServerSettingsForm({
         </section>
       ) : activeTab === "questions" ? (
         <section className="settings-tab-content settings-questions-panel" role="tabpanel">
+          <details className="service-details"><summary>Start with a question template</summary><p>Append a ready-to-use set without replacing existing questions. Review the wording, then save your settings.</p><div className="question-templates">{QUESTION_TEMPLATES.map(template=><article key={template.id}><strong>{template.name}</strong><p>{template.description}</p><button type="button" className="btn btn-ghost btn-small" disabled={questions.length+template.questions.length>MAX_INTERVIEW_QUESTIONS} onClick={()=>setQuestions(current=>[...current,...template.questions.map((prompt,index)=>({id:'',server_id:server.id,prompt,scenario:null,order_index:current.length+index,is_active:true}))])}>Add {template.questions.length} questions</button></article>)}</div></details>
           <div className="settings-content-heading">
             <div>
-              <span className="settings-kicker">GPT REALTIME GUIDE</span>
+              <span className="settings-kicker">INTERVIEW QUESTIONS</span>
               <h3>Make the interview sound like your server</h3>
               <p>
                 Configure up to {MAX_INTERVIEW_QUESTIONS} questions. Every

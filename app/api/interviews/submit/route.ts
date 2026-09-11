@@ -29,9 +29,10 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: readySession } = await supabase
     .from("interview_sessions")
-    .select("server_id,recording_path,started_at,status,restart_count")
+    .select("server_id,recording_path,started_at,status,restart_count,interview_mode")
     .eq("id", body.sessionId)
     .maybeSingle();
+  if (readySession?.interview_mode==="guided") return noStoreJson({error:"Use Guided Voice submission."},{status:403});
   if (!readySession || !["created", "in_progress", "completed"].includes(readySession.status)) {
     return noStoreJson({ error: "This interview cannot be submitted." }, { status: 409 });
   }

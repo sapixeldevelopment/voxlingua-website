@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import WorkspaceFrame from "@/components/workspace-frame";
 
 export const metadata: Metadata = {
   title: "Owner Workspace",
@@ -10,5 +11,5 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <WorkspaceFrame>{children}</WorkspaceFrame>;
 }

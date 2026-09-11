@@ -80,6 +80,7 @@ export type Question = {
 };
 
 export type InterviewSession = {
+  interview_mode?: "guided" | "realtime";
   id: string;
   application_id: string;
   server_id: string;

@@ -20,6 +20,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import type { Application, Server } from "@/lib/types";
 import { ApplicationQueue } from "@/components/dashboard-app";
+import ServiceInsights from "@/components/service-insights";
 
 export default function ServerWorkspaceApp({serverId}: {serverId: string}) {
   const supabase = createClient();
@@ -141,6 +142,7 @@ export default function ServerWorkspaceApp({serverId}: {serverId: string}) {
         <article className="stat-card workspace-stat-card status"><span className="workspace-stat-icon"><Activity size={18}/></span><div><div className="stat-label">Portal status</div><div className="stat-number">{configurationPaused ? "Paused" : "Active"}</div><p>{configurationPaused ? "Configuration is locked" : "Accepting applications"}</p></div></article>
       </div>
       <ApplicationQueue server={server} applications={applications} />
+      <ServiceInsights serverId={server.id} slug={server.slug} />
     </div>
   </main>;
 }

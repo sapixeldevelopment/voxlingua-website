@@ -226,3 +226,5 @@
 @media (max-width:360px) { .site-container { width:calc(100% - 30px); } .site-announcement a { display:none; } .site-hero h1 { font-size:49px!important; } .site-product-content { padding:18px 12px; } .site-live-pill { font-size:6px; } .site-demo-recording > svg { display:none; } .site-demo-decision > span { max-width:125px; } .site-page h2 { font-size:29px; } .site-steps { grid-template-columns:1fr; gap:30px; } }
 @media (prefers-reduced-motion:reduce) { html:has(.site-page) { scroll-behavior:auto; } .site-page *, .site-page *:before, .site-page *:after { animation:none!important; transition:none!important; } }
 @media (max-width:640px) { .site-hero h1 { font-size:clamp(40px,12.8vw,60px)!important; } }
+.site-plans.guided-plans { grid-template-columns: repeat(3,minmax(0,1fr)); }
+@media(max-width:700px) { .site-plans.guided-plans {grid-template-columns:1fr;} }

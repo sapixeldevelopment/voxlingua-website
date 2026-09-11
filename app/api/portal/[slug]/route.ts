@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import {isGuidedPlan} from "@/lib/billing";
 import { getVerifiedDiscordConnection } from "@/lib/discord-connection";
 import { consumeRateLimit, isSafeSlug, noStoreJson, requestClientIp } from "@/lib/security";
 
@@ -24,7 +25,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
 
   const { data: billing } = await admin
     .from("owner_billing")
-    .select("status,subscription_period_end")
+    .select("status,subscription_period_end,plan_key")
     .eq("user_id", server.owner_id)
     .maybeSingle();
   const paidThrough = billing?.subscription_period_end ? new Date(`${billing.subscription_period_end}T00:00:00Z`) : null;
@@ -41,6 +42,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
 
   return noStoreJson({
     server: {
+      interview_mode: isGuidedPlan(billing!.plan_key) ? "guided" : "realtime",
       id: server.id,
       name: server.name,
       slug: server.slug,

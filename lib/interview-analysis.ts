@@ -236,10 +236,11 @@ export async function analyzeInterviewSession(sessionId: string) {
   try {
     const { data: session, error: sessionError } = await admin
       .from("interview_sessions")
-      .select("id,application_id,server_id,transcript,status")
+      .select("id,application_id,server_id,transcript,status,interview_mode")
       .eq("id", sessionId)
       .maybeSingle();
     if (sessionError || !session || session.status !== "completed") throw new Error("Completed interview session not found.");
+    if (session.interview_mode==="guided") return;
     voiceSamplePath = `${session.server_id}/${session.id}/voice-sample.wav`;
 
     await admin.from("interview_assessments").upsert({

@@ -8,6 +8,7 @@ import type { ApplicationField } from "@/lib/types";
 import { discordAuthEnabled, friendlyAuthError } from "@/lib/auth";
 
 type PublicPortalServer = {
+  interview_mode?: "guided" | "realtime";
   id: string;
   name: string;
   slug: string;
@@ -31,6 +32,7 @@ export default function PortalApp({ slug }: { slug: string }) {
     kind: "application_in_progress" | "already_approved";
     message: string;
     resumeSessionId?: string | null;
+    statusSessionId?: string | null;
   } | null>(null);
   const [discordStatus, setDiscordStatus] = useState<
     | "checking"
@@ -93,6 +95,7 @@ export default function PortalApp({ slug }: { slug: string }) {
               error?: string;
               reason?: "application_in_progress" | "already_approved";
               resumeSessionId?: string | null;
+              statusSessionId?: string | null;
               returningApplicant?: boolean;
             } | null;
             if (!eligibilityResponse.ok) {
@@ -100,6 +103,7 @@ export default function PortalApp({ slug }: { slug: string }) {
                 kind: eligibility?.reason === "already_approved" ? "already_approved" : "application_in_progress",
                 message: eligibility?.error || "You cannot create another application for this server right now.",
                 resumeSessionId: eligibility?.resumeSessionId,
+                statusSessionId: eligibility?.statusSessionId,
               });
             } else {
               setReturningApplicant(Boolean(eligibility?.returningApplicant));
@@ -305,7 +309,7 @@ export default function PortalApp({ slug }: { slug: string }) {
               </div>
               <div className={`portal-process-step ${alreadyApproved ? "complete" : ""}`}>
                 <span>{alreadyApproved ? <Check size={15} /> : "03"}</span>
-                <div><strong>Join the interview</strong><small>Talk naturally with the Dexlyy interviewer.</small></div>
+                <div><strong>Join the interview</strong><small>{server.interview_mode === "guided" ? "Listen to each question, then record your answer." : "Talk naturally with the Dexlyy interviewer."}</small></div>
               </div>
             </div>
 
@@ -313,7 +317,7 @@ export default function PortalApp({ slug }: { slug: string }) {
               <ShieldCheck size={19} />
               <div>
                 <strong>A person always makes the final call.</strong>
-                <p>Your application, transcript, and interview are reviewed by the {server.name} team.</p>
+                <p>Your application and interview are reviewed by the {server.name} team.</p>
               </div>
             </div>
             <div className="portal-expectations">
@@ -405,6 +409,7 @@ export default function PortalApp({ slug }: { slug: string }) {
                     <strong>Another application cannot be started</strong>
                     <p>{applicationBlock.message}</p>
                     {applicationBlock.resumeSessionId && <Link className="btn btn-ghost btn-small" href={`/interview/${applicationBlock.resumeSessionId}`}>Continue your interview <ArrowRight size={14} /></Link>}
+                    {applicationBlock.statusSessionId && <Link className="btn btn-ghost btn-small" href={`/application-status/${applicationBlock.statusSessionId}`}>View application status <ArrowRight size={14}/></Link>}
                   </div>
                 </div>}
                 <div className="portal-fields">
@@ -418,7 +423,8 @@ export default function PortalApp({ slug }: { slug: string }) {
                 </button>
               </form>
             )}
-            {!alreadyApproved && <p className="portal-consent"><LockKeyhole size={13} /> By continuing, you consent to Dexlyy recording your interview and sending interview audio, your application, and transcript to OpenAI to conduct the interview and generate review assistance. A short audio sample may also be analysed for signs of voice alteration. These automated indicators can be wrong and do not make the admission decision; the community&apos;s human reviewers do. Recordings follow the community&apos;s retention setting; application and transcript history remain until the community owner deletes them. Please avoid unnecessary sensitive personal information. For privacy or deletion enquiries, contact the community owner or support@dexlyy.com.</p>}
+            {!alreadyApproved && server.interview_mode==="guided" && <p className="portal-consent"><LockKeyhole size={13}/> Guided Voice uses AI-generated speech to read prepared questions. Your answers are recorded for the community’s human review team. There is no written transcript, AI assessment, scoring, voice analysis, or live AI conversation. Your recorded answers are not sent to OpenAI. By continuing, you consent to recording and storage under the community’s retention policy. Contact the owner or support@dexlyy.com for privacy requests.</p>}
+            {!alreadyApproved && server.interview_mode!=="guided" && <p className="portal-consent"><LockKeyhole size={13} /> By continuing, you consent to Dexlyy recording your interview and sending interview audio, your application, and transcript to OpenAI to conduct the interview and generate review assistance. A short audio sample may also be analysed for signs of voice alteration. These automated indicators can be wrong and do not make the admission decision; the community&apos;s human reviewers do. Recordings follow the community&apos;s retention setting; application and transcript history remain until the community owner deletes them. Please avoid unnecessary sensitive personal information. For privacy or deletion enquiries, contact the community owner or support@dexlyy.com.</p>}
           </section>
         </div>
       </section>

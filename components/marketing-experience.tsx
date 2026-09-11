@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, AudioWaveform, Check, ChevronRight, CircleCheck, FileText, Headphones, LayoutDashboard, Menu, MessageCircle, Mic, Settings2, ShieldCheck, Users, X } from "lucide-react";
-import { BILLING_PLANS, PLAN_KEYS } from "@/lib/billing";
+import { BILLING_PLANS, REALTIME_PLAN_KEYS, GUIDED_PLAN_KEYS, planFeatures } from "@/lib/billing";
 
 export function MarketingNavigation() {
   const [open, setOpen] = useState(false);
@@ -20,6 +20,25 @@ export function ProductPreview() {
 }
 
 export function MarketingPricing() {
-  const [yearly, setYearly] = useState(false);
-  return <><div className="site-billing-switch" role="group" aria-label="Billing period"><button type="button" aria-pressed={!yearly} onClick={() => setYearly(false)}>Monthly</button><button type="button" aria-pressed={yearly} onClick={() => setYearly(true)}>Yearly <span>2 months free</span></button></div><p className="site-billing-explanation" aria-live="polite">{yearly ? "Pay for 10 months. Get 12. Your interview allowance renews monthly." : "Straightforward monthly billing. Choose yearly to get 2 months free."}</p><div className="site-plans">{PLAN_KEYS.map(key => { const plan = BILLING_PLANS[key]; const featured = key === "medium"; return <article key={key} className={`site-plan${featured ? " site-plan-featured" : ""}`}><div className="site-plan-ribbon">{featured ? <><span className="site-status-dot" /> BUILT FOR GROWING COMMUNITIES</> : ""}</div><div className="site-plan-content"><span className="site-plan-size">{key === "starter" ? "GET THINGS STARTED" : key === "small" ? "FIND YOUR RHYTHM" : key === "medium" ? "MAKE ROOM TO GROW" : key === "pro" ? "BRING YOUR TEAMS TOGETHER" : "BUILD YOUR NETWORK"}</span><h3>{plan.name}</h3><p className="site-plan-description">{plan.description}</p><div className="site-plan-price"><strong>${Number(yearly ? plan.yearlyPrice : plan.price).toLocaleString("en-US")}</strong><span>/{yearly ? "year" : "month"}</span></div><p className="site-plan-billing">{yearly ? `USD billed yearly · save $${Number(plan.price) * 12 - Number(plan.yearlyPrice)}` : "USD billed monthly"}</p><Link href="/login" className={`site-button ${featured ? "site-button-green" : "site-button-outline"}`} aria-label={`Get started with ${plan.name}`}>Get started <ArrowRight size={14} /></Link><div className="site-plan-divider" /><ul><li><AudioWaveform size={15} /><span><strong>{plan.interviews}</strong> interviews / month</span></li><li><LayoutDashboard size={15} /><span><strong>{plan.servers}</strong> server {plan.servers === 1 ? "portal" : "portals"}</span></li><li><Users size={15} /><span><strong>{plan.staff === -1 ? "Unlimited" : plan.staff}</strong> staff seats</span></li></ul><span className="site-plan-all"><Check size={14} /> Complete workflow included</span></div></article>; })}</div></>;
+  const [yearly,setYearly]=useState(false);
+  const [guided,setGuided]=useState(true);
+  return <>
+    <div className="site-billing-switch" role="group" aria-label="Interview type">
+      <button type="button" aria-pressed={guided} onClick={()=>setGuided(true)}>Guided Voice · Text-to-speech</button>
+      <button type="button" aria-pressed={!guided} onClick={()=>setGuided(false)}>Conversational AI · GPT Realtime</button>
+    </div>
+    <p className="site-billing-explanation">{guided ? "Prepared questions read aloud. Recorded answers for your team to review. No transcripts, AI reviews, scores, voice analysis, or live AI conversation." : "Live AI conversations with recordings, transcripts, AI reviews, scores, and voice analysis. Your team makes the final decision."}</p>
+    <div className="site-billing-switch" role="group" aria-label="Billing period"><button type="button" aria-pressed={!yearly} onClick={()=>setYearly(false)}>Monthly</button><button type="button" aria-pressed={yearly} onClick={()=>setYearly(true)}>Yearly · 2 months free</button></div>
+    <div className={guided?"site-plans guided-plans":"site-plans"}>{(guided?GUIDED_PLAN_KEYS:REALTIME_PLAN_KEYS).map(key=>{
+      const plan=BILLING_PLANS[key],featured=key===(guided?"boost":"medium");
+      return <article key={key} className={`site-plan${featured?" site-plan-featured":""}`}>
+        <div className="site-plan-ribbon">{featured?"ROOM TO GROW":""}</div><div className="site-plan-content">
+        <span className="site-plan-size">{guided?"GUIDED VOICE":"GPT REALTIME"}</span><h3>{plan.name}</h3>
+        <p className="site-plan-description">{plan.description}</p><div className="site-plan-price"><strong>${Number(yearly?plan.yearlyPrice:plan.price)}</strong><span>/{yearly&&key!=="free"?"year":"month"}</span></div>
+        <p className="site-plan-billing">{key==="free"?"No payment required":yearly?"USD billed yearly · 2 months free":"USD billed monthly"}</p>
+        <Link href="/login" className={`site-button ${featured?"site-button-green":"site-button-outline"}`}>Get started <ArrowRight size={14}/></Link>
+        <div className="site-plan-divider"/><ul><li><AudioWaveform size={15}/>{plan.interviews} interviews / month</li><li><LayoutDashboard size={15}/>{plan.servers} server portals</li><li><Users size={15}/>{plan.staff===-1?"Unlimited":plan.staff} staff seats</li></ul>
+        <p className="plan-feature-disclosure">{planFeatures(key)}</p>
+      </div></article>;
+    })}</div></>;
 }

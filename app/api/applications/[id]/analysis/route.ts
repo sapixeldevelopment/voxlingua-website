@@ -20,6 +20,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     return noStoreJson({ error: "You are not allowed to review this application." }, { status: 403 });
   }
 
+  const {data:session}=await admin.from("interview_sessions").select("interview_mode").eq("application_id",id).maybeSingle();
+  if(session?.interview_mode==="guided") return noStoreJson({assessment:null,interviewMode:"guided"});
   const { data, error } = await admin
     .from("interview_assessments")
     .select("status,overall_score,rules_score,communication_score,maturity_score,confidence,summary,strengths,concerns,rules_evidence,voice_alteration_score,voice_alteration_confidence,voice_analysis_result,voice_notes,completed_at")

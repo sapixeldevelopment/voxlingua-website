@@ -1,0 +1,9 @@
+export const QUESTION_TEMPLATES = [
+ {id:'roleplay',name:'Roleplay essentials',description:'Community fit, character choices and respectful play.',questions:['Tell us about your character and the kind of stories you want to create.','What does good roleplay mean to you? Give a practical example.','How would you handle a disagreement without disrupting a scene?']},
+ {id:'newcomer',name:'New-player welcome',description:'An approachable introduction for first-time players.',questions:['What brought you to this community, and what are you excited to try?','How would you ask for help if you were unsure about a rule?','Tell us how you would help another new player feel welcome.']},
+ {id:'experienced',name:'Experienced community member',description:'Judgment, collaboration and handling difficult situations.',questions:['Describe a memorable collaborative scene and your part in making it work.','How do you keep out-of-character knowledge separate from your character’s decisions?','Tell us about a mistake you made in a community and what you learned.','What would you do if a friend repeatedly ignored community rules?']},
+] as const;
+export const APPLICATION_TEMPLATES = [
+ {id:'character',name:'Character introduction',fields:[{key:'character_background',label:'Your character’s background',description:'A short introduction to the character you want to play.'},{key:'community_goals',label:'What would you like to contribute?',description:'Tell the team what you hope to bring to the community.'}]},
+ {id:'experience',name:'Experience & expectations',fields:[{key:'previous_experience',label:'Your roleplay experience',description:'New players are welcome. Tell us where you are starting from.'},{key:'community_expectations',label:'What are you looking for in a community?',description:'Share what matters to you as a player.'}]},
+] as const;

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { PREPAID_PACKS, type PrepaidPackKey } from "@/lib/billing";
+import { isGuidedPlan, PREPAID_PACKS, type PrepaidPackKey } from "@/lib/billing";
 import { paypalRequest } from "@/lib/paypal";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -15,9 +15,10 @@ export async function POST(request: Request) {
   const body = await readJsonBody<{ packKey?: string }>(request, 2_048);
   const packKey = body?.packKey as PrepaidPackKey;
   if (!packKey || !Object.prototype.hasOwnProperty.call(PREPAID_PACKS, packKey)) return NextResponse.json({ error: "Invalid prepaid pack." }, { status: 400 });
-  const { data: billing, error: billingError } = await supabase.from("owner_billing").select("status").eq("user_id", auth.user.id).maybeSingle();
+  const { data: billing, error: billingError } = await supabase.from("owner_billing").select("status,plan_key").eq("user_id", auth.user.id).maybeSingle();
   if (billingError) return NextResponse.json({ error: billingError.message }, { status: 500 });
   if (billing?.status !== "active") return NextResponse.json({ error: "An active monthly subscription is required before buying extra interview credits." }, { status: 402 });
+  if (isGuidedPlan(billing.plan_key)) return NextResponse.json({ error: "Extra interview credit packs are only available for Conversational AI plans. Upgrade your Guided Voice plan for a larger allowance." }, { status: 400 });
   const pack = PREPAID_PACKS[packKey];
   try {
     const { body: order } = await paypalRequest<{ id?: string }>("/v2/checkout/orders", {

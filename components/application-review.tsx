@@ -6,6 +6,7 @@ import { ArrowLeft, AudioWaveform, Ban, BrainCircuit, CalendarClock, Check, File
 import { createClient } from "@/lib/supabase/client";
 import type { Application, ApplicationField, InterviewAssessment, InterviewSession, Server, ServerAdditionalRole } from "@/lib/types";
 import ConfirmModal from "@/components/confirm-modal";
+import ReviewCollaboration from "@/components/review-collaboration";
 
 type ModerationEvent = {
   id: string;
@@ -262,7 +263,8 @@ export default function ApplicationReview({ applicationId }: { applicationId: st
           <div className="moderation-disclaimer"><ShieldCheck size={15} /><span><strong>Use context, not the score alone.</strong> Reasons may be incomplete and an unban can indicate a reversed decision. Review the event history and interview before deciding.</span></div>
         </>}
       </section>
-      {(assessmentLoading || assessment) && <section className="assessment-panel">
+      <ReviewCollaboration applicationId={applicationId} />
+      {session?.interview_mode !== "guided" && (assessmentLoading || assessment) && <section className="assessment-panel">
         <div className="assessment-panel-heading">
           <div><span className="eyebrow"><Sparkles size={12} /> AI interview signals</span><h2>Evidence to support your review</h2><p>These indicators summarize what was said and heard. They are not facts, identity checks, or an automatic decision.</p></div>
           {assessment?.status === "completed" && <span className="assessment-confidence">{assessment.confidence || "low"} confidence</span>}
@@ -292,9 +294,9 @@ export default function ApplicationReview({ applicationId }: { applicationId: st
           {decided && <div className="review-history-card"><UserCheck size={18} /><div><span>Decision recorded by</span><strong>{reviewer?.displayName || "Review team member"}</strong><small>{reviewer?.role || application.reviewer_role || "reviewer"} · {new Date(reviewer?.reviewedAt || application.reviewed_at || application.updated_at).toLocaleString()}</small></div></div>}
         </section>
         <section className="panel review-interview-card">
-          <div className="panel-title review-panel-title"><div className="review-panel-heading"><span className="review-panel-icon"><Headphones size={17} /></span><div><small>Voice interview</small><h2>Recording & transcript</h2></div></div><span className="review-count-badge">{transcript.length} turns</span></div>
+          <div className="panel-title review-panel-title"><div className="review-panel-heading"><span className="review-panel-icon"><Headphones size={17} /></span><div><small>Voice interview</small><h2>{session?.interview_mode==="guided"?"Guided Voice recording":"Recording & transcript"}</h2></div></div><span className="review-count-badge">{transcript.length} turns</span></div>
           {recordingUrl ? <div className="recording-player"><div className="recording-player-label"><AudioWaveform size={16} /><span><strong>Interview recording</strong><small>Private evidence for your review team</small></span></div><audio controls src={recordingUrl} /><small>Audio follows the portal’s configured recording-retention period.</small></div> : <div className="recording-empty"><span><Headphones size={21} /></span><strong>{session?.recording_deleted_at ? "Recording retention period ended" : session?.status === "completed" ? "No recording saved" : "Interview not completed"}</strong><p>{session?.recording_deleted_at ? "The audio recording was deleted to control storage costs. The transcript, application, decision, and reviewer history remain available." : session?.status === "completed" ? "This interview does not have a playable recording. It may have been completed before recording was enabled or the upload may have failed. The transcript is still available below." : "The applicant has not completed the interview yet."}</p></div>}
-          <div className="review-transcript">{transcript.length ? transcript.map((line, index) => <div className={`review-transcript-line ${line.role}`} key={`${index}-${line.text}`}><span>{line.role === "assistant" ? "Interviewer" : "Applicant"}</span>{line.text}</div>) : <div className="review-transcript-empty"><MessageCircle size={18} /><strong>No transcript available yet</strong><p>Transcript turns will appear here after the player submits the interview.</p></div>}</div>
+          {session?.interview_mode==="guided" ? <p className="plan-feature-disclosure">Guided Voice · Audio-only answers. No written transcript, AI review, scores, or voice analysis. Listen to the recording to make your decision.</p> : <div className="review-transcript">{transcript.length ? transcript.map((line, index) => <div className={`review-transcript-line ${line.role}`} key={`${index}-${line.text}`}><span>{line.role === "assistant" ? "Interviewer" : "Applicant"}</span>{line.text}</div>) : <div className="review-transcript-empty"><MessageCircle size={18} /><strong>No transcript available yet</strong><p>Transcript turns will appear here after the player submits the interview.</p></div>}</div>}
         </section>
       </div>
       <section className={`review-actions ${decided ? "is-decided" : ""}`}>

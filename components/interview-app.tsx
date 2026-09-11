@@ -9,6 +9,8 @@ import { fetchJsonWithTimeout, withTimeout } from "@/lib/client-request";
 import { assessInterviewTranscript, calculateInterviewTimeLimitSeconds, formatInterviewTime, normalizeInterviewQuestionCount } from "@/lib/interview-policy";
 import type { InterviewSession } from "@/lib/types";
 import ConfirmModal from "@/components/confirm-modal";
+import InterviewRecovery, {useInterviewRecovery} from "@/components/interview-recovery";
+import {uploadInterviewRecording} from "@/lib/recording-upload";
 
 type Line = { role: "user" | "assistant"; text: string; at?: string };
 type SpeechState = "idle" | "listening" | "hearing" | "processing";
@@ -82,6 +84,8 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
   const questionCountRef = useRef(3);
   const timeLimitHandled = useRef(false);
   const interviewDeadline = useRef<number | null>(null);
+  const recovery=useInterviewRecovery(sessionId);
+  const [uploadProgress,setUploadProgress]=useState<number|null>(null);
 
   useEffect(() => {
     void (async () => {
@@ -300,7 +304,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
       const path = `${session.server_id}/${session.id}/recording.webm`;
       if (uploadedRecordingPath.current !== path) {
         const { error: uploadError } = await withTimeout(
-          supabase.storage.from("interview-recordings").upload(path, blob, { contentType: blob.type || "audio/webm", upsert: true, cacheControl: "3600" }),
+          uploadInterviewRecording(path, blob, setUploadProgress),
           RECORDING_UPLOAD_TIMEOUT_MS,
           "The recording upload timed out. Check your connection and try submitting again.",
         );
@@ -373,6 +377,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
     const blob = await stopRecording();
     pendingRecordingBlob.current = blob;
     setRecordingState(blob ? "ready" : "failed");
+    if(blob)await recovery.save(blob,linesRef.current,'realtime');
     if (!blob) setError((session?.restart_count ?? 0) < 1
       ? "The interview finished, but no audio recording was captured. Use your one restart and allow microphone access."
       : "The interview finished, but no audio recording was captured and the restart has already been used.");
@@ -397,6 +402,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
     if (assessment.eligible && blob) {
       pendingRecordingBlob.current = blob;
       setRecordingState("ready");
+      await recovery.save(blob,linesRef.current,'realtime');
       setInterviewComplete(true);
       setError("");
       return;
@@ -655,6 +661,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
       }
 
       const nextQuestionCount = normalizeInterviewQuestionCount(Number(response.headers.get("X-Dexlyy-Question-Count")));
+      recovery.prime({attempt:response.headers.get('X-Dexlyy-Started-At')||'',serverId:session?.server_id||''});
       const providerLimit = Number(response.headers.get("X-Dexlyy-Interview-Limit-Seconds"));
       const nextTimeLimit = Number.isFinite(providerLimit) && providerLimit >= 60
         ? Math.floor(providerLimit)
@@ -738,6 +745,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
       setSpeechState("idle");
       setInterviewComplete(true);
       setSession((current) => current ? { ...current, status: "completed" } : current);
+      await recovery.clear();
     } catch (caught) {
       setRecordingState((current) => current === "saving" ? "ready" : current);
       setError(caught instanceof Error ? caught.message : "The interview could not be submitted. Please try again.");
@@ -764,6 +772,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
       setBusy(false);
       return;
     }
+    await recovery.clear();
     uploadedRecordingPath.current = null;
     setLines([]);
     linesRef.current = [];
@@ -860,6 +869,7 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
           : "Audio recording starts when the interview connects.";
 
   return <main className="interview-page">
+    <InterviewRecovery sessionId={sessionId} recovery={recovery} disabled={connected||busy||submitted} progress={uploadProgress} onRestore={copy=>{if(copy.mode!=='realtime')return;pendingRecordingBlob.current=copy.blob;linesRef.current=copy.lines;setLines(copy.lines);setRecordingState('ready');setInterviewComplete(true);setError('');}} />
     <div className="interview-ambient interview-ambient-one" aria-hidden="true" />
     <div className="interview-ambient interview-ambient-two" aria-hidden="true" />
     <header className="interview-header">
