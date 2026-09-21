@@ -17,23 +17,28 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return noStoreJson({ error: "Too many recording requests. Please wait a moment." }, { status: 429 });
   }
   const body = await readJsonBody<RecordingBody>(request, 2_048);
-  if (!body?.path) return noStoreJson({ error: "Missing recording path." }, { status: 400 });
+  if (typeof body?.path !== "string" || !body.path) return noStoreJson({ error: "Missing recording path." }, { status: 400 });
 
   const admin = createAdminClient();
-  const { data: session } = await admin.from("interview_sessions").select("id,server_id,application_id,status,recording_path").eq("id", id).maybeSingle();
+  const { data: session } = await admin.from("interview_sessions").select("id,server_id,application_id,status,recording_path,restart_count").eq("id", id).maybeSingle();
   if (!session) return noStoreJson({ error: "Interview not found." }, { status: 404 });
   const { data: application } = await admin.from("applications").select("applicant_user_id").eq("id", session.application_id).maybeSingle();
   if (application?.applicant_user_id !== auth.user.id) return noStoreJson({ error: "Interview not found." }, { status: 404 });
-  if (!["created", "in_progress"].includes(session.status)) return noStoreJson({ error: "This recording can no longer be changed." }, { status: 409 });
-
   const expectedPath = `${session.server_id}/${session.id}/recording.webm`;
   if (body.path !== expectedPath) return noStoreJson({ error: "Invalid recording path." }, { status: 400 });
+  // A lost response may be retried after submission. Acknowledge the existing
+  // link without modifying an immutable completed interview.
+  if (session.status === "completed" && session.recording_path === expectedPath) return noStoreJson({ ok: true, path: expectedPath });
+  if (!["created", "in_progress"].includes(session.status)) return noStoreJson({ error: "This recording can no longer be changed." }, { status: 409 });
   const { data: files, error: listError } = await admin.storage.from("interview-recordings").list(`${session.server_id}/${session.id}`, { search: "recording.webm", limit: 2 });
   if (listError || !files?.some((file) => file.name === "recording.webm")) {
     return noStoreJson({ error: "The recording upload could not be verified." }, { status: 422 });
   }
 
-  const { error } = await admin.from("interview_sessions").update({ recording_path: expectedPath }).eq("id", id);
+  const { data: linked, error } = await admin.from("interview_sessions").update({ recording_path: expectedPath })
+    .eq("id", id).eq("status", session.status).eq("restart_count", session.restart_count)
+    .select("id").maybeSingle();
   if (error) return noStoreJson({ error: "The recording could not be linked to the interview." }, { status: 500 });
+  if (!linked) return noStoreJson({ error: "This interview changed while saving. Check its status before retrying." }, { status: 409 });
   return noStoreJson({ ok: true, path: expectedPath });
 }

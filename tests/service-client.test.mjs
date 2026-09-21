@@ -14,7 +14,7 @@ test('recording upload reports byte progress and sends credentials only to confi
  class XHR {headers={};upload={};open(method,url){this.method=method;this.url=url;}setRequestHeader(k,v){this.headers[k]=v;}send(blob){sent=this;this.upload.onprogress({lengthComputable:true,loaded:50,total:100});this.status=200;this.onload();}}
  const lib=load('lib/recording-upload.ts',{'@/lib/client-request':requests,'@/lib/supabase/client':{createClient:()=>({auth:{getSession:async()=>({data:{session:{access_token:'synthetic-token'}}})}})}},{XMLHttpRequest:XHR,navigator:{onLine:true},process:{env:{NEXT_PUBLIC_SUPABASE_URL:'https://example.supabase.co',NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:'synthetic-public'}}});
  const progress=[];await lib.uploadInterviewRecording('server/session/recording.webm',new Blob(['test']),n=>progress.push(n));
- assert.deepEqual(progress,[0,50,100]);assert.equal(sent.timeout,35000);assert.equal(sent.headers.Authorization,'Bearer synthetic-token');assert.match(sent.url,/^https:\/\/example.supabase.co\/storage\/v1\/object\/interview-recordings\//);
+ assert.deepEqual(progress,[0,50,100]);assert.equal(sent.timeout,120000);assert.equal(sent.headers.Authorization,'Bearer synthetic-token');assert.match(sent.url,/^https:\/\/example.supabase.co\/storage\/v1\/object\/interview-recordings\//);
 });
 test('upload timeout and offline state fail safely instead of reporting success',async()=>{
  let sent=0;
@@ -25,6 +25,36 @@ test('upload timeout and offline state fail safely instead of reporting success'
  globals.navigator.onLine=false;
  await assert.rejects(load('lib/recording-upload.ts',mocks,globals).uploadInterviewRecording('s/i/recording.webm',new Blob(['test']),()=>{}),/offline/);
  assert.equal(sent,1);
+});
+
+test('MediaRecorder codec parameters are removed without changing audio bytes or container',async()=>{
+ for(const [mime,expected] of [['audio/webm;codecs=opus','audio/webm'],['audio/mp4;codecs=mp4a.40.2','audio/mp4'],['audio/ogg; codecs=opus','audio/ogg']]) {
+  let sent;
+  class XHR {headers={};upload={};open(){}setRequestHeader(k,v){this.headers[k]=v;}send(blob){sent=blob;this.status=['audio/webm','audio/mp4','audio/ogg','audio/wav'].includes(this.headers['Content-Type'])?200:415;this.onload();}}
+  const lib=load('lib/recording-upload.ts',{'@/lib/client-request':requests,'@/lib/supabase/client':{createClient:()=>({auth:{getSession:async()=>({data:{session:{access_token:'test'}}})}})}},{XMLHttpRequest:XHR,navigator:{onLine:true},process:{env:{NEXT_PUBLIC_SUPABASE_URL:'https://example.supabase.co',NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:'public'}}});
+  const blob=new Blob(['original audio bytes'],{type:mime});
+  assert.equal((await lib.uploadInterviewRecording('s/i/recording.webm',blob,()=>{})).error,null);
+  assert.equal(sent,blob);assert.equal(sent.type,mime.toLowerCase());assert.equal(mime.split(';')[0],expected);
+ }
+});
+
+test('storage failures explain recovery without exposing provider details or reporting completion',async()=>{
+ const cases=[
+  [400,{code:'InvalidMimeType',message:'mime type audio/webm;codecs=opus is not supported'},/audio format/],
+  [400,{error:'Unauthorized',message:'new row violates row-level security policy'},/authorize/],
+  [401,{code:'InvalidJWT'},/another tab/],
+  [413,{code:'EntityTooLarge'},/size limit/],
+  [429,{},/wait a moment/],
+  [503,'<html>private infrastructure details</html>',/temporarily unavailable/],
+  [418,{message:'private internal SQL detail'},/HTTP 418/],
+ ];
+ for(const [status,body,expected] of cases){
+  class XHR {upload={};open(){}setRequestHeader(){}send(){this.status=status;this.responseText=typeof body==='string'?body:JSON.stringify(body);this.onload();}}
+  const lib=load('lib/recording-upload.ts',{'@/lib/client-request':requests,'@/lib/supabase/client':{createClient:()=>({auth:{getSession:async()=>({data:{session:{access_token:'test'}}})}})}},{XMLHttpRequest:XHR,navigator:{onLine:true},process:{env:{NEXT_PUBLIC_SUPABASE_URL:'https://example.supabase.co',NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:'public'}}});
+  const progress=[];
+  await assert.rejects(lib.uploadInterviewRecording('s/i/recording.webm',new Blob(['test']),n=>progress.push(n)),e=>{assert.match(e.message,expected);assert.doesNotMatch(e.message,/private|<html>/);return true;});
+  assert.ok(!progress.includes(100));
+ }
 });
 test('status labels separate pending role assignment from approved access',()=>{
  const {applicantStatus}=load('lib/service-status.ts');

@@ -1,15 +1,14 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
 import {Headphones,Mic,Volume2,CheckCircle2} from "lucide-react";
-import {createClient} from "@/lib/supabase/client";
+import {fetchJsonWithTimeout,withTimeout} from "@/lib/client-request";
 import InterviewRecovery, {useInterviewRecovery} from "@/components/interview-recovery";
 import {uploadInterviewRecording} from "@/lib/recording-upload";
 
-async function post(url:string, body?:unknown) {
-  const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(45000)});
-  const result=await response.json();
-  if(!response.ok) throw new Error(result.error || "Please try again.");
-  return result;
+async function post<T=Record<string,unknown>>(url:string, body?:unknown) {
+  const response=await fetchJsonWithTimeout<T & {error?:string}>(url,{method:"POST",headers:{"Content-Type":"application/json"},body:body===undefined?undefined:JSON.stringify(body)},45000,"The request timed out. Keep this page open and retry.");
+  if(!response.ok || !response.data) throw new Error(typeof response.data?.error==='string'?response.data.error:"The server could not confirm this request. Keep this page open and retry.");
+  return response.data;
 }
 export default function GuidedInterview({sessionId,completed=false}:{sessionId:string;completed?:boolean}) {
   const [phase,setPhase]=useState<"ready"|"question"|"answer"|"review"|"done">(completed?"done":"ready");
@@ -45,7 +44,7 @@ export default function GuidedInterview({sessionId,completed=false}:{sessionId:s
   async function play(questionIndex:number) {
     if(!audio.current) return;
     if(microphone.current) microphone.current.gain.value=0;
-    setPhase("question");
+    phaseRef.current="question";setPhase("question");
     const response=await fetch(`/api/guided/${sessionId}/speech`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({index:questionIndex}),signal:AbortSignal.timeout(45000)});
     if(!response.ok) {const result=await response.json();throw new Error(result.error || "Question could not play.");}
     const url=URL.createObjectURL(await response.blob());urls.current.push(url);
@@ -62,7 +61,7 @@ export default function GuidedInterview({sessionId,completed=false}:{sessionId:s
       if(!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) throw new Error("Use a browser that supports microphone recording.");
       stream.current=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
       try {
-        const result=await post(`/api/guided/${sessionId}`);
+        const result=await post<{serverId:string;startedAt:string;questions:string[]}>(`/api/guided/${sessionId}`);
         serverId.current=result.serverId;started.current=new Date(result.startedAt).getTime();
         recovery.prime({attempt:result.startedAt,serverId:result.serverId});
         if(Date.now()-started.current>=1200000) throw new Error("This attempt has expired. Start over to use your available restart.");
@@ -88,41 +87,56 @@ export default function GuidedInterview({sessionId,completed=false}:{sessionId:s
     });
   }
   async function save() {
+    // A delayed MediaRecorder onstop can still complete after the first wait.
+    // Observe it again on retry instead of discarding the applicant's answers.
+    if(!recording.current && stopPromise.current) await withTimeout(stopPromise.current,10000,"Recording is still finishing. Keep this page open and retry saving.");
     const blob=recording.current;
     if(!blob || blob.size<1000 || blob.size>15000000) throw new Error("A valid recording is required. Please start over.");
     const path=`${serverId.current}/${sessionId}/recording.webm`;
-    const client=createClient();
     if(!uploaded.current) {
-    const upload=uploadInterviewRecording(path,blob,setUploadProgress);
-    let timer:ReturnType<typeof setTimeout>|undefined;
-    try {
-      const result=await Promise.race([upload,new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(new Error("Upload timed out. Keep this page open and retry saving.")),45000);})]);
+      // The shared helper owns the timeout and aborts the actual XHR.
+      const result=await uploadInterviewRecording(path,blob,setUploadProgress);
       if(result.error) throw new Error("Recording could not upload. Keep this page open and retry saving.");
       uploaded.current=true;
-    } finally {clearTimeout(timer);}
     }
     await post(`/api/interviews/${sessionId}/recording`,{path});
     setSaved(true);
   }
   async function finish() {
     await action(async()=>{
-      audio.current?.pause();setPhase("review");
+      audio.current?.pause();phaseRef.current="review";setPhase("review");
       if(recorder.current?.state!=="inactive") recorder.current?.stop();
       stream.current?.getTracks().forEach(t=>t.stop());
-      if(stopPromise.current) await Promise.race([stopPromise.current,new Promise<never>((_,reject)=>setTimeout(()=>reject(new Error("Recording could not finish. Please start over.")),10000))]);
-      if(recording.current)await recovery.save(recording.current,[],'guided');
+      if(stopPromise.current) await withTimeout(stopPromise.current,10000,"Recording is still finishing. Keep this page open and retry saving.");
+      void context.current?.close().catch(()=>{});
+      // Optional local recovery must never prevent the primary upload.
+      if(recording.current)await withTimeout(recovery.save(recording.current,[],'guided'),6000,"Recovery copy unavailable.").catch(()=>{});
       await save();
     });
   }
+  async function submit() {
+    await action(async()=>{
+      if(!saved){await save();return;}
+      await post(`/api/guided/${sessionId}/submit`);
+      phaseRef.current="done";setPhase("done");
+      void recovery.clear().catch(()=>{});
+    });
+  }
+  function questionEnded() {
+    // A queued playback event must not reopen the microphone after finishing.
+    if(phaseRef.current!=="question")return;
+    phaseRef.current="answer";setPhase("answer");
+    if(microphone.current)microphone.current.gain.value=1;
+  }
   return <main className="guided-room">
-    <InterviewRecovery sessionId={sessionId} recovery={recovery} progress={uploadProgress} disabled={busy||phase==='question'||phase==='answer'||phase==='done'} onRestore={copy=>{if(copy.mode!=='guided')return;recording.current=copy.blob;serverId.current=copy.serverId;started.current=new Date(copy.attempt).getTime();setPhase('review');setError('');}} />
+    <InterviewRecovery sessionId={sessionId} recovery={recovery} progress={uploadProgress} disabled={busy||phase==='question'||phase==='answer'||phase==='done'} onRestore={copy=>{if(copy.mode!=='guided')return;recording.current=copy.blob;serverId.current=copy.serverId;started.current=new Date(copy.attempt).getTime();uploaded.current=false;setSaved(false);setUploadProgress(null);phaseRef.current='review';setPhase('review');setError('');}} />
     <header><span className="eyebrow">GUIDED VOICE · TEXT-TO-SPEECH</span><h1>Your voice.<br/>Your own pace.</h1><p>Listen to each prepared question, then record your answer. A human reviews your recording.</p></header>
     <section className="guided-card">
       <div className="guided-topline"><span><Headphones size={18}/> Guided interview</span><span>{Math.floor(remaining/60)}:{String(remaining%60).padStart(2,"0")} remaining</span></div>
-      <audio ref={audio} onEnded={()=>{setPhase("answer");if(microphone.current)microphone.current.gain.value=1;}} onError={()=>setError("Audio playback failed. Replay the question to try again.")}/>
+      <audio ref={audio} onEnded={questionEnded} onError={()=>{if(phaseRef.current==="question")setError("Audio playback failed. Replay the question to try again.");}}/>
       {phase==="ready" ? <><h2>Make yourself comfortable.</h2><p>Questions use an AI-generated voice. Your answers stay as audio: no written transcript, AI review, scoring, or voice analysis. Recording starts when you begin, and uploads when you finish.</p><button className="btn btn-primary" disabled={busy} onClick={()=>void start()}>{busy?"Preparing…":"Check microphone & begin"}</button></> :
        phase==="done" ? <><CheckCircle2 size={44}/><h2>Interview submitted.</h2><p>Your recording is ready for the community’s review team. You can close this page.</p></> :
-       phase==="review" ? <><h2>Your answers are recorded.</h2><p>{saved?"Recording saved. Submit it when you’re ready.":"Saving your recording. Keep this page open until it is saved."}</p><button className="btn btn-primary" disabled={busy} onClick={()=>void action(async()=>{if(!saved){await save();return;}await post(`/api/guided/${sessionId}/submit`);await recovery.clear();setPhase("done");})}>{busy?"Saving…":saved?"Submit interview":"Retry saving recording"}</button></> :
+       phase==="review" ? <><h2>Your answers are recorded.</h2><p>{saved?"Recording saved. Submit it when you’re ready.":busy?"Saving your recording. Keep this page open until it is saved.":"Your recording has not been saved yet. Keep this page open and retry below."}</p><button className="btn btn-primary" disabled={busy} onClick={()=>void submit()}>{busy?(saved?"Submitting…":"Saving…"):saved?"Submit interview":"Retry saving recording"}</button></> :
        <><span className="eyebrow">QUESTION {index+1} OF {questions.length}</span><h2>{questions[index]}</h2><div className="guided-status">{phase==="question"?<><Volume2/> Listen to the question</>:<><Mic/> Recording your answer — take your time</>}</div><div className="guided-actions"><button className="btn btn-ghost" disabled={busy} onClick={()=>void action(()=>play(index))}>Replay question</button><button className="btn btn-primary" disabled={busy || phase!=="answer"} onClick={()=>{if(index===questions.length-1)void finish();else void action(async()=>{const next=index+1;setIndex(next);await play(next);});}}>{index===questions.length-1?"Finish interview":"Finish answer & continue"}</button></div></>}
       {phase!=="done" && <button className="btn btn-ghost" disabled={busy} onClick={()=>void action(async()=>{await post(`/api/interviews/${sessionId}/reset`);await recovery.clear();window.location.reload();})}>Start over · one restart available</button>}
       {error && <p role="alert" className="form-error">{error}</p>}

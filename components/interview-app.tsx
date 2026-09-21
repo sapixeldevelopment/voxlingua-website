@@ -25,7 +25,6 @@ type RealtimeEvent = {
   response?: { status?: string; status_details?: { error?: { message?: string } } };
 };
 
-const RECORDING_UPLOAD_TIMEOUT_MS = 45_000;
 const API_REQUEST_TIMEOUT_MS = 20_000;
 const VOICE_SAMPLE_PROCESSING_TIMEOUT_MS = 5_000;
 const VOICE_SAMPLE_UPLOAD_TIMEOUT_MS = 8_000;
@@ -303,11 +302,9 @@ export default function InterviewApp({ sessionId }: { sessionId: string }) {
       // Storage policies scope recordings to server_id/session_id folders.
       const path = `${session.server_id}/${session.id}/recording.webm`;
       if (uploadedRecordingPath.current !== path) {
-        const { error: uploadError } = await withTimeout(
-          uploadInterviewRecording(path, blob, setUploadProgress),
-          RECORDING_UPLOAD_TIMEOUT_MS,
-          "The recording upload timed out. Check your connection and try submitting again.",
-        );
+        // The uploader owns cancellation; an outer race could allow a second
+        // upload to start while the original XHR is still writing the object.
+        const { error: uploadError } = await uploadInterviewRecording(path, blob, setUploadProgress);
         if (uploadError) {
           setRecordingState("ready");
           setError(`The interview finished, but its recording could not be saved: ${uploadError.message}`);
