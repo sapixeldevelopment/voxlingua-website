@@ -1,0 +1,158 @@
+/* Poster-inspired public brand. Scoped so application/review workspaces and
+   live interview controls keep their independently tested product styles. */
+.site-page.site-page,
+.auth-page-modern.auth-page-modern,
+.affiliate-page.affiliate-page,
+.affiliate-notice.affiliate-notice {
+  --poster-canvas: #030a07;
+  --poster-surface: #0a1912;
+  --poster-raised: #10281c;
+  --poster-border: #285b3f;
+  --poster-text: #f3fff7;
+  --poster-muted: #b5cdbf;
+  --poster-green: #38ef7d;
+  --poster-hover: #85ffa9;
+  --poster-on-green: #03210f;
+  --brand-canvas: var(--poster-canvas);
+  --brand-surface: var(--poster-surface);
+  --brand-tint: var(--poster-raised);
+  --brand-border: var(--poster-border);
+  --brand-text: var(--poster-text);
+  --brand-muted: var(--poster-muted);
+  --ink: var(--poster-text);
+  --muted: var(--poster-muted);
+  --paper: var(--poster-canvas);
+  --card: var(--poster-surface);
+  --line: var(--poster-border);
+  --blue: var(--poster-green);
+  --blue-dark: var(--poster-hover);
+  --site-ink: var(--poster-text);
+  --site-muted: var(--poster-muted);
+  --site-green: var(--poster-green);
+  --site-line: var(--poster-border);
+  color-scheme: dark;
+  color: var(--poster-text);
+  background: var(--poster-canvas);
+  accent-color: var(--poster-green);
+}
+html:has(.site-page, .auth-page-modern, .affiliate-page),
+body:has(.site-page, .auth-page-modern, .affiliate-page) { background: #030a07; }
+
+/* High-contrast navigation and restrained glow on important actions. */
+.site-page.site-page .site-header { background: #030a07f5; border-bottom-color: var(--poster-border); }
+.site-page.site-page .site-announcement { background: #0d2317; color: var(--poster-muted); }
+.site-page.site-page .site-announcement a { color: var(--poster-green); }
+.site-page.site-page .site-brand-dot { color: var(--poster-green); }
+.site-page.site-page :is(.site-desktop-nav, .site-sign-in, .site-footer-main nav) { color: var(--poster-muted); }
+.site-page.site-page :is(.site-desktop-nav a, .site-sign-in, .site-footer-main nav a):hover { color: var(--poster-green); }
+.site-page.site-page :is(.site-button-green, .site-button-light) {
+  background: var(--poster-green); color: var(--poster-on-green); border-color: var(--poster-green);
+  box-shadow: 0 0 22px #38ef7d1f, inset 0 1px 0 #ffffff35;
+}
+.site-page.site-page :is(.site-button-green, .site-button-light):hover { background: var(--poster-hover); border-color: var(--poster-hover); box-shadow: 0 0 28px #38ef7d35; }
+.site-page.site-page .site-button-outline { background: var(--poster-surface); color: var(--poster-text); border-color: #4a8962; }
+.site-page.site-page .site-button-outline:hover { background: var(--poster-raised); border-color: var(--poster-green); }
+.site-page.site-page .site-header .site-button-green { background: #0b2315; color: var(--poster-green); box-shadow: 0 0 18px #38ef7d20; }
+.site-page.site-page .site-header .site-button-green:hover { background: #173b24; }
+.site-page.site-page :is(a, button, summary):focus-visible { outline: 3px solid var(--poster-green); outline-offset: 5px; }
+.site-page.site-page .site-skip { background: var(--poster-green); color: var(--poster-on-green); }
+.site-page.site-page .site-social-youtube { background: #261111; border-color: #ac413d; box-shadow: 0 0 16px #ff42351a; }
+.site-page.site-page .site-social-youtube svg { color: #ff5c50; }
+.site-page.site-page .site-social-youtube:hover { background: #3c1715; }
+.site-page.site-page .site-social-discord { background: #272147; border-color: #a09aff; box-shadow: 0 0 16px #9483ff20; }
+.site-page.site-page .site-social-discord:hover { background: #3c326b; }
+.site-page.site-page .site-youtube-link:not(.site-social-icon) { color: var(--poster-text); }
+.site-page.site-page .site-youtube-link:not(.site-social-icon) svg { color: #ff7167; }
+
+/* Hero and product preview: green light, without hazing the text. */
+.site-page.site-page .site-hero::before { background: radial-gradient(ellipse, #00e77816, transparent 66%); }
+.site-page.site-page em { font-family: inherit; font-style: normal; font-weight: 700; color: var(--poster-green); letter-spacing: -.05em; }
+.site-page.site-page :is(.site-eyebrow, .site-text-link, .site-hero-proof svg, .site-step-top, .site-demo-copy li svg, .site-capabilities svg) { color: var(--poster-green); }
+.site-page.site-page .site-eyebrow-line { background: var(--poster-green); }
+.site-page.site-page .site-status-dot { background: var(--poster-green); box-shadow: 0 0 10px #38ef7d70; }
+.site-page.site-page :is(.site-hero-proof, .site-preview-caption, .site-preview-caption > span:last-child, .site-preview-foot, .site-capabilities, .site-capabilities-label, .site-step-top > span, .site-demo-copy li, .site-plan-size, .site-plan-price > span, .site-plan li, .site-pricing-included > span, .site-faq-number, .site-footer-bottom, .site-footer-note) { color: var(--poster-muted); }
+.site-page.site-page .site-product-window { background: #081810; border-color: #33794f; box-shadow: 0 22px 70px #0008, 0 0 35px #38ef7d0c; }
+.site-page.site-page .site-demo-transcript { background: #102e1f; border: 1px solid #2c6242; color: var(--poster-text); }
+.site-page.site-page .site-demo-transcript p { color: var(--poster-text); }
+.site-page.site-page .site-demo-transcript :is(span, small) { color: var(--poster-muted); border-color: var(--poster-border); }
+.site-page.site-page .site-preview-tabs button[aria-pressed=true] { color: var(--poster-green); border-bottom-color: var(--poster-green); }
+.site-page.site-page .site-preview-tabs button span { opacity: 1; }
+.site-page.site-page .site-demo-decision button { background: var(--poster-green); color: var(--poster-on-green); }
+.site-page.site-page .site-demo-decision button:hover { background: var(--poster-hover); }
+.site-page.site-page .site-demo-waveform i { background: var(--poster-green); }
+
+/* Content panels and pricing retain hierarchy against the dark canvas. */
+.site-page.site-page :is(.site-benefit, .site-plan-content, .site-film) { background: var(--poster-surface); border-color: var(--poster-border); box-shadow: none; }
+.site-page.site-page .site-benefit-featured { background: #0e2418; border-color: #35754b; }
+.site-page.site-page :is(.site-workflow-wrap, .site-pricing-wrap) { background: #06110b; border-color: #1f432e; }
+.site-page.site-page .site-icon { color: var(--poster-green); background: #10351f; border-color: #33774a; }
+.site-page.site-page .site-benefit-summary { color: var(--poster-green); border-color: var(--poster-border); }
+.site-page.site-page .site-benefit-summary strong { color: var(--poster-text); }
+.site-page.site-page .site-step-top { border-color: var(--poster-border); }
+.site-page.site-page :is(.site-film-top, .site-film-bottom) { color: var(--poster-muted); border-color: var(--poster-border); }
+.site-page.site-page .site-film video { background: var(--poster-canvas); }
+.site-page.site-page .site-billing-switch { background: #0b1b12; border-color: #477b57; }
+.site-page.site-page .site-billing-switch button { color: var(--poster-muted); }
+.site-page.site-page .site-billing-switch button[aria-pressed=true] { background: var(--poster-green); color: var(--poster-on-green); box-shadow: none; }
+.site-page.site-page .site-plan-featured .site-plan-content { background: #0c2317; border-color: var(--poster-green); box-shadow: 0 0 24px #38ef7d12; }
+.site-page.site-page .site-plan-featured .site-plan-ribbon { background: var(--poster-green); color: var(--poster-on-green); }
+.site-page.site-page .site-plan-divider { background: var(--poster-border); }
+.site-page.site-page .site-plan-billing { color: var(--poster-muted); }
+.site-page.site-page .site-plan li svg { color: var(--poster-green); }
+.site-page.site-page .plan-feature-disclosure { background: #11291b; color: #c9dfd1; border: 1px solid #285b3f; }
+.site-page.site-page .site-closing { background: radial-gradient(ellipse at 50% 120%, #12482a, transparent 70%), #06160d; border: 1px solid #35b466; box-shadow: 0 0 40px #38ef7d0d; }
+.site-page.site-page .site-closing em { color: var(--poster-green); }
+.site-page.site-page .site-closing :is(p, .site-closing-note, .site-eyebrow) { color: var(--poster-muted); }
+.site-page.site-page .site-footer-main nav strong { color: var(--poster-text); }
+
+/* Sign-in uses the same palette; authentication behavior is unchanged. */
+.auth-page-modern.auth-page-modern .auth-layout { background: var(--poster-surface); border-color: var(--poster-border); box-shadow: 0 24px 80px #0005; }
+.auth-page-modern.auth-page-modern .auth-story { background: radial-gradient(ellipse at 0 0, #124e2a, transparent 70%), #071b10; }
+.auth-page-modern.auth-page-modern .auth-card-modern { background: var(--poster-surface); }
+.auth-page-modern.auth-page-modern .auth-card-modern :is(.auth-card-lead, .auth-security-note p, .auth-card-footer, .auth-card-label .eyebrow) { color: var(--poster-muted); }
+.auth-page-modern.auth-page-modern :is(.auth-card-modern h2, .auth-remember strong, .auth-security-note strong) { color: var(--poster-text); }
+.auth-page-modern.auth-page-modern :is(.auth-card-lead, .auth-security-note p, .auth-card-footer, .auth-card-label .eyebrow, .auth-remember small, .auth-page-caption, .auth-story-copy > p, .auth-story-foot, .auth-benefits small) { color: var(--poster-muted); }
+.auth-page-modern.auth-page-modern :is(.auth-story .eyebrow, .auth-benefits > div > span) { color: var(--poster-green); }
+.auth-page-modern.auth-page-modern .auth-card-icon { background: var(--poster-raised); color: var(--poster-green); border-color: var(--poster-border); }
+.auth-page-modern.auth-page-modern .auth-security-note { border-color: var(--poster-border); }
+.auth-page-modern.auth-page-modern .auth-discord-button { background: var(--poster-green); color: var(--poster-on-green); box-shadow: 0 0 20px #38ef7d18; }
+.auth-page-modern.auth-page-modern .auth-discord-button:hover:not(:disabled) { background: var(--poster-hover); }
+.auth-page-modern.auth-page-modern :is(a, button, input):focus-visible { outline-color: var(--poster-green); }
+
+/* Partner pages: explicit field and status colors avoid light-theme leftovers. */
+.affiliate-page.affiliate-page :is(.affiliate-header, .affiliate-card, .affiliate-stat, .affiliate-partner-item, .affiliate-scroll th) { background: var(--poster-surface); color: var(--poster-text); border-color: var(--poster-border); }
+.affiliate-page.affiliate-page .affiliate-rate { background: linear-gradient(140deg, #103b20, #07150d); border-color: #368451; box-shadow: 0 0 35px #38ef7d0d; }
+.affiliate-page.affiliate-page :is(.affiliate-rate strong, .affiliate-hero h1 em, .eyebrow, .affiliate-inline, .affiliate-back, .affiliate-footer a, .affiliate-positive, .affiliate-how article > span, .affiliate-referral-field summary) { color: var(--poster-green); }
+.affiliate-page.affiliate-page :is(p, small, .affiliate-brand-label, .affiliate-stat > span, .affiliate-form label, .affiliate-filter, .affiliate-footer, .affiliate-review-details span, .affiliate-link-label, .affiliate-empty) { color: var(--poster-muted); }
+.affiliate-page.affiliate-page .affiliate-muted { color: var(--poster-muted)!important; }
+.affiliate-page.affiliate-page :is(.affiliate-review-details strong, .affiliate-empty h3) { color: var(--poster-text); }
+.affiliate-page.affiliate-page :is(.affiliate-share, .affiliate-application-copy, .affiliate-reserved) { background: var(--poster-raised); border-color: var(--poster-border); }
+.affiliate-page.affiliate-page :is(.affiliate-scroll td, .affiliate-footer, .affiliate-referral-field, .affiliate-payout-row, .affiliate-pagination, .affiliate-audit-row) { border-color: var(--poster-border); }
+.affiliate-page.affiliate-page :is(input:not([type=checkbox]), textarea, select) { color: var(--poster-text); background: #06110b; border-color: #4a8962; }
+.affiliate-page.affiliate-page :is(input, textarea)::placeholder { color: #a2bcae; opacity: 1; }
+.affiliate-page.affiliate-page .btn-primary { background: var(--poster-green); color: var(--poster-on-green); border-color: var(--poster-green); }
+.affiliate-page.affiliate-page .btn-primary:hover:not(:disabled) { background: var(--poster-hover); }
+.affiliate-page.affiliate-page :is(.btn-ghost, .affiliate-pagination button) { background: var(--poster-raised); color: var(--poster-text); border-color: #4a8962; }
+.affiliate-page.affiliate-page .affiliate-partner-item.selected { background: var(--poster-raised); border-color: var(--poster-green); }
+.affiliate-page.affiliate-page :is(.affiliate-pill, .affiliate-status-approved, .affiliate-status-paid) { background: #113720; color: #9fffbf; border-color: #36774d; }
+.affiliate-page.affiliate-page :is(.affiliate-status-pending, .affiliate-status-reserved) { background: #332811; color: #ffe09a; border-color: #806734; }
+.affiliate-page.affiliate-page :is(.affiliate-status-suspended, .affiliate-status-rejected) { background: #34151b; color: #ffb0bc; border-color: #854551; }
+.affiliate-page.affiliate-page .affiliate-negative { color: #ffb0bc; }
+.affiliate-page.affiliate-page :is(a, button, input, textarea, select):focus-visible { outline-color: var(--poster-green); }
+.affiliate-page.affiliate-page .form-error, .auth-page-modern.auth-page-modern .form-error { background: #34151b; color: #ffb0bc; }
+.affiliate-page.affiliate-page .form-success { background: #113720; color: #9fffbf; }
+
+/* The referral notice is mounted outside the public page wrapper. */
+.affiliate-notice.affiliate-notice { background: #0b2215; border-color: #285b3f; }
+.affiliate-notice.affiliate-notice :is(p, small) { color: var(--poster-muted); }
+.affiliate-notice.affiliate-notice :is(strong, p b) { color: var(--poster-text); }
+.affiliate-notice.affiliate-notice :is(a, .affiliate-notice-kicker) { color: var(--poster-green); }
+.affiliate-notice.affiliate-notice .affiliate-notice-icon { background: #113720; color: var(--poster-green); border-color: var(--poster-border); }
+.affiliate-notice.affiliate-notice .btn-primary { background: var(--poster-green); color: var(--poster-on-green); }
+.affiliate-notice.affiliate-notice .btn-ghost { background: var(--poster-surface); color: var(--poster-text); border-color: #4a8962; }
+.affiliate-notice.affiliate-notice .affiliate-notice-error { color: #ffb0bc!important; }
+
+@media(prefers-reduced-motion:reduce) {
+  .site-page.site-page :is(.site-button, .site-social-icon) { transition: none; }
+  .site-page.site-page .site-button:hover { transform: none; }
+}

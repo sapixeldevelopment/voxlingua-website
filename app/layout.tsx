@@ -4,6 +4,7 @@ import ReferralNotice from "@/components/referral-notice";
 import "./affiliates.css";
 import "./workspace.css";
 import "./brand-theme.css";
+import "./poster-theme.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(

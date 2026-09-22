@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
-const styles=['app/globals.css','app/marketing.css','app/workspace.css','app/affiliates.css','app/login/premium.css','app/brand-theme.css'];
+const styles=['app/globals.css','app/marketing.css','app/workspace.css','app/affiliates.css','app/login/premium.css','app/brand-theme.css','app/poster-theme.css'];
 
 test('shared page styles never shrink labels below 13px, including mobile overrides',()=>{
  for(const path of styles){
@@ -23,6 +23,21 @@ test('green brand surfaces maintain accessible text contrast',()=>{
   const a=luminance(color(foreground)),b=luminance(color(background));
   assert.ok((Math.max(a,b)+.05)/(Math.min(a,b)+.05)>=4.5,`${foreground} on ${background}`);
  }
+});
+
+test('poster palette has accessible body text and dark text on neon actions',()=>{
+ const css=read('app/poster-theme.css');
+ const color=name=>css.match(new RegExp(`--poster-${name}:\\s*(#[0-9a-f]{6})`))[1];
+ const pairs=[];
+ for(const text of ['text','muted','green']) for(const bg of ['canvas','surface','raised']) pairs.push([text,bg]);
+ pairs.push(['on-green','green'],['on-green','hover']);
+ for(const [text,bg] of pairs){
+  const a=luminance(color(text)),b=luminance(color(bg));
+  assert.ok((Math.max(a,b)+.05)/(Math.min(a,b)+.05)>=4.5,`${text} on ${bg}`);
+ }
+ assert.ok(read('app/layout.tsx').indexOf('./poster-theme.css')>read('app/layout.tsx').indexOf('./brand-theme.css'));
+ assert.ok(css.includes('color-scheme: dark'));
+ assert.ok(css.includes('prefers-reduced-motion:reduce'));
 });
 
 test('YouTube channel is safely linked in desktop, mobile and footer navigation',()=>{
