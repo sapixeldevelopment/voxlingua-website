@@ -34,6 +34,20 @@
 .site-page .site-desktop-nav { align-items: center; gap: 22px; }
 .site-page .site-mobile-nav .site-youtube-link { display: flex; justify-content: flex-start; }
 
+/* A quiet navigation bar, with recognisable social icons at the far right. */
+.site-page .site-header-inner { max-width: 1600px; gap: 28px; min-height: 84px; }
+.site-page .site-header .site-desktop-nav { margin-left: clamp(12px, 4vw, 72px); margin-right: auto; gap: 26px; white-space: nowrap; }
+.site-page .site-header-actions { flex-shrink: 0; }
+.site-page .site-header-utilities { display: flex; align-items: center; gap: 12px; margin-left: clamp(16px, 6vw, 110px); }
+.site-page .site-social-links { display: flex; align-items: center; gap: 12px; }
+.site-page .site-social-icon { display: inline-flex; justify-content: center; align-items: center; width: 46px; height: 46px; min-height: 46px; border-radius: 12px; flex-shrink: 0; transition: background-color .15s, box-shadow .15s; }
+.site-page .site-social-youtube { background: #f7e9e5; border: 1px solid #e8cec6; }
+.site-page .site-social-youtube svg { width: 30px; height: 24px; color: #c62820; }
+.site-page .site-social-youtube:hover { background: #f3dbd5; }
+.site-page .site-social-discord { background: #5865f2; border: 1px solid #5865f2; }
+.site-page .site-social-discord:hover { background: #4752c4; }
+.site-page .site-social-icon:focus-visible { outline: 3px solid #173d2e; outline-offset: 4px; }
+
 /* Account and application surfaces, without touching dark interview rooms. */
 .workspace-ui.workspace-ui, .portal-wrap.portal-wrap {
   --paper: var(--brand-canvas);
@@ -55,4 +69,13 @@
 @media(max-width:1200px) {
   .site-page .site-header .site-desktop-nav { display: none; }
   .site-page .site-header .site-menu-button { display: inline-flex; }
+  .site-page .site-header-actions { margin-left: auto; }
+  .site-page .site-header-utilities { margin-left: 0; }
+}
+@media(max-width:640px) {
+  .site-page .site-header-inner { min-height: 76px; gap: 12px; }
+  .site-page .site-header-actions { display: none; }
+  .site-page .site-header-utilities { margin-left: auto; gap: 6px; }
+  .site-page .site-social-links { gap: 8px; }
+  .site-page .site-social-icon { width: 44px; height: 44px; min-height: 44px; border-radius: 10px; }
 }

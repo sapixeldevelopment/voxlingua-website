@@ -31,7 +31,9 @@ test('YouTube channel is safely linked in desktop, mobile and footer navigation'
  assert.ok(component.includes('target="_blank"'));
  assert.ok(component.includes('rel="noopener noreferrer"'));
  assert.ok(component.includes('opens in a new tab'));
- assert.equal((read('components/marketing-experience.tsx').match(/<YouTubeLink \/>/g)||[]).length,2);
+ assert.equal((read('components/marketing-experience.tsx').match(/<YouTubeLink(?: iconOnly)? \/>/g)||[]).length,2);
+ assert.ok(read('components/marketing-experience.tsx').includes('aria-label="Dexlyy community"'));
+ assert.ok(read('components/marketing-experience.tsx').includes('<YouTubeLink iconOnly />'));
  assert.ok(read('app/page.tsx').includes('<YouTubeLink />'));
  assert.ok(read('app/layout.tsx').includes('./brand-theme.css'));
 });
