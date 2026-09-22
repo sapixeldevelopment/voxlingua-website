@@ -1,0 +1,58 @@
+/* Soft green surfaces echo the logo; dark panels keep their own contrast. */
+:root {
+  --brand-canvas: #e3eee4;
+  --brand-surface: #f1f7ed;
+  --brand-tint: #d6e7d8;
+  --brand-border: #b9cebb;
+  --brand-text: #102e22;
+  --brand-muted: #3e5949;
+}
+.site-page.site-page {
+  --site-ink: var(--brand-text);
+  --site-muted: var(--brand-muted);
+  --site-line: var(--brand-border);
+  background: var(--brand-canvas);
+  color: var(--brand-text);
+}
+.site-page .site-header { background: #e3eee4f5; border-color: var(--brand-border); }
+.site-page .site-mobile-nav { background: var(--brand-surface); }
+.site-page :is(.site-benefit, .site-plan-content, .site-button-outline) { background: var(--brand-surface); border-color: var(--brand-border); }
+.site-page :is(.site-benefit-featured, .site-workflow-wrap, .site-pricing-wrap) { background: var(--brand-tint); }
+.site-page .site-plan-featured .site-plan-content { background: #e8f3e2; border-color: #276446; }
+.site-page .site-billing-switch { background: #ccdfce; border-color: #afc6b2; }
+.site-page .site-billing-switch button[aria-pressed=true] { background: var(--brand-surface); }
+.site-page :is(h1,h2,h3) { font-weight: 600; }
+.site-page.site-page em { color: #286046; }
+.site-page .site-closing em { color: #c5daac; }
+.site-page :is(.site-desktop-nav, .site-sign-in, .site-footer-main nav) { font-size: 15px; font-weight: 500; color: var(--brand-muted); }
+.site-page :is(.site-hero-copy > p, .site-benefit > p, .site-steps p, .site-faq-list details p) { font-size: 17px; line-height: 1.75; }
+.site-page :is(.site-card-index, .site-benefit-summary span, .site-plan-description, .site-plan-billing, .plan-feature-disclosure, .site-footer-bottom) { color: var(--brand-muted); }
+.site-page .site-benefit-summary { border-color: var(--brand-border); }
+.site-page .site-youtube-link { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; color: var(--brand-text); font-weight: 600; }
+.site-page .site-youtube-link svg { color: #b3261e; flex-shrink: 0; }
+.site-page .site-youtube-link:hover { color: #1d6544; text-decoration: underline; text-underline-offset: 4px; }
+.site-page .site-desktop-nav { align-items: center; gap: 22px; }
+.site-page .site-mobile-nav .site-youtube-link { display: flex; justify-content: flex-start; }
+
+/* Account and application surfaces, without touching dark interview rooms. */
+.workspace-ui.workspace-ui, .portal-wrap.portal-wrap {
+  --paper: var(--brand-canvas);
+  --card: var(--brand-surface);
+  --muted: var(--brand-muted);
+  --line: var(--brand-border);
+  background: var(--brand-canvas);
+}
+.workspace-ui :is(.workspace-rail, .topbar, .panel, .billing-panel, .feedback-panel, .workspace-command, .workspace-stat-card, .staff-card, .settings-card, .review-panel, .workspace-overview > a) { background: var(--brand-surface); border-color: var(--brand-border); }
+.workspace-ui .server-item { background: linear-gradient(125deg, #f1f7ed, #e1efdf); }
+.portal-wrap :is(.portal-shell, .portal-header, .portal-application-panel) { background: var(--brand-surface); }
+.portal-wrap .portal-auth-card { background: #e3eee4; border-color: var(--brand-border); }
+.auth-page-modern.auth-page-modern, .affiliate-page.affiliate-page { background: var(--brand-canvas); }
+.auth-page-modern.auth-page-modern :is(.auth-layout, .auth-card-modern),
+.affiliate-page :is(.affiliate-header, .affiliate-card, .affiliate-stat, .affiliate-partner-item, .affiliate-scroll th) { background: var(--brand-surface); border-color: var(--brand-border); }
+.guided-room .guided-card, .status-page.status-page { background: var(--brand-surface); border-color: var(--brand-border); }
+.auth-page-modern.auth-page-modern .auth-card-lead { font-size: 16px; }
+
+@media(max-width:1200px) {
+  .site-page .site-header .site-desktop-nav { display: none; }
+  .site-page .site-header .site-menu-button { display: inline-flex; }
+}

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
-const styles=['app/globals.css','app/marketing.css','app/workspace.css','app/affiliates.css','app/login/premium.css'];
+const styles=['app/globals.css','app/marketing.css','app/workspace.css','app/affiliates.css','app/login/premium.css','app/brand-theme.css'];
 
 test('shared page styles never shrink labels below 13px, including mobile overrides',()=>{
  for(const path of styles){
@@ -15,6 +15,26 @@ test('shared page styles never shrink labels below 13px, including mobile overri
 function luminance(hex){
  return hex.replace('#','').match(/../g).map(x=>parseInt(x,16)/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4).reduce((a,x,i)=>a+x*[.2126,.7152,.0722][i],0);
 }
+
+test('green brand surfaces maintain accessible text contrast',()=>{
+ const css=read('app/brand-theme.css');
+ const color=name=>css.match(new RegExp(`--brand-${name}:\\s*(#[0-9a-f]{6})`))[1];
+ for(const foreground of ['text','muted']) for(const background of ['canvas','surface','tint']) {
+  const a=luminance(color(foreground)),b=luminance(color(background));
+  assert.ok((Math.max(a,b)+.05)/(Math.min(a,b)+.05)>=4.5,`${foreground} on ${background}`);
+ }
+});
+
+test('YouTube channel is safely linked in desktop, mobile and footer navigation',()=>{
+ const component=read('components/youtube-link.tsx');
+ assert.ok(component.includes('https://www.youtube.com/@Dexlyy_5M'));
+ assert.ok(component.includes('target="_blank"'));
+ assert.ok(component.includes('rel="noopener noreferrer"'));
+ assert.ok(component.includes('opens in a new tab'));
+ assert.equal((read('components/marketing-experience.tsx').match(/<YouTubeLink \/>/g)||[]).length,2);
+ assert.ok(read('app/page.tsx').includes('<YouTubeLink />'));
+ assert.ok(read('app/layout.tsx').includes('./brand-theme.css'));
+});
 test('shared light and dark text pairs meet normal-text contrast',()=>{
  for(const [text,background] of [['#526458','#fafbf7'],['#52675c','#ffffff'],['#152c28','#ffffff'],['#175e40','#f4f8f5'],['#215a40','#e6f3eb'],['#c4dbcc','#173d2e'],['#173d2b','#e9f5ed']]){
   const a=luminance(text),b=luminance(background);
